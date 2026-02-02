@@ -1,5 +1,6 @@
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { StatsCard } from '@/components/dashboard/StatsCard';
+import { AnalyticsCharts } from '@/components/dashboard/AnalyticsCharts';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -138,6 +139,11 @@ export default function DashboardHome() {
             </div>
           </div>
         </Button>
+      </div>
+
+      {/* Analytics Charts */}
+      <div className="mt-6">
+        <AnalyticsCharts />
       </div>
 
       {/* Content Grid */}

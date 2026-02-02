@@ -25,6 +25,14 @@ import DashboardMessages from "./pages/dashboard/DashboardMessages";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
 import DashboardSettings from "./pages/dashboard/DashboardSettings";
 
+// Admin pages
+import AdminHome from "./pages/admin/AdminHome";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminListings from "./pages/admin/AdminListings";
+import AdminReports from "./pages/admin/AdminReports";
+import AdminKyc from "./pages/admin/AdminKyc";
+import AdminSettings from "./pages/admin/AdminSettings";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -54,6 +62,14 @@ const App = () => (
               <Route path="/dashboard/messages" element={<DashboardMessages />} />
               <Route path="/dashboard/profile" element={<DashboardProfile />} />
               <Route path="/dashboard/settings" element={<DashboardSettings />} />
+              
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminHome />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/listings" element={<AdminListings />} />
+              <Route path="/admin/reports" element={<AdminReports />} />
+              <Route path="/admin/kyc" element={<AdminKyc />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
