@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCredits } from '@/hooks/useCredits';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -27,6 +28,7 @@ import {
   MapPin,
   ChevronDown,
   MessageCircle,
+  Package,
 } from 'lucide-react';
 
 export const Header = () => {
@@ -34,6 +36,7 @@ export const Header = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { credits } = useCredits();
+  const { unreadCount } = useUnreadMessages();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -123,6 +126,21 @@ export const Header = () => {
                   <span>{credits?.balance || 0}</span>
                 </Button>
 
+                {/* Messages Badge - Desktop */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/messages')}
+                  className="relative hidden text-primary-foreground hover:bg-primary-foreground/10 md:flex"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-xs flex items-center justify-center text-destructive-foreground">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </Button>
+
                 {/* User Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -154,6 +172,15 @@ export const Header = () => {
                     <DropdownMenuItem onClick={() => navigate('/messages')}>
                       <MessageCircle className="mr-2 h-4 w-4" />
                       Pesan
+                      {unreadCount > 0 && (
+                        <Badge variant="destructive" className="ml-auto text-xs">
+                          {unreadCount}
+                        </Badge>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/orders')}>
+                      <Package className="mr-2 h-4 w-4" />
+                      Pesanan
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/credits')}>
                       <Coins className="mr-2 h-4 w-4" />

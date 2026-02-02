@@ -13,6 +13,7 @@ import CreateListing from "./pages/CreateListing";
 import ListingDetail from "./pages/ListingDetail";
 import Profile from "./pages/Profile";
 import Messages from "./pages/Messages";
+import Orders from "./pages/Orders";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/credits" element={<Credits />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/messages" element={<Messages />} />
+            <Route path="/orders" element={<Orders />} />
             <Route path="/listing/create" element={<CreateListing />} />
             <Route path="/listing/:id" element={<ListingDetail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
