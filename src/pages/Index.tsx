@@ -1,64 +1,115 @@
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wallet, UserCircle, ArrowRight } from 'lucide-react';
+import { useLandingData } from '@/hooks/useLandingData';
+import { HeroSection } from '@/components/landing/HeroSection';
+import { CategorySection } from '@/components/landing/CategorySection';
+import { ListingsSection } from '@/components/landing/ListingsSection';
+import { AuctionSection } from '@/components/landing/AuctionSection';
+import { BannerSection } from '@/components/landing/BannerSection';
+import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
+import { PricingSection } from '@/components/landing/PricingSection';
+import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
+import { CTASection } from '@/components/landing/CTASection';
+import { Footer } from '@/components/landing/Footer';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const LoadingSkeleton = () => (
+  <div className="min-h-screen">
+    {/* Hero Skeleton */}
+    <div className="bg-primary py-16">
+      <div className="container mx-auto px-4">
+        <div className="mx-auto max-w-3xl text-center">
+          <Skeleton className="mx-auto mb-4 h-12 w-3/4 bg-primary-foreground/20" />
+          <Skeleton className="mx-auto mb-8 h-6 w-1/2 bg-primary-foreground/20" />
+          <Skeleton className="mx-auto mb-8 h-12 w-full max-w-xl bg-primary-foreground/20" />
+        </div>
+      </div>
+    </div>
+    
+    {/* Content Skeletons */}
+    <div className="container mx-auto px-4 py-12">
+      <div className="grid gap-4 md:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} className="h-40" />
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 const Index = () => {
-  const { user, loading } = useAuth();
+  const {
+    categories,
+    featuredListings,
+    latestListings,
+    popularListings,
+    activeAuctions,
+    testimonials,
+    creditPackages,
+    banners,
+    stats,
+    loading,
+    trackBannerEvent,
+  } = useLandingData();
+
+  if (loading) {
+    return <LoadingSkeleton />;
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-            <Wallet className="h-8 w-8 text-primary" />
-          </div>
-          <CardTitle className="text-2xl font-bold">E-Wallet Platform</CardTitle>
-          <CardDescription>
-            Kelola wallet Anda dengan mudah dan aman
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {loading ? (
-            <div className="text-center text-muted-foreground">Loading...</div>
-          ) : user ? (
-            <>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
-                <UserCircle className="h-10 w-10 text-muted-foreground" />
-                <div>
-                  <p className="font-medium text-foreground">{user.email}</p>
-                  <p className="text-sm text-muted-foreground">Sudah login</p>
-                </div>
-              </div>
-              <Link to="/dashboard" className="block">
-                <Button className="w-full">
-                  Buka Dashboard
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </>
-          ) : (
-            <>
-              <p className="text-center text-muted-foreground">
-                Masuk atau daftar untuk mulai menggunakan layanan wallet
-              </p>
-              <div className="flex gap-2">
-                <Link to="/auth" className="flex-1">
-                  <Button variant="outline" className="w-full">
-                    Masuk
-                  </Button>
-                </Link>
-                <Link to="/auth" className="flex-1">
-                  <Button className="w-full">
-                    Daftar
-                  </Button>
-                </Link>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-background">
+      {/* Hero Section with Search & Stats */}
+      <HeroSection stats={stats} />
+
+      {/* Category Carousel */}
+      <CategorySection categories={categories} />
+
+      {/* Featured/Premium Listings */}
+      <ListingsSection
+        title="Iklan Premium"
+        subtitle="Produk pilihan dari penjual terpercaya"
+        listings={featuredListings}
+        filterParam="featured=true"
+      />
+
+      {/* Banner Sponsor Ads */}
+      <BannerSection
+        banners={banners.filter((b) => b.position === 'inline')}
+        onImpression={(id) => trackBannerEvent(id, 'impression')}
+        onClick={(id) => trackBannerEvent(id, 'click')}
+      />
+
+      {/* Latest Listings */}
+      <ListingsSection
+        title="Produk Terbaru"
+        subtitle="Temukan produk baru yang baru saja diposting"
+        listings={latestListings}
+        filterParam="sort=newest"
+      />
+
+      {/* Active Auctions */}
+      <AuctionSection auctions={activeAuctions} />
+
+      {/* Popular Listings */}
+      <ListingsSection
+        title="Produk Populer"
+        subtitle="Paling banyak dilihat minggu ini"
+        listings={popularListings}
+        filterParam="sort=popular"
+      />
+
+      {/* How It Works */}
+      <HowItWorksSection />
+
+      {/* Pricing / Credit Packages */}
+      <PricingSection packages={creditPackages} />
+
+      {/* Testimonials */}
+      <TestimonialsSection testimonials={testimonials} />
+
+      {/* CTA Section */}
+      <CTASection />
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
