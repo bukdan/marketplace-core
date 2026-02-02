@@ -26,6 +26,7 @@ import {
   LayoutDashboard,
   MapPin,
   ChevronDown,
+  MessageCircle,
 } from 'lucide-react';
 
 export const Header = () => {
@@ -146,11 +147,19 @@ export const Header = () => {
                       <LayoutDashboard className="mr-2 h-4 w-4" />
                       Dashboard
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>
+                      <User className="mr-2 h-4 w-4" />
+                      Profil Saya
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/messages')}>
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      Pesan
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/credits')}>
                       <Coins className="mr-2 h-4 w-4" />
                       Beli Kredit
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/settings')}>
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>
                       <Settings className="mr-2 h-4 w-4" />
                       Pengaturan
                     </DropdownMenuItem>
@@ -247,6 +256,30 @@ export const Header = () => {
                           Kredit Saya
                         </span>
                         <Badge variant="secondary">{credits?.balance || 0}</Badge>
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          navigate('/profile');
+                          setIsSheetOpen(false);
+                        }}
+                        className="w-full justify-start"
+                      >
+                        <User className="mr-2 h-4 w-4" />
+                        Profil Saya
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          navigate('/messages');
+                          setIsSheetOpen(false);
+                        }}
+                        className="w-full justify-start"
+                      >
+                        <MessageCircle className="mr-2 h-4 w-4" />
+                        Pesan
                       </Button>
 
                       <Button
