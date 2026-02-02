@@ -906,6 +906,50 @@ export type Database = {
           },
         ]
       }
+      seller_reviews: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          is_anonymous: boolean | null
+          order_id: string | null
+          rating: number
+          reviewer_id: string
+          seller_id: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean | null
+          order_id?: string | null
+          rating: number
+          reviewer_id: string
+          seller_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean | null
+          order_id?: string | null
+          rating?: number
+          reviewer_id?: string
+          seller_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       testimonials: {
         Row: {
           avatar_url: string | null
@@ -1138,6 +1182,18 @@ export type Database = {
           total_categories: number
           total_listings: number
           total_sellers: number
+        }[]
+      }
+      get_seller_rating: {
+        Args: { seller_uuid: string }
+        Returns: {
+          average_rating: number
+          rating_1: number
+          rating_2: number
+          rating_3: number
+          rating_4: number
+          rating_5: number
+          total_reviews: number
         }[]
       }
       has_role: {
