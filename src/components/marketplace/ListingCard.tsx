@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Eye, Clock, Gavel } from 'lucide-react';
@@ -42,6 +43,7 @@ const priceTypeLabels: Record<string, string> = {
 };
 
 export const ListingCard = ({ listing, onClick }: ListingCardProps) => {
+  const navigate = useNavigate();
   const primaryImage = listing.listing_images.find((img) => img.is_primary) || listing.listing_images[0];
   
   const formatPrice = (price: number) => {
@@ -53,12 +55,20 @@ export const ListingCard = ({ listing, onClick }: ListingCardProps) => {
     }).format(price);
   };
 
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      navigate(`/listing/${listing.id}`);
+    }
+  };
+
   return (
     <Card 
       className={`group cursor-pointer transition-all hover:shadow-lg ${
         listing.is_featured ? 'ring-2 ring-primary' : ''
       }`}
-      onClick={onClick}
+      onClick={handleClick}
     >
       <div className="relative aspect-square overflow-hidden rounded-t-lg">
         {primaryImage ? (
