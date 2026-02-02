@@ -3,23 +3,26 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useChat } from '@/hooks/useChat';
 import { useBuyNow } from '@/hooks/useBuyNow';
+import { useWishlist } from '@/hooks/useWishlist';
 import { supabase } from '@/integrations/supabase/client';
+import { ImageGallery } from '@/components/listing/ImageGallery';
+import { SellerCard } from '@/components/listing/SellerCard';
+import { ReviewSection } from '@/components/listing/ReviewSection';
 import { 
   MapPin, Eye, Clock, Heart, Share2, Flag, 
-  Phone, MessageCircle, ChevronLeft, ChevronRight,
-  Gavel, Timer, User, Shield, ShoppingCart
+  Gavel, Timer, ShoppingCart, Sparkles, Tag, CheckCircle
 } from 'lucide-react';
-import { formatDistanceToNow, differenceInSeconds, format } from 'date-fns';
+import { formatDistanceToNow, differenceInSeconds } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 interface ListingImage {
   id: string;
@@ -43,7 +46,7 @@ interface Listing {
   user_id: string;
   listing_images: ListingImage[];
   categories: { name: string; slug: string } | null;
-  profiles: { name: string | null; phone_number: string | null; created_at: string | null } | null;
+  profiles: { name: string | null; phone_number: string | null; created_at: string | null; avatar_url?: string | null } | null;
 }
 
 interface Auction {
@@ -65,11 +68,22 @@ interface Bid {
   bidder_id: string;
 }
 
-const conditionLabels: Record<string, string> = {
-  new: 'Baru',
-  like_new: 'Seperti Baru',
-  good: 'Bagus',
-  fair: 'Cukup',
+interface SellerRating {
+  total_reviews: number;
+  average_rating: number;
+}
+
+const conditionConfig: Record<string, { label: string; color: string; description: string }> = {
+  new: { label: 'Baru', color: 'bg-emerald-500', description: 'Barang baru, belum pernah dipakai' },
+  like_new: { label: 'Seperti Baru', color: 'bg-blue-500', description: 'Bekas tapi masih sangat bagus' },
+  good: { label: 'Bagus', color: 'bg-amber-500', description: 'Kondisi baik, ada tanda pemakaian wajar' },
+  fair: { label: 'Cukup', color: 'bg-gray-500', description: 'Masih berfungsi dengan baik' },
+};
+
+const priceTypeLabels: Record<string, { label: string; icon: React.ReactNode }> = {
+  fixed: { label: 'Harga Pas', icon: <Tag className="h-4 w-4" /> },
+  negotiable: { label: 'Bisa Nego', icon: <Sparkles className="h-4 w-4" /> },
+  auction: { label: 'Lelang', icon: <Gavel className="h-4 w-4" /> },
 };
 
 export default function ListingDetail() {
@@ -79,21 +93,20 @@ export default function ListingDetail() {
   const { user } = useAuth();
   const { startConversation, loading: chatLoading } = useChat();
   const { buyNow, loading: buyNowLoading } = useBuyNow();
+  const { isSaved, toggleSave, checkIfSaved, loading: wishlistLoading } = useWishlist(listingId || '');
   
   const [listing, setListing] = useState<Listing | null>(null);
   const [auction, setAuction] = useState<Auction | null>(null);
   const [bids, setBids] = useState<Bid[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [bidAmount, setBidAmount] = useState('');
   const [bidding, setBidding] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
   const [timeLeft, setTimeLeft] = useState<string>('');
+  const [sellerRating, setSellerRating] = useState<SellerRating | null>(null);
 
   useEffect(() => {
     if (listingId) {
       fetchListing();
-      incrementViewCount();
       if (user) checkIfSaved();
     }
   }, [listingId, user]);
@@ -134,7 +147,6 @@ export default function ListingDetail() {
     if (!listingId) return;
     
     try {
-      // Fetch listing with related data
       const { data: listingData, error: listingError } = await supabase
         .from('listings')
         .select(`
@@ -148,21 +160,12 @@ export default function ListingDetail() {
 
       if (listingError) throw listingError;
       
-      // Fetch profile separately
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('name, phone_number, created_at')
+        .select('name, phone_number, created_at, avatar_url')
         .eq('user_id', listingData.user_id)
         .single();
       
-      // Sort images by sort_order
-      if (listingData.listing_images) {
-        listingData.listing_images.sort((a: ListingImage, b: ListingImage) => 
-          (a.sort_order || 0) - (b.sort_order || 0)
-        );
-      }
-      
-      // Combine listing with profile
       const fullListing = {
         ...listingData,
         profiles: profileData || null,
@@ -170,7 +173,6 @@ export default function ListingDetail() {
       
       setListing(fullListing as unknown as Listing);
 
-      // If auction, fetch auction data
       if (listingData.price_type === 'auction') {
         const { data: auctionData } = await supabase
           .from('listing_auctions')
@@ -182,7 +184,6 @@ export default function ListingDetail() {
           setAuction(auctionData);
           setBidAmount(String(auctionData.current_price + auctionData.min_increment));
           
-          // Fetch bids
           const { data: bidsData } = await supabase
             .from('auction_bids')
             .select('*')
@@ -202,48 +203,6 @@ export default function ListingDetail() {
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const incrementViewCount = async () => {
-    if (!listingId) return;
-    // View count increment - we'll skip this as it needs a DB function
-  };
-
-  const checkIfSaved = async () => {
-    if (!user || !listingId) return;
-    
-    const { data } = await supabase
-      .from('saved_listings')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('listing_id', listingId)
-      .single();
-    
-    setIsSaved(!!data);
-  };
-
-  const toggleSave = async () => {
-    if (!user) {
-      toast({ title: 'Login diperlukan', description: 'Silakan login untuk menyimpan iklan' });
-      navigate('/auth');
-      return;
-    }
-    
-    if (isSaved) {
-      await supabase
-        .from('saved_listings')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('listing_id', listingId);
-      setIsSaved(false);
-      toast({ title: 'Dihapus dari favorit' });
-    } else {
-      await supabase
-        .from('saved_listings')
-        .insert({ user_id: user.id, listing_id: listingId });
-      setIsSaved(true);
-      toast({ title: 'Ditambahkan ke favorit' });
     }
   };
 
@@ -271,7 +230,6 @@ export default function ListingDetail() {
     setBidding(true);
     
     try {
-      // Insert bid
       const { error: bidError } = await supabase
         .from('auction_bids')
         .insert({
@@ -283,7 +241,6 @@ export default function ListingDetail() {
       
       if (bidError) throw bidError;
       
-      // Update current price
       await supabase
         .from('listing_auctions')
         .update({
@@ -292,7 +249,6 @@ export default function ListingDetail() {
         })
         .eq('id', auction.id);
       
-      // Reset previous winning bids
       await supabase
         .from('auction_bids')
         .update({ is_winning: false })
@@ -300,8 +256,6 @@ export default function ListingDetail() {
         .neq('bidder_id', user.id);
       
       toast({ title: 'Bid berhasil!', description: `Anda mengajukan bid ${formatPrice(amount)}` });
-      
-      // Refresh data
       fetchListing();
     } catch (error) {
       console.error('Bid error:', error);
@@ -324,18 +278,16 @@ export default function ListingDetail() {
     }).format(price);
   };
 
-  const nextImage = () => {
-    if (!listing?.listing_images) return;
-    setCurrentImageIndex((prev) => 
-      prev === listing.listing_images.length - 1 ? 0 : prev + 1
-    );
-  };
-
-  const prevImage = () => {
-    if (!listing?.listing_images) return;
-    setCurrentImageIndex((prev) => 
-      prev === 0 ? listing.listing_images.length - 1 : prev - 1
-    );
+  const handleShare = async () => {
+    try {
+      await navigator.share({
+        title: listing?.title,
+        url: window.location.href,
+      });
+    } catch {
+      navigator.clipboard.writeText(window.location.href);
+      toast({ title: 'Link disalin ke clipboard!' });
+    }
   };
 
   if (loading) {
@@ -344,13 +296,18 @@ export default function ListingDetail() {
         <div className="container mx-auto px-4 py-6">
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-4">
-              <Skeleton className="aspect-video w-full rounded-lg" />
-              <Skeleton className="h-8 w-3/4" />
-              <Skeleton className="h-24 w-full" />
+              <Skeleton className="aspect-video w-full rounded-xl" />
+              <div className="flex gap-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <Skeleton key={i} className="w-20 h-20 rounded-lg" />
+                ))}
+              </div>
+              <Skeleton className="h-10 w-3/4" />
+              <Skeleton className="h-32 w-full" />
             </div>
             <div className="space-y-4">
-              <Skeleton className="h-48 w-full rounded-lg" />
-              <Skeleton className="h-32 w-full rounded-lg" />
+              <Skeleton className="h-64 w-full rounded-xl" />
+              <Skeleton className="h-48 w-full rounded-xl" />
             </div>
           </div>
         </div>
@@ -362,15 +319,28 @@ export default function ListingDetail() {
     return (
       <MainLayout>
         <div className="container mx-auto px-4 py-12 text-center">
-          <h1 className="text-2xl font-bold mb-4">Iklan tidak ditemukan</h1>
-          <Button onClick={() => navigate('/marketplace')}>Kembali ke Marketplace</Button>
+          <div className="max-w-md mx-auto">
+            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
+              <Tag className="h-12 w-12 text-muted-foreground" />
+            </div>
+            <h1 className="text-2xl font-bold mb-2">Iklan tidak ditemukan</h1>
+            <p className="text-muted-foreground mb-6">
+              Iklan yang Anda cari mungkin sudah tidak tersedia atau telah dihapus.
+            </p>
+            <Button onClick={() => navigate('/marketplace')}>
+              Kembali ke Marketplace
+            </Button>
+          </div>
         </div>
       </MainLayout>
     );
   }
 
-  const images = listing.listing_images || [];
-  const currentImage = images[currentImageIndex];
+  const condition = listing.condition || 'good';
+  const conditionData = conditionConfig[condition];
+  const priceTypeData = priceTypeLabels[listing.price_type];
+  const location = listing.city || listing.province || 'Indonesia';
+  const isOwnListing = listing.user_id === user?.id;
 
   return (
     <MainLayout>
@@ -379,98 +349,64 @@ export default function ListingDetail() {
           {/* Left Column - Images & Details */}
           <div className="lg:col-span-2 space-y-6">
             {/* Image Gallery */}
-            <div className="relative">
-              <div className="aspect-video bg-muted rounded-lg overflow-hidden">
-                {currentImage ? (
-                  <img
-                    src={currentImage.image_url}
-                    alt={listing.title}
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
-                    Tidak ada gambar
-                  </div>
-                )}
-              </div>
-              
-              {images.length > 1 && (
-                <>
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="absolute left-2 top-1/2 -translate-y-1/2"
-                    onClick={prevImage}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="absolute right-2 top-1/2 -translate-y-1/2"
-                    onClick={nextImage}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
-              
-              {/* Thumbnail Strip */}
-              {images.length > 1 && (
-                <div className="flex gap-2 mt-2 overflow-x-auto pb-2">
-                  {images.map((img, idx) => (
-                    <button
-                      key={img.id}
-                      onClick={() => setCurrentImageIndex(idx)}
-                      className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 ${
-                        idx === currentImageIndex ? 'border-primary' : 'border-transparent'
-                      }`}
-                    >
-                      <img
-                        src={img.image_url}
-                        alt={`Thumbnail ${idx + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            <ImageGallery 
+              images={listing.listing_images || []} 
+              title={listing.title}
+              isPremium={listing.is_featured}
+            />
 
-            {/* Title & Info */}
-            <div>
+            {/* Title & Actions */}
+            <div className="space-y-4">
               <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h1 className="text-2xl font-bold mb-2">{listing.title}</h1>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <Badge variant="secondary">{listing.categories?.name}</Badge>
-                    <Badge variant="outline">{conditionLabels[listing.condition]}</Badge>
-                    {listing.is_featured && <Badge className="bg-primary">Premium</Badge>}
+                <div className="flex-1">
+                  <h1 className="text-2xl md:text-3xl font-bold mb-3">{listing.title}</h1>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="secondary" className="text-sm">
+                      {listing.categories?.name}
+                    </Badge>
+                    <Badge className={cn("text-white border-0", conditionData.color)}>
+                      {conditionData.label}
+                    </Badge>
+                    <Badge variant="outline" className="gap-1">
+                      {priceTypeData.icon}
+                      {priceTypeData.label}
+                    </Badge>
+                    {listing.is_featured && (
+                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+                        ✨ Premium
+                      </Badge>
+                    )}
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="icon" onClick={toggleSave}>
-                    <Heart className={`h-4 w-4 ${isSaved ? 'fill-red-500 text-red-500' : ''}`} />
+                <div className="flex gap-2 flex-shrink-0">
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={toggleSave}
+                    disabled={wishlistLoading}
+                    className={cn(isSaved && "text-red-500 border-red-200 bg-red-50")}
+                  >
+                    <Heart className={cn("h-5 w-5", isSaved && "fill-red-500")} />
+                  </Button>
+                  <Button variant="outline" size="icon" onClick={handleShare}>
+                    <Share2 className="h-5 w-5" />
                   </Button>
                   <Button variant="outline" size="icon">
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon">
-                    <Flag className="h-4 w-4" />
+                    <Flag className="h-5 w-5" />
                   </Button>
                 </div>
               </div>
               
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4" />
-                  {listing.city || listing.province || 'Indonesia'}
+              <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  {location}
                 </span>
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1.5">
                   <Eye className="h-4 w-4" />
                   {listing.view_count} dilihat
                 </span>
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1.5">
                   <Clock className="h-4 w-4" />
                   {formatDistanceToNow(new Date(listing.created_at), { addSuffix: true, locale: id })}
                 </span>
@@ -479,79 +415,109 @@ export default function ListingDetail() {
 
             <Separator />
 
+            {/* Condition Info */}
+            <Card className="bg-muted/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className={cn("w-3 h-3 rounded-full", conditionData.color)} />
+                  <div>
+                    <span className="font-medium">Kondisi: {conditionData.label}</span>
+                    <p className="text-sm text-muted-foreground">{conditionData.description}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Description */}
             <div>
               <h2 className="text-lg font-semibold mb-3">Deskripsi</h2>
-              <p className="text-muted-foreground whitespace-pre-wrap">
-                {listing.description || 'Tidak ada deskripsi'}
-              </p>
+              <div className="prose prose-sm max-w-none">
+                <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                  {listing.description || 'Tidak ada deskripsi tersedia untuk iklan ini.'}
+                </p>
+              </div>
             </div>
+
+            <Separator />
+
+            {/* Reviews Section */}
+            <ReviewSection 
+              sellerId={listing.user_id} 
+              onRatingUpdate={setSellerRating}
+            />
           </div>
 
           {/* Right Column - Price & Actions */}
           <div className="space-y-4">
             {/* Price Card */}
-            <Card>
+            <Card className="sticky top-4">
               <CardContent className="p-6">
                 {auction && listing.price_type === 'auction' ? (
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     <div className="flex items-center gap-2 text-primary">
                       <Gavel className="h-5 w-5" />
-                      <span className="font-medium">Lelang</span>
+                      <span className="font-semibold">Lelang Aktif</span>
                     </div>
                     
                     <div>
-                      <p className="text-sm text-muted-foreground">Harga Saat Ini</p>
+                      <p className="text-sm text-muted-foreground mb-1">Harga Saat Ini</p>
                       <p className="text-3xl font-bold text-primary">
                         {formatPrice(auction.current_price)}
                       </p>
                     </div>
                     
-                    <div className="flex items-center gap-2 text-sm">
-                      <Timer className="h-4 w-4 text-orange-500" />
-                      <span className="font-medium text-orange-500">{timeLeft}</span>
+                    <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                      <Timer className="h-5 w-5 text-orange-600" />
+                      <span className="font-semibold text-orange-600">{timeLeft}</span>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="p-3 bg-muted rounded-lg">
                         <p className="text-muted-foreground">Total Bid</p>
-                        <p className="font-medium">{auction.total_bids || 0}</p>
+                        <p className="font-bold text-lg">{auction.total_bids || 0}</p>
                       </div>
-                      <div>
+                      <div className="p-3 bg-muted rounded-lg">
                         <p className="text-muted-foreground">Min. Kenaikan</p>
-                        <p className="font-medium">{formatPrice(auction.min_increment)}</p>
+                        <p className="font-bold text-lg">{formatPrice(auction.min_increment)}</p>
                       </div>
                     </div>
                     
-                    {auction.status === 'active' && (
-                      <div className="space-y-2">
+                    {auction.status === 'active' && !isOwnListing && (
+                      <div className="space-y-3">
                         <Input
                           type="number"
                           placeholder={`Min ${formatPrice(auction.current_price + auction.min_increment)}`}
                           value={bidAmount}
                           onChange={(e) => setBidAmount(e.target.value)}
+                          className="text-lg font-medium"
                         />
                         <Button 
-                          className="w-full" 
+                          className="w-full h-12 text-lg" 
                           onClick={handleBid}
-                          disabled={bidding || listing.user_id === user?.id}
+                          disabled={bidding}
                         >
+                          <Gavel className="h-5 w-5 mr-2" />
                           {bidding ? 'Memproses...' : 'Ajukan Bid'}
                         </Button>
                       </div>
                     )}
                     
-                    {auction.buy_now_price && auction.status === 'active' && (
+                    {auction.buy_now_price && auction.status === 'active' && !isOwnListing && (
                       <>
-                        <Separator />
+                        <div className="relative">
+                          <Separator />
+                          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-3 text-sm text-muted-foreground">
+                            atau
+                          </span>
+                        </div>
                         <div>
                           <p className="text-sm text-muted-foreground mb-2">Beli Langsung</p>
-                          <p className="text-xl font-bold mb-2">{formatPrice(auction.buy_now_price)}</p>
+                          <p className="text-xl font-bold mb-3">{formatPrice(auction.buy_now_price)}</p>
                           <Button 
                             variant="outline" 
                             className="w-full gap-2"
                             onClick={() => buyNow(listing.id, listing.user_id, auction.buy_now_price!, auction.id)}
-                            disabled={buyNowLoading || listing.user_id === user?.id}
+                            disabled={buyNowLoading}
                           >
                             <ShoppingCart className="h-4 w-4" />
                             {buyNowLoading ? 'Memproses...' : 'Beli Sekarang'}
@@ -559,109 +525,72 @@ export default function ListingDetail() {
                         </div>
                       </>
                     )}
+
+                    {/* Bid History */}
+                    {bids.length > 0 && (
+                      <div className="pt-4 border-t">
+                        <h4 className="font-medium mb-3">Riwayat Bid</h4>
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                          {bids.slice(0, 5).map((bid, idx) => (
+                            <div 
+                              key={bid.id} 
+                              className={cn(
+                                "flex justify-between items-center p-2 rounded-lg text-sm",
+                                bid.is_winning ? "bg-primary/10" : "bg-muted"
+                              )}
+                            >
+                              <span className="flex items-center gap-2">
+                                {bid.is_winning && <CheckCircle className="h-4 w-4 text-primary" />}
+                                Bidder #{bids.length - idx}
+                              </span>
+                              <span className="font-semibold">{formatPrice(bid.amount)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     <div>
                       <p className="text-3xl font-bold text-primary">
                         {formatPrice(listing.price)}
                       </p>
                       {listing.price_type === 'negotiable' && (
-                        <Badge variant="outline" className="mt-1">Nego</Badge>
+                        <Badge variant="outline" className="mt-2 gap-1">
+                          <Sparkles className="h-3 w-3" />
+                          Harga masih bisa nego
+                        </Badge>
                       )}
                     </div>
                     
-                    <div className="space-y-2">
-                      {/* Buy Now Button for fixed/negotiable listings */}
-                      <Button 
-                        className="w-full gap-2"
-                        onClick={() => buyNow(listing.id, listing.user_id, listing.price)}
-                        disabled={buyNowLoading || listing.user_id === user?.id}
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                        {buyNowLoading ? 'Memproses...' : 'Beli Sekarang'}
-                      </Button>
-                      
-                      <Button 
-                        variant="outline"
-                        className="w-full gap-2"
-                        onClick={() => startConversation(listing.user_id, listing.id)}
-                        disabled={chatLoading || listing.user_id === user?.id}
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                        {listing.user_id === user?.id ? 'Iklan Anda' : 'Chat Penjual'}
-                      </Button>
-                      {listing.profiles?.phone_number && (
+                    {!isOwnListing && (
+                      <div className="space-y-3">
                         <Button 
-                          variant="outline" 
-                          className="w-full gap-2"
-                          onClick={() => window.open(`tel:${listing.profiles?.phone_number}`)}
+                          className="w-full h-12 text-lg gap-2"
+                          onClick={() => buyNow(listing.id, listing.user_id, listing.price)}
+                          disabled={buyNowLoading}
                         >
-                          <Phone className="h-4 w-4" />
-                          Hubungi
+                          <ShoppingCart className="h-5 w-5" />
+                          {buyNowLoading ? 'Memproses...' : 'Beli Sekarang'}
                         </Button>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
             </Card>
 
             {/* Seller Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Penjual</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Avatar>
-                    <AvatarImage src={(listing.profiles as { avatar_url?: string })?.avatar_url || undefined} />
-                    <AvatarFallback>
-                      <User className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">{listing.profiles?.name || 'Pengguna'}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Bergabung {listing.profiles?.created_at ? 
-                        format(new Date(listing.profiles.created_at), 'MMMM yyyy', { locale: id }) : 
-                        'baru-baru ini'}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Shield className="h-4 w-4" />
-                  <span>Identitas terverifikasi</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Bid History (for auctions) */}
-            {auction && bids.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Riwayat Bid</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {bids.slice(0, 5).map((bid, idx) => (
-                      <div 
-                        key={bid.id} 
-                        className={`flex justify-between items-center p-2 rounded ${
-                          bid.is_winning ? 'bg-primary/10' : ''
-                        }`}
-                      >
-                        <span className="text-sm">
-                          {bid.is_winning && '👑 '}
-                          Bidder #{idx + 1}
-                        </span>
-                        <span className="font-medium">{formatPrice(bid.amount)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <SellerCard
+              profile={listing.profiles}
+              rating={sellerRating}
+              listingLocation={location}
+              isOwnListing={isOwnListing}
+              onChat={() => startConversation(listing.user_id, listing.id)}
+              onCall={() => window.open(`tel:${listing.profiles?.phone_number}`)}
+              chatLoading={chatLoading}
+            />
           </div>
         </div>
       </div>

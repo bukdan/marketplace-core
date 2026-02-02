@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -5,6 +6,9 @@ import { MapPin, Eye, Clock, Gavel, Heart, Sparkles, Tag, CheckCircle2 } from 'l
 import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 interface ListingImage {
   id: string;
@@ -47,8 +51,51 @@ const priceTypeConfig: Record<string, { label: string; color: string }> = {
 
 export const ListingCard = ({ listing, onClick, variant = 'default' }: ListingCardProps) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [isSaved, setIsSaved] = useState(false);
+  const [savingWishlist, setSavingWishlist] = useState(false);
+
   const primaryImage = listing.listing_images?.find((img) => img.is_primary) || listing.listing_images?.[0];
   
+  useEffect(() => {
+    if (user) checkIfSaved();
+  }, [user, listing.id]);
+
+  const checkIfSaved = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('saved_listings')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('listing_id', listing.id)
+      .maybeSingle();
+    setIsSaved(!!data);
+  };
+
+  const toggleWishlist = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) {
+      toast({ title: 'Login diperlukan', description: 'Silakan login untuk menyimpan iklan' });
+      navigate('/auth');
+      return;
+    }
+    setSavingWishlist(true);
+    try {
+      if (isSaved) {
+        await supabase.from('saved_listings').delete().eq('user_id', user.id).eq('listing_id', listing.id);
+        setIsSaved(false);
+        toast({ title: '❌ Dihapus dari wishlist' });
+      } else {
+        await supabase.from('saved_listings').insert({ user_id: user.id, listing_id: listing.id });
+        setIsSaved(true);
+        toast({ title: '❤️ Ditambahkan ke wishlist' });
+      }
+    } finally {
+      setSavingWishlist(false);
+    }
+  };
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -142,15 +189,18 @@ export const ListingCard = ({ listing, onClick, variant = 'default' }: ListingCa
           </Badge>
         </div>
 
-        {/* Wishlist button placeholder */}
+        {/* Wishlist button */}
         <button 
-          className="absolute right-2 top-2 rounded-full bg-white/90 p-2 opacity-0 shadow-lg transition-all hover:bg-white hover:scale-110 group-hover:opacity-100"
-          onClick={(e) => {
-            e.stopPropagation();
-            // TODO: Add to wishlist
-          }}
+          className={cn(
+            "absolute right-2 top-2 rounded-full p-2 shadow-lg transition-all",
+            isSaved 
+              ? "bg-red-500 text-white opacity-100" 
+              : "bg-white/90 opacity-0 group-hover:opacity-100 hover:bg-white"
+          )}
+          onClick={toggleWishlist}
+          disabled={savingWishlist}
         >
-          <Heart className="h-4 w-4 text-muted-foreground hover:text-red-500 transition-colors" />
+          <Heart className={cn("h-4 w-4 transition-colors", isSaved ? "fill-white" : "text-muted-foreground hover:text-red-500")} />
         </button>
       </div>
 
