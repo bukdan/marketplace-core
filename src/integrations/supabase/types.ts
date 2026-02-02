@@ -724,6 +724,90 @@ export type Database = {
           },
         ]
       }
+      orders: {
+        Row: {
+          amount: number
+          auction_id: string | null
+          buyer_id: string
+          cancelled_at: string | null
+          completed_at: string | null
+          created_at: string
+          delivered_at: string | null
+          id: string
+          listing_id: string
+          notes: string | null
+          paid_at: string | null
+          payment_status: string | null
+          platform_fee: number | null
+          seller_id: string
+          shipped_at: string | null
+          shipping_address: string | null
+          shipping_method: string | null
+          status: string
+          tracking_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          auction_id?: string | null
+          buyer_id: string
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          listing_id: string
+          notes?: string | null
+          paid_at?: string | null
+          payment_status?: string | null
+          platform_fee?: number | null
+          seller_id: string
+          shipped_at?: string | null
+          shipping_address?: string | null
+          shipping_method?: string | null
+          status?: string
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          auction_id?: string | null
+          buyer_id?: string
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          listing_id?: string
+          notes?: string | null
+          paid_at?: string | null
+          payment_status?: string | null
+          platform_fee?: number | null
+          seller_id?: string
+          shipped_at?: string | null
+          shipping_address?: string | null
+          shipping_method?: string | null
+          status?: string
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "listing_auctions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_settings: {
         Row: {
           created_at: string | null
