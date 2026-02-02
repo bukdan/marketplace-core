@@ -6,10 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useChat } from '@/hooks/useChat';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   MapPin, Eye, Clock, Heart, Share2, Flag, 
@@ -75,6 +76,7 @@ export default function ListingDetail() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { startConversation, loading: chatLoading } = useChat();
   
   const [listing, setListing] = useState<Listing | null>(null);
   const [auction, setAuction] = useState<Auction | null>(null);
@@ -562,12 +564,20 @@ export default function ListingDetail() {
                     </div>
                     
                     <div className="space-y-2">
-                      <Button className="w-full gap-2">
+                      <Button 
+                        className="w-full gap-2"
+                        onClick={() => startConversation(listing.user_id, listing.id)}
+                        disabled={chatLoading || listing.user_id === user?.id}
+                      >
                         <MessageCircle className="h-4 w-4" />
-                        Chat Penjual
+                        {listing.user_id === user?.id ? 'Iklan Anda' : 'Chat Penjual'}
                       </Button>
                       {listing.profiles?.phone_number && (
-                        <Button variant="outline" className="w-full gap-2">
+                        <Button 
+                          variant="outline" 
+                          className="w-full gap-2"
+                          onClick={() => window.open(`tel:${listing.profiles?.phone_number}`)}
+                        >
                           <Phone className="h-4 w-4" />
                           Hubungi
                         </Button>
@@ -586,6 +596,7 @@ export default function ListingDetail() {
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Avatar>
+                    <AvatarImage src={(listing.profiles as { avatar_url?: string })?.avatar_url || undefined} />
                     <AvatarFallback>
                       <User className="h-4 w-4" />
                     </AvatarFallback>
