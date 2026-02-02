@@ -86,6 +86,83 @@ export type Database = {
           user_agent?: string | null
           user_id?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "banner_events_banner_id_fkey"
+            columns: ["banner_id"]
+            isOneToOne: false
+            referencedRelation: "banners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      banners: {
+        Row: {
+          budget_spent: number
+          budget_total: number
+          clicks: number | null
+          cost_per_click: number | null
+          cost_per_mille: number | null
+          created_at: string
+          deleted_at: string | null
+          ends_at: string | null
+          id: string
+          image_url: string
+          impressions: number | null
+          position: Database["public"]["Enums"]["banner_position"]
+          pricing_model: Database["public"]["Enums"]["banner_pricing_model"]
+          priority: number | null
+          starts_at: string
+          status: Database["public"]["Enums"]["banner_status"]
+          target_url: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget_spent?: number
+          budget_total?: number
+          clicks?: number | null
+          cost_per_click?: number | null
+          cost_per_mille?: number | null
+          created_at?: string
+          deleted_at?: string | null
+          ends_at?: string | null
+          id?: string
+          image_url: string
+          impressions?: number | null
+          position?: Database["public"]["Enums"]["banner_position"]
+          pricing_model?: Database["public"]["Enums"]["banner_pricing_model"]
+          priority?: number | null
+          starts_at?: string
+          status?: Database["public"]["Enums"]["banner_status"]
+          target_url: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget_spent?: number
+          budget_total?: number
+          clicks?: number | null
+          cost_per_click?: number | null
+          cost_per_mille?: number | null
+          created_at?: string
+          deleted_at?: string | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string
+          impressions?: number | null
+          position?: Database["public"]["Enums"]["banner_position"]
+          pricing_model?: Database["public"]["Enums"]["banner_pricing_model"]
+          priority?: number | null
+          starts_at?: string
+          status?: Database["public"]["Enums"]["banner_status"]
+          target_url?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
         Relationships: []
       }
       boost_types: {
@@ -672,6 +749,48 @@ export type Database = {
           },
         ]
       }
+      testimonials: {
+        Row: {
+          avatar_url: string | null
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          is_featured: boolean | null
+          name: string
+          rating: number | null
+          role: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          name: string
+          rating?: number | null
+          role?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          name?: string
+          rating?: number | null
+          role?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
@@ -852,7 +971,15 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      platform_stats: {
+        Row: {
+          active_auctions: number | null
+          total_categories: number | null
+          total_listings: number | null
+          total_sellers: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
@@ -866,6 +993,9 @@ export type Database = {
     Enums: {
       app_role: "user" | "admin" | "bandar"
       auction_status: "active" | "ended" | "sold" | "cancelled" | "no_winner"
+      banner_position: "hero" | "sidebar" | "inline" | "footer"
+      banner_pricing_model: "cpc" | "cpm" | "fixed"
+      banner_status: "pending" | "active" | "paused" | "expired" | "rejected"
       boost_status: "active" | "expired" | "cancelled"
       boost_type: "highlight" | "top_search" | "premium"
       credit_transaction_type:
@@ -1022,6 +1152,9 @@ export const Constants = {
     Enums: {
       app_role: ["user", "admin", "bandar"],
       auction_status: ["active", "ended", "sold", "cancelled", "no_winner"],
+      banner_position: ["hero", "sidebar", "inline", "footer"],
+      banner_pricing_model: ["cpc", "cpm", "fixed"],
+      banner_status: ["pending", "active", "paused", "expired", "rejected"],
       boost_status: ["active", "expired", "cancelled"],
       boost_type: ["highlight", "top_search", "premium"],
       credit_transaction_type: [
