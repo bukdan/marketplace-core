@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -8,7 +9,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { 
+  Search, 
+  SlidersHorizontal, 
+  X, 
+  Sparkles, 
+  Package, 
+  ThumbsUp, 
+  Star,
+  Gavel,
+  Tag,
+  ArrowUpDown
+} from 'lucide-react';
 import {
   Sheet,
   SheetContent,
@@ -17,6 +29,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 interface SearchFilterProps {
   onSearchChange: (search: string) => void;
@@ -27,6 +40,19 @@ interface SearchFilterProps {
   currentCondition: string | null;
   currentPriceType: string | null;
 }
+
+const conditionOptions = [
+  { value: 'new', label: 'Baru', icon: Sparkles, color: 'bg-emerald-500/10 text-emerald-600 border-emerald-200 hover:bg-emerald-500/20' },
+  { value: 'like_new', label: 'Seperti Baru', icon: Star, color: 'bg-blue-500/10 text-blue-600 border-blue-200 hover:bg-blue-500/20' },
+  { value: 'good', label: 'Bagus', icon: ThumbsUp, color: 'bg-amber-500/10 text-amber-600 border-amber-200 hover:bg-amber-500/20' },
+  { value: 'fair', label: 'Cukup', icon: Package, color: 'bg-gray-500/10 text-gray-600 border-gray-200 hover:bg-gray-500/20' },
+];
+
+const priceTypeOptions = [
+  { value: 'fixed', label: 'Harga Pas', icon: Tag, color: 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20' },
+  { value: 'negotiable', label: 'Bisa Nego', icon: ArrowUpDown, color: 'bg-orange-500/10 text-orange-600 border-orange-200 hover:bg-orange-500/20' },
+  { value: 'auction', label: 'Lelang', icon: Gavel, color: 'bg-purple-500/10 text-purple-600 border-purple-200 hover:bg-purple-500/20' },
+];
 
 export const SearchFilter = ({
   onSearchChange,
@@ -57,105 +83,202 @@ export const SearchFilter = ({
   };
 
   const hasActiveFilters = currentCondition || currentPriceType || currentSort !== 'newest';
+  const activeFilterCount = [currentCondition, currentPriceType].filter(Boolean).length;
 
   return (
-    <div className="flex gap-2">
-      {/* Search Input */}
-      <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Cari produk..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="pl-10"
-        />
+    <div className="space-y-4">
+      {/* Search Row */}
+      <div className="flex gap-2">
+        {/* Search Input */}
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Cari produk, kategori, atau penjual..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="pl-10 h-11 bg-background"
+          />
+        </div>
+
+        <Button onClick={handleSearch} className="h-11 px-6">
+          Cari
+        </Button>
+
+        {/* Sort Select */}
+        <Select value={currentSort} onValueChange={onSortChange}>
+          <SelectTrigger className="w-[150px] h-11">
+            <SelectValue placeholder="Urutkan" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">🆕 Terbaru</SelectItem>
+            <SelectItem value="price_low">💰 Termurah</SelectItem>
+            <SelectItem value="price_high">💎 Termahal</SelectItem>
+            <SelectItem value="popular">🔥 Terpopuler</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* Filter Sheet */}
+        <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" className="relative h-11 gap-2">
+              <SlidersHorizontal className="h-4 w-4" />
+              Filter
+              {activeFilterCount > 0 && (
+                <Badge className="h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  {activeFilterCount}
+                </Badge>
+              )}
+            </Button>
+          </SheetTrigger>
+          <SheetContent className="w-[400px] sm:w-[540px]">
+            <SheetHeader>
+              <SheetTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <SlidersHorizontal className="h-5 w-5 text-primary" />
+                  Filter Produk
+                </span>
+                {hasActiveFilters && (
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground">
+                    <X className="mr-1 h-4 w-4" /> Reset Semua
+                  </Button>
+                )}
+              </SheetTitle>
+            </SheetHeader>
+
+            <div className="mt-8 space-y-8">
+              {/* Condition Filter */}
+              <div className="space-y-4">
+                <Label className="text-base font-semibold flex items-center gap-2">
+                  <Package className="h-4 w-4 text-primary" />
+                  Kondisi Barang
+                </Label>
+                <div className="grid grid-cols-2 gap-3">
+                  {conditionOptions.map((option) => {
+                    const Icon = option.icon;
+                    const isSelected = currentCondition === option.value;
+                    return (
+                      <Button
+                        key={option.value}
+                        variant="outline"
+                        className={cn(
+                          "h-auto py-3 justify-start gap-3 transition-all",
+                          isSelected 
+                            ? option.color + " ring-2 ring-offset-2 ring-current"
+                            : "hover:bg-muted"
+                        )}
+                        onClick={() => onConditionChange(isSelected ? null : option.value)}
+                      >
+                        <Icon className="h-5 w-5" />
+                        <span className="font-medium">{option.label}</span>
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Price Type Filter */}
+              <div className="space-y-4">
+                <Label className="text-base font-semibold flex items-center gap-2">
+                  <Tag className="h-4 w-4 text-primary" />
+                  Tipe Harga
+                </Label>
+                <div className="grid grid-cols-1 gap-3">
+                  {priceTypeOptions.map((option) => {
+                    const Icon = option.icon;
+                    const isSelected = currentPriceType === option.value;
+                    return (
+                      <Button
+                        key={option.value}
+                        variant="outline"
+                        className={cn(
+                          "h-auto py-3 justify-start gap-3 transition-all",
+                          isSelected 
+                            ? option.color + " ring-2 ring-offset-2 ring-current"
+                            : "hover:bg-muted"
+                        )}
+                        onClick={() => onPriceTypeChange(isSelected ? null : option.value)}
+                      >
+                        <Icon className="h-5 w-5" />
+                        <div className="text-left">
+                          <span className="font-medium block">{option.label}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {option.value === 'fixed' && 'Tidak bisa ditawar'}
+                            {option.value === 'negotiable' && 'Harga bisa negosiasi'}
+                            {option.value === 'auction' && 'Ikut lelang untuk membeli'}
+                          </span>
+                        </div>
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 flex gap-3">
+              <Button 
+                variant="outline"
+                className="flex-1" 
+                onClick={() => {
+                  clearFilters();
+                  setIsFilterOpen(false);
+                }}
+              >
+                Reset
+              </Button>
+              <Button 
+                className="flex-1" 
+                onClick={() => setIsFilterOpen(false)}
+              >
+                Terapkan Filter
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
 
-      {/* Sort Select */}
-      <Select value={currentSort} onValueChange={onSortChange}>
-        <SelectTrigger className="w-[140px]">
-          <SelectValue placeholder="Urutkan" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="newest">Terbaru</SelectItem>
-          <SelectItem value="price_low">Termurah</SelectItem>
-          <SelectItem value="price_high">Termahal</SelectItem>
-          <SelectItem value="popular">Terpopuler</SelectItem>
-        </SelectContent>
-      </Select>
-
-      {/* Filter Sheet */}
-      <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-        <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="relative">
-            <SlidersHorizontal className="h-4 w-4" />
-            {hasActiveFilters && (
-              <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-primary" />
-            )}
-          </Button>
-        </SheetTrigger>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle className="flex items-center justify-between">
-              Filter
-              {hasActiveFilters && (
-                <Button variant="ghost" size="sm" onClick={clearFilters}>
-                  <X className="mr-1 h-4 w-4" /> Reset
-                </Button>
+      {/* Quick Filters - Inline Condition Pills */}
+      <div className="flex flex-wrap gap-2">
+        {conditionOptions.map((option) => {
+          const Icon = option.icon;
+          const isSelected = currentCondition === option.value;
+          return (
+            <Button
+              key={option.value}
+              variant="outline"
+              size="sm"
+              className={cn(
+                "gap-1.5 transition-all",
+                isSelected && option.color
               )}
-            </SheetTitle>
-          </SheetHeader>
-
-          <div className="mt-6 space-y-6">
-            {/* Condition Filter */}
-            <div className="space-y-2">
-              <Label>Kondisi</Label>
-              <Select 
-                value={currentCondition || ''} 
-                onValueChange={(v) => onConditionChange(v || null)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Semua Kondisi" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Semua Kondisi</SelectItem>
-                  <SelectItem value="new">Baru</SelectItem>
-                  <SelectItem value="like_new">Seperti Baru</SelectItem>
-                  <SelectItem value="good">Bagus</SelectItem>
-                  <SelectItem value="fair">Cukup</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Price Type Filter */}
-            <div className="space-y-2">
-              <Label>Tipe Harga</Label>
-              <Select 
-                value={currentPriceType || ''} 
-                onValueChange={(v) => onPriceTypeChange(v || null)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Semua Tipe" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Semua Tipe</SelectItem>
-                  <SelectItem value="fixed">Harga Pas</SelectItem>
-                  <SelectItem value="negotiable">Nego</SelectItem>
-                  <SelectItem value="auction">Lelang</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <Button 
-            className="mt-6 w-full" 
-            onClick={() => setIsFilterOpen(false)}
-          >
-            Terapkan Filter
-          </Button>
-        </SheetContent>
-      </Sheet>
+              onClick={() => onConditionChange(isSelected ? null : option.value)}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {option.label}
+            </Button>
+          );
+        })}
+        <div className="h-6 w-px bg-border mx-1" />
+        {priceTypeOptions.map((option) => {
+          const Icon = option.icon;
+          const isSelected = currentPriceType === option.value;
+          return (
+            <Button
+              key={option.value}
+              variant="outline"
+              size="sm"
+              className={cn(
+                "gap-1.5 transition-all",
+                isSelected && option.color
+              )}
+              onClick={() => onPriceTypeChange(isSelected ? null : option.value)}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {option.label}
+            </Button>
+          );
+        })}
+      </div>
     </div>
   );
 };
