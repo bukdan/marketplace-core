@@ -29,6 +29,7 @@ import {
   Coins,
   Home,
   ShoppingBag,
+  Heart,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCredits } from '@/hooks/useCredits';
@@ -41,6 +42,7 @@ const mainNavItems = [
   { title: 'Iklan Saya', url: '/dashboard/listings', icon: Package },
   { title: 'Pesanan', url: '/dashboard/orders', icon: ShoppingCart },
   { title: 'Pesan', url: '/dashboard/messages', icon: MessageCircle, hasBadge: true },
+  { title: 'Wishlist', url: '/dashboard/wishlist', icon: Heart },
 ];
 
 const quickLinks = [

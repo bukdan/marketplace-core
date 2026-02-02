@@ -20,8 +20,9 @@ import { ProductSpecs } from '@/components/listing/ProductSpecs';
 import { RatingDisplay } from '@/components/listing/RatingDisplay';
 import { RelatedProducts } from '@/components/listing/RelatedProducts';
 import { ReportListingModal } from '@/components/listing/ReportListingModal';
+import { SocialShareButtons } from '@/components/listing/SocialShareButtons';
 import { 
-  MapPin, Eye, Clock, Heart, Share2, Flag, 
+  MapPin, Eye, Clock, Heart, Flag, 
   Gavel, Timer, ShoppingCart, Sparkles, Tag, CheckCircle
 } from 'lucide-react';
 import { formatDistanceToNow, differenceInSeconds } from 'date-fns';
@@ -287,18 +288,6 @@ export default function ListingDetail() {
     }).format(price);
   };
 
-  const handleShare = async () => {
-    try {
-      await navigator.share({
-        title: listing?.title,
-        url: window.location.href,
-      });
-    } catch {
-      navigator.clipboard.writeText(window.location.href);
-      toast({ title: 'Link disalin ke clipboard!' });
-    }
-  };
-
   if (loading) {
     return (
       <MainLayout>
@@ -397,9 +386,10 @@ export default function ListingDetail() {
                   >
                     <Heart className={cn("h-5 w-5", isSaved && "fill-red-500")} />
                   </Button>
-                  <Button variant="outline" size="icon" onClick={handleShare}>
-                    <Share2 className="h-5 w-5" />
-                  </Button>
+                  <SocialShareButtons 
+                    title={listing.title} 
+                    variant="compact"
+                  />
                   <Button 
                     variant="outline" 
                     size="icon"
