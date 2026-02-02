@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCredits } from '@/hooks/useCredits';
 import { useAuth } from '@/hooks/useAuth';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -77,27 +78,19 @@ const Credits = () => {
 
   if (!user) {
     return (
-      <div className="container flex min-h-screen flex-col items-center justify-center px-4">
-        <Coins className="mb-4 h-16 w-16 text-muted-foreground" />
-        <h2 className="mb-2 text-xl font-bold">Login untuk Membeli Kredit</h2>
-        <p className="mb-4 text-muted-foreground">Anda perlu login untuk membeli kredit</p>
-        <Button onClick={() => navigate('/auth')}>Login Sekarang</Button>
-      </div>
+      <MainLayout>
+        <div className="container flex min-h-[60vh] flex-col items-center justify-center px-4">
+          <Coins className="mb-4 h-16 w-16 text-muted-foreground" />
+          <h2 className="mb-2 text-xl font-bold">Login untuk Membeli Kredit</h2>
+          <p className="mb-4 text-muted-foreground">Anda perlu login untuk membeli kredit</p>
+          <Button onClick={() => navigate('/auth')}>Login Sekarang</Button>
+        </div>
+      </MainLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
-        <div className="container flex h-16 items-center px-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="ml-2 text-xl font-bold">Beli Kredit</h1>
-        </div>
-      </header>
-
+    <MainLayout>
       <main className="container px-4 py-6">
         {/* Current Balance */}
         <Card className="mb-6 bg-gradient-to-br from-primary/10 to-primary/5">
@@ -203,7 +196,7 @@ const Credits = () => {
           </div>
         )}
       </main>
-    </div>
+    </MainLayout>
   );
 };
 
