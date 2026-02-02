@@ -16,6 +16,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { ImageGallery } from '@/components/listing/ImageGallery';
 import { SellerCard } from '@/components/listing/SellerCard';
 import { ReviewSection } from '@/components/listing/ReviewSection';
+import { ProductSpecs } from '@/components/listing/ProductSpecs';
+import { RatingDisplay } from '@/components/listing/RatingDisplay';
 import { 
   MapPin, Eye, Clock, Heart, Share2, Flag, 
   Gavel, Timer, ShoppingCart, Sparkles, Tag, CheckCircle
@@ -415,28 +417,36 @@ export default function ListingDetail() {
 
             <Separator />
 
-            {/* Condition Info */}
-            <Card className="bg-muted/50">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className={cn("w-3 h-3 rounded-full", conditionData.color)} />
-                  <div>
-                    <span className="font-medium">Kondisi: {conditionData.label}</span>
-                    <p className="text-sm text-muted-foreground">{conditionData.description}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Description */}
-            <div>
-              <h2 className="text-lg font-semibold mb-3">Deskripsi</h2>
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/30 border">
+              <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <Tag className="h-5 w-5 text-primary" />
+                Deskripsi Produk
+              </h2>
               <div className="prose prose-sm max-w-none">
                 <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
                   {listing.description || 'Tidak ada deskripsi tersedia untuk iklan ini.'}
                 </p>
               </div>
             </div>
+
+            <Separator />
+
+            {/* Product Specs - Info Sections like the reference image */}
+            <ProductSpecs
+              condition={condition}
+              priceType={listing.price_type}
+              location={location}
+              viewCount={listing.view_count}
+              createdAt={listing.created_at}
+              isFeatured={listing.is_featured}
+              category={listing.categories?.name || 'Lainnya'}
+            />
+
+            <Separator />
+
+            {/* Rating Display */}
+            <RatingDisplay stats={sellerRating} />
 
             <Separator />
 
