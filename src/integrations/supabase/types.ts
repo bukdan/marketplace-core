@@ -971,17 +971,18 @@ export type Database = {
       }
     }
     Views: {
-      platform_stats: {
-        Row: {
-          active_auctions: number | null
-          total_categories: number | null
-          total_listings: number | null
-          total_sellers: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
+      get_platform_stats: {
+        Args: never
+        Returns: {
+          active_auctions: number
+          total_categories: number
+          total_listings: number
+          total_sellers: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
