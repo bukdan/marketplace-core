@@ -24,6 +24,7 @@ import DashboardOrders from "./pages/dashboard/DashboardOrders";
 import DashboardMessages from "./pages/dashboard/DashboardMessages";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
 import DashboardSettings from "./pages/dashboard/DashboardSettings";
+import DashboardWishlist from "./pages/dashboard/DashboardWishlist";
 
 // Admin pages
 import AdminHome from "./pages/admin/AdminHome";
@@ -62,6 +63,7 @@ const App = () => (
               <Route path="/dashboard/messages" element={<DashboardMessages />} />
               <Route path="/dashboard/profile" element={<DashboardProfile />} />
               <Route path="/dashboard/settings" element={<DashboardSettings />} />
+              <Route path="/dashboard/wishlist" element={<DashboardWishlist />} />
               
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminHome />} />
