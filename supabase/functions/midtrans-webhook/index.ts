@@ -290,6 +290,17 @@ Deno.serve(async (req) => {
           throw updateOrderError;
         }
 
+        // Trigger email notification for paid order
+        try {
+          await supabase.functions.invoke('send-order-notification', {
+            body: { order_id: order.id, notification_type: 'paid' },
+          });
+          console.log('Order payment notification sent');
+        } catch (notifyError) {
+          console.error('Failed to send order notification:', notifyError);
+          // Non-critical, continue
+        }
+
         console.log('Order payment processed successfully:', {
           order_id: order.id,
           amount: amount,

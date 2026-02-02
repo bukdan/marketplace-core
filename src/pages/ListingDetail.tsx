@@ -11,11 +11,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useChat } from '@/hooks/useChat';
+import { useBuyNow } from '@/hooks/useBuyNow';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   MapPin, Eye, Clock, Heart, Share2, Flag, 
   Phone, MessageCircle, ChevronLeft, ChevronRight,
-  Gavel, Timer, User, Shield
+  Gavel, Timer, User, Shield, ShoppingCart
 } from 'lucide-react';
 import { formatDistanceToNow, differenceInSeconds, format } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -77,6 +78,7 @@ export default function ListingDetail() {
   const { toast } = useToast();
   const { user } = useAuth();
   const { startConversation, loading: chatLoading } = useChat();
+  const { buyNow, loading: buyNowLoading } = useBuyNow();
   
   const [listing, setListing] = useState<Listing | null>(null);
   const [auction, setAuction] = useState<Auction | null>(null);
@@ -539,14 +541,20 @@ export default function ListingDetail() {
                       </div>
                     )}
                     
-                    {auction.buy_now_price && (
+                    {auction.buy_now_price && auction.status === 'active' && (
                       <>
                         <Separator />
                         <div>
                           <p className="text-sm text-muted-foreground mb-2">Beli Langsung</p>
                           <p className="text-xl font-bold mb-2">{formatPrice(auction.buy_now_price)}</p>
-                          <Button variant="outline" className="w-full">
-                            Beli Sekarang
+                          <Button 
+                            variant="outline" 
+                            className="w-full gap-2"
+                            onClick={() => buyNow(listing.id, listing.user_id, auction.buy_now_price!, auction.id)}
+                            disabled={buyNowLoading || listing.user_id === user?.id}
+                          >
+                            <ShoppingCart className="h-4 w-4" />
+                            {buyNowLoading ? 'Memproses...' : 'Beli Sekarang'}
                           </Button>
                         </div>
                       </>
@@ -564,7 +572,18 @@ export default function ListingDetail() {
                     </div>
                     
                     <div className="space-y-2">
+                      {/* Buy Now Button for fixed/negotiable listings */}
                       <Button 
+                        className="w-full gap-2"
+                        onClick={() => buyNow(listing.id, listing.user_id, listing.price)}
+                        disabled={buyNowLoading || listing.user_id === user?.id}
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                        {buyNowLoading ? 'Memproses...' : 'Beli Sekarang'}
+                      </Button>
+                      
+                      <Button 
+                        variant="outline"
                         className="w-full gap-2"
                         onClick={() => startConversation(listing.user_id, listing.id)}
                         disabled={chatLoading || listing.user_id === user?.id}
