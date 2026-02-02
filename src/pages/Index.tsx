@@ -1,4 +1,5 @@
 import { useLandingData } from '@/hooks/useLandingData';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { CategorySection } from '@/components/landing/CategorySection';
 import { ListingsSection } from '@/components/landing/ListingsSection';
@@ -55,7 +56,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <MainLayout>
       {/* Hero Section with Search & Stats */}
       <HeroSection stats={stats} />
 
@@ -110,7 +111,7 @@ const Index = () => {
 
       {/* Footer */}
       <Footer />
-    </div>
+    </MainLayout>
   );
 };
 

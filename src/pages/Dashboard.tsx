@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -12,7 +13,6 @@ import {
   Wallet, 
   ArrowUpCircle, 
   ArrowDownCircle, 
-  LogOut, 
   RefreshCw,
   Plus,
   History
@@ -172,7 +172,7 @@ const Dashboard = () => {
 
   const handleLogout = async () => {
     await signOut();
-    navigate('/auth');
+    navigate('/');
   };
 
   const formatCurrency = (amount: number) => {
@@ -185,31 +185,25 @@ const Dashboard = () => {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-background p-4 md:p-8">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <Skeleton className="h-12 w-48" />
-          <Skeleton className="h-40 w-full" />
+      <MainLayout>
+        <div className="container max-w-4xl px-4 py-8">
+          <Skeleton className="h-12 w-48 mb-6" />
+          <Skeleton className="h-40 w-full mb-6" />
           <Skeleton className="h-64 w-full" />
         </div>
-      </div>
+      </MainLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <MainLayout>
+      <div className="container max-w-4xl px-4 py-8 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-            <p className="text-muted-foreground">
-              Selamat datang, {profile?.name || user?.email}
-            </p>
-          </div>
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Keluar
-          </Button>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Selamat datang, {profile?.name || user?.email}
+          </p>
         </div>
 
         {/* Wallet Card */}
@@ -305,7 +299,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </MainLayout>
   );
 };
 
