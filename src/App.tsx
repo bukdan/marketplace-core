@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Marketplace from "./pages/Marketplace";
 import Credits from "./pages/Credits";
 import CreateListing from "./pages/CreateListing";
+import ListingDetail from "./pages/ListingDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/credits" element={<Credits />} />
             <Route path="/listing/create" element={<CreateListing />} />
+            <Route path="/listing/:id" element={<ListingDetail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
