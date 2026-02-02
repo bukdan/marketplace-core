@@ -133,6 +133,17 @@ export const useOrders = () => {
 
     if (error) throw error;
     
+    // Send notification for shipped/delivered/completed status
+    if (['shipped', 'delivered', 'completed'].includes(status)) {
+      try {
+        await supabase.functions.invoke('send-order-notification', {
+          body: { order_id: orderId, notification_type: status },
+        });
+      } catch (notifyError) {
+        console.error('Failed to send notification:', notifyError);
+      }
+    }
+    
     fetchOrders();
   };
 
