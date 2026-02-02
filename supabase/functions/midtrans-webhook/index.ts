@@ -60,11 +60,11 @@ Deno.serve(async (req) => {
     }
 
     // Parse order ID to determine type
-    // Format: TOPUP-{timestamp}-{user_id_prefix} or CREDIT-{timestamp}-{user_id_prefix}
+    // Format: TOPUP-{timestamp}-{user_id_prefix}, CREDIT-{timestamp}-{user_id_prefix}, or ORDER-{timestamp}-{user_id_prefix}
     const orderParts = notification.order_id.split('-');
     const orderType = orderParts[0];
 
-    if (orderType !== 'TOPUP' && orderType !== 'CREDIT') {
+    if (orderType !== 'TOPUP' && orderType !== 'CREDIT' && orderType !== 'ORDER') {
       console.log('Unknown order type, ignoring:', orderType);
       return new Response(
         JSON.stringify({ message: 'Unknown order type' }),
@@ -247,6 +247,59 @@ Deno.serve(async (req) => {
             user_id: userCredits.user_id,
             credits_added: totalCreditsToAdd,
             new_balance: newBalance,
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Handle ORDER - order payment
+      if (orderType === 'ORDER') {
+        // Find order by looking at notes field containing midtrans_order_id
+        const { data: orders, error: ordersError } = await supabase
+          .from('orders')
+          .select('id, buyer_id, seller_id, amount, status')
+          .like('notes', `%${notification.order_id}%`);
+
+        if (ordersError) {
+          console.error('Error fetching orders:', ordersError);
+          throw ordersError;
+        }
+
+        const order = orders?.[0];
+        
+        if (!order) {
+          console.error('Order not found for:', notification.order_id);
+          return new Response(
+            JSON.stringify({ error: 'Order not found' }),
+            { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Update order status to paid
+        const { error: updateOrderError } = await supabase
+          .from('orders')
+          .update({ 
+            status: 'paid',
+            payment_status: 'paid',
+            paid_at: new Date().toISOString(),
+          })
+          .eq('id', order.id);
+
+        if (updateOrderError) {
+          console.error('Error updating order:', updateOrderError);
+          throw updateOrderError;
+        }
+
+        console.log('Order payment processed successfully:', {
+          order_id: order.id,
+          amount: amount,
+        });
+
+        return new Response(
+          JSON.stringify({ 
+            message: 'Order payment processed successfully',
+            order_id: order.id,
+            amount: amount,
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );

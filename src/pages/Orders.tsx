@@ -1,18 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useOrders } from '@/hooks/useOrders';
+import { useOrderPayment } from '@/hooks/useOrderPayment';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Package, ShoppingBag, Truck, CheckCircle, XCircle, 
-  Clock, MessageCircle, Loader2, Eye
+  Clock, MessageCircle, Loader2, Eye, CreditCard
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -30,7 +31,8 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.C
 export default function Orders() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const { orders, loading, updateOrderStatus } = useOrders();
+  const { orders, loading, updateOrderStatus, refetchOrders } = useOrders();
+  const { payOrder, loading: paymentLoading } = useOrderPayment();
   const { toast } = useToast();
   const [updatingOrder, setUpdatingOrder] = useState<string | null>(null);
   const [trackingInput, setTrackingInput] = useState<Record<string, string>>({});
@@ -143,7 +145,12 @@ export default function Orders() {
               // Buyer actions
               <>
                 {order.status === 'pending' && (
-                  <Button size="sm" onClick={() => toast({ title: 'Fitur pembayaran akan segera hadir' })}>
+                  <Button 
+                    size="sm" 
+                    onClick={() => payOrder(order.id, refetchOrders)}
+                    disabled={paymentLoading}
+                  >
+                    {paymentLoading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <CreditCard className="h-4 w-4 mr-1" />}
                     Bayar Sekarang
                   </Button>
                 )}
