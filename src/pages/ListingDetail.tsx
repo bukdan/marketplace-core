@@ -18,6 +18,8 @@ import { SellerCard } from '@/components/listing/SellerCard';
 import { ReviewSection } from '@/components/listing/ReviewSection';
 import { ProductSpecs } from '@/components/listing/ProductSpecs';
 import { RatingDisplay } from '@/components/listing/RatingDisplay';
+import { RelatedProducts } from '@/components/listing/RelatedProducts';
+import { ReportListingModal } from '@/components/listing/ReportListingModal';
 import { 
   MapPin, Eye, Clock, Heart, Share2, Flag, 
   Gavel, Timer, ShoppingCart, Sparkles, Tag, CheckCircle
@@ -105,6 +107,8 @@ export default function ListingDetail() {
   const [bidding, setBidding] = useState(false);
   const [timeLeft, setTimeLeft] = useState<string>('');
   const [sellerRating, setSellerRating] = useState<SellerRating | null>(null);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [categoryId, setCategoryId] = useState<string>('');
 
   useEffect(() => {
     if (listingId) {
@@ -161,6 +165,9 @@ export default function ListingDetail() {
         .single();
 
       if (listingError) throw listingError;
+      
+      // Store category_id for related products
+      setCategoryId(listingData.category_id);
       
       const { data: profileData } = await supabase
         .from('profiles')
@@ -393,7 +400,11 @@ export default function ListingDetail() {
                   <Button variant="outline" size="icon" onClick={handleShare}>
                     <Share2 className="h-5 w-5" />
                   </Button>
-                  <Button variant="outline" size="icon">
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    onClick={() => setReportModalOpen(true)}
+                  >
                     <Flag className="h-5 w-5" />
                   </Button>
                 </div>
@@ -455,6 +466,17 @@ export default function ListingDetail() {
               sellerId={listing.user_id} 
               onRatingUpdate={setSellerRating}
             />
+
+            <Separator />
+
+            {/* Related Products Section */}
+            {categoryId && (
+              <RelatedProducts
+                categoryId={categoryId}
+                currentListingId={listing.id}
+                categoryName={listing.categories?.name || 'Lainnya'}
+              />
+            )}
           </div>
 
           {/* Right Column - Price & Actions */}
@@ -603,6 +625,14 @@ export default function ListingDetail() {
             />
           </div>
         </div>
+
+        {/* Report Modal */}
+        <ReportListingModal
+          open={reportModalOpen}
+          onOpenChange={setReportModalOpen}
+          listingId={listing.id}
+          listingTitle={listing.title}
+        />
       </div>
     </MainLayout>
   );
