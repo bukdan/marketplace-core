@@ -56,7 +56,7 @@ export default function Orders() {
   const handleUpdateStatus = async (orderId: string, status: string, trackingNumber?: string) => {
     setUpdatingOrder(orderId);
     try {
-      await updateOrderStatus(orderId, status, trackingNumber ? { tracking_number: trackingNumber } : undefined);
+      await updateOrderStatus(orderId, status, trackingNumber);
       toast({ title: 'Status pesanan berhasil diupdate' });
     } catch (error) {
       toast({ title: 'Gagal update status', variant: 'destructive' });

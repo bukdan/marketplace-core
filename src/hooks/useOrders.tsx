@@ -41,6 +41,7 @@ export const useOrders = () => {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -50,6 +51,9 @@ export const useOrders = () => {
       setLoading(false);
     }
   }, [user]);
+
+  const buyingOrders = orders.filter(o => o.buyer_id === user?.id);
+  const sellingOrders = orders.filter(o => o.seller_id === user?.id);
 
   const fetchOrders = async () => {
     if (!user) return;
@@ -116,40 +120,53 @@ export const useOrders = () => {
     return order;
   };
 
-  const updateOrderStatus = async (orderId: string, status: string, additionalData?: Partial<Order>) => {
-    const updateData: Record<string, unknown> = { status, ...additionalData };
-    
-    // Set timestamps based on status
-    if (status === 'paid') updateData.paid_at = new Date().toISOString();
-    if (status === 'shipped') updateData.shipped_at = new Date().toISOString();
-    if (status === 'delivered') updateData.delivered_at = new Date().toISOString();
-    if (status === 'completed') updateData.completed_at = new Date().toISOString();
-    if (status === 'cancelled') updateData.cancelled_at = new Date().toISOString();
-
-    const { error } = await supabase
-      .from('orders')
-      .update(updateData)
-      .eq('id', orderId);
-
-    if (error) throw error;
-    
-    // Send notification for shipped/delivered/completed status
-    if (['shipped', 'delivered', 'completed'].includes(status)) {
-      try {
-        await supabase.functions.invoke('send-order-notification', {
-          body: { order_id: orderId, notification_type: status },
-        });
-      } catch (notifyError) {
-        console.error('Failed to send notification:', notifyError);
+  const updateOrderStatus = async (orderId: string, status: string, trackingNumber?: string) => {
+    setIsUpdating(true);
+    try {
+      const updateData: Record<string, unknown> = { status };
+      
+      // Add tracking number if provided
+      if (trackingNumber) {
+        updateData.tracking_number = trackingNumber;
       }
+      
+      // Set timestamps based on status
+      if (status === 'paid') updateData.paid_at = new Date().toISOString();
+      if (status === 'shipped') updateData.shipped_at = new Date().toISOString();
+      if (status === 'delivered') updateData.delivered_at = new Date().toISOString();
+      if (status === 'completed') updateData.completed_at = new Date().toISOString();
+      if (status === 'cancelled') updateData.cancelled_at = new Date().toISOString();
+
+      const { error } = await supabase
+        .from('orders')
+        .update(updateData)
+        .eq('id', orderId);
+
+      if (error) throw error;
+      
+      // Send notification for shipped/delivered/completed status
+      if (['shipped', 'delivered', 'completed'].includes(status)) {
+        try {
+          await supabase.functions.invoke('send-order-notification', {
+            body: { order_id: orderId, notification_type: status },
+          });
+        } catch (notifyError) {
+          console.error('Failed to send notification:', notifyError);
+        }
+      }
+      
+      fetchOrders();
+    } finally {
+      setIsUpdating(false);
     }
-    
-    fetchOrders();
   };
 
   return {
     orders,
+    buyingOrders,
+    sellingOrders,
     loading,
+    isUpdating,
     createOrder,
     updateOrderStatus,
     refetchOrders: fetchOrders,
