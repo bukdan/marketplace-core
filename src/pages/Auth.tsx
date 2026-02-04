@@ -7,12 +7,13 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mail, Lock, User } from 'lucide-react';
+import { Loader2, Mail, User } from 'lucide-react';
 import { z } from 'zod';
 import { lovable } from '@/integrations/lovable/index';
 import { Separator } from '@/components/ui/separator';
 import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
 import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
+import { PasswordInput } from '@/components/ui/password-input';
 
 const emailSchema = z.string().email('Email tidak valid');
 const passwordSchema = z.string().min(6, 'Password minimal 6 karakter');
@@ -31,6 +32,7 @@ const Auth = () => {
   const [loginPassword, setLoginPassword] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
+  const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
   const [registerName, setRegisterName] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -91,6 +93,10 @@ const Auth = () => {
       if (e instanceof z.ZodError) {
         newErrors.registerPassword = e.errors[0].message;
       }
+    }
+
+    if (registerPassword !== registerConfirmPassword) {
+      newErrors.registerConfirmPassword = 'Password tidak sama';
     }
 
     setErrors(newErrors);
@@ -221,17 +227,12 @@ const Auth = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="login-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="login-password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={loginPassword}
-                        onChange={(e) => setLoginPassword(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
+                    <PasswordInput
+                      id="login-password"
+                      placeholder="••••••••"
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                    />
                     {errors.loginPassword && (
                       <p className="text-sm text-destructive">{errors.loginPassword}</p>
                     )}
@@ -340,21 +341,29 @@ const Auth = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="register-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="register-password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={registerPassword}
-                        onChange={(e) => setRegisterPassword(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
+                    <PasswordInput
+                      id="register-password"
+                      placeholder="••••••••"
+                      value={registerPassword}
+                      onChange={(e) => setRegisterPassword(e.target.value)}
+                    />
                     {errors.registerPassword && (
                       <p className="text-sm text-destructive">{errors.registerPassword}</p>
                     )}
                     <PasswordStrengthIndicator password={registerPassword} />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="register-confirm-password">Konfirmasi Password</Label>
+                    <PasswordInput
+                      id="register-confirm-password"
+                      placeholder="••••••••"
+                      value={registerConfirmPassword}
+                      onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+                    />
+                    {errors.registerConfirmPassword && (
+                      <p className="text-sm text-destructive">{errors.registerConfirmPassword}</p>
+                    )}
                   </div>
 
                   <Button type="submit" className="w-full" disabled={isLoading}>
