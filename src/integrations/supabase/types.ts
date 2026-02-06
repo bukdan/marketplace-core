@@ -198,6 +198,69 @@ export type Database = {
         }
         Relationships: []
       }
+      cart_items: {
+        Row: {
+          cart_id: string | null
+          created_at: string | null
+          id: string
+          price: number
+          product_id: string | null
+          quantity: number
+        }
+        Insert: {
+          cart_id?: string | null
+          created_at?: string | null
+          id?: string
+          price: number
+          product_id?: string | null
+          quantity?: number
+        }
+        Update: {
+          cart_id?: string | null
+          created_at?: string | null
+          id?: string
+          price?: number
+          product_id?: string | null
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_cart_id_fkey"
+            columns: ["cart_id"]
+            isOneToOne: false
+            referencedRelation: "carts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      carts: {
+        Row: {
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           attributes_schema: Json | null
@@ -724,6 +787,42 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          channel: string | null
+          created_at: string | null
+          data: Json | null
+          id: string
+          is_read: boolean | null
+          message: string | null
+          title: string
+          type: string | null
+          user_id: string
+        }
+        Insert: {
+          channel?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message?: string | null
+          title: string
+          type?: string | null
+          user_id: string
+        }
+        Update: {
+          channel?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message?: string | null
+          title?: string
+          type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount: number
@@ -808,6 +907,36 @@ export type Database = {
           },
         ]
       }
+      otp_codes: {
+        Row: {
+          channel: string
+          code: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          is_used: boolean | null
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          code: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          is_used?: boolean | null
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          code?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          is_used?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           created_at: string | null
@@ -837,6 +966,142 @@ export type Database = {
           value?: Json
         }
         Relationships: []
+      }
+      product_images: {
+        Row: {
+          created_at: string | null
+          id: string
+          image_url: string
+          is_primary: boolean | null
+          product_id: string | null
+          sort_order: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          image_url: string
+          is_primary?: boolean | null
+          product_id?: string | null
+          sort_order?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          image_url?: string
+          is_primary?: boolean | null
+          product_id?: string | null
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string
+          product_id: string | null
+          rating: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          rating?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          rating?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_service: boolean | null
+          name: string
+          price: number | null
+          sku: string | null
+          slug: string | null
+          status: string | null
+          stock: number | null
+          umkm_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_service?: boolean | null
+          name: string
+          price?: number | null
+          sku?: string | null
+          slug?: string | null
+          status?: string | null
+          stock?: number | null
+          umkm_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_service?: boolean | null
+          name?: string
+          price?: number | null
+          sku?: string | null
+          slug?: string | null
+          status?: string | null
+          stock?: number | null
+          umkm_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_umkm_id_fkey"
+            columns: ["umkm_id"]
+            isOneToOne: false
+            referencedRelation: "umkm_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -950,6 +1215,39 @@ export type Database = {
           },
         ]
       }
+      support_tickets: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string | null
+          priority: string | null
+          status: string | null
+          subject: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          priority?: string | null
+          status?: string | null
+          subject: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          priority?: string | null
+          status?: string | null
+          subject?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       testimonials: {
         Row: {
           avatar_url: string | null
@@ -1032,6 +1330,281 @@ export type Database = {
             columns: ["wallet_id"]
             isOneToOne: false
             referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      umkm_order_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          order_id: string | null
+          price: number | null
+          product_id: string | null
+          product_name: string | null
+          quantity: number | null
+          total: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          price?: number | null
+          product_id?: string | null
+          product_name?: string | null
+          quantity?: number | null
+          total?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          price?: number | null
+          product_id?: string | null
+          product_name?: string | null
+          quantity?: number | null
+          total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "umkm_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "umkm_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "umkm_order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      umkm_orders: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          order_number: string | null
+          payment_status: string | null
+          shipping_address: string | null
+          shipping_fee: number | null
+          shipping_method: string | null
+          status: string | null
+          subtotal: number | null
+          total_amount: number | null
+          umkm_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          order_number?: string | null
+          payment_status?: string | null
+          shipping_address?: string | null
+          shipping_fee?: number | null
+          shipping_method?: string | null
+          status?: string | null
+          subtotal?: number | null
+          total_amount?: number | null
+          umkm_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          order_number?: string | null
+          payment_status?: string | null
+          shipping_address?: string | null
+          shipping_fee?: number | null
+          shipping_method?: string | null
+          status?: string | null
+          subtotal?: number | null
+          total_amount?: number | null
+          umkm_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "umkm_orders_umkm_id_fkey"
+            columns: ["umkm_id"]
+            isOneToOne: false
+            referencedRelation: "umkm_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      umkm_payments: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          id: string
+          method: string | null
+          order_id: string | null
+          paid_at: string | null
+          provider: string | null
+          raw_response: Json | null
+          status: string | null
+          transaction_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          id?: string
+          method?: string | null
+          order_id?: string | null
+          paid_at?: string | null
+          provider?: string | null
+          raw_response?: Json | null
+          status?: string | null
+          transaction_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          id?: string
+          method?: string | null
+          order_id?: string | null
+          paid_at?: string | null
+          provider?: string | null
+          raw_response?: Json | null
+          status?: string | null
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "umkm_payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "umkm_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      umkm_profiles: {
+        Row: {
+          address: string | null
+          banner_url: string | null
+          brand_name: string | null
+          category_id: string | null
+          city: string | null
+          created_at: string | null
+          description: string | null
+          email: string | null
+          id: string
+          is_verified: boolean | null
+          latitude: number | null
+          logo_url: string | null
+          longitude: number | null
+          owner_id: string
+          phone: string | null
+          postal_code: string | null
+          province: string | null
+          umkm_name: string
+          updated_at: string | null
+          website: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          address?: string | null
+          banner_url?: string | null
+          brand_name?: string | null
+          category_id?: string | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          id?: string
+          is_verified?: boolean | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          owner_id: string
+          phone?: string | null
+          postal_code?: string | null
+          province?: string | null
+          umkm_name: string
+          updated_at?: string | null
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: string | null
+          banner_url?: string | null
+          brand_name?: string | null
+          category_id?: string | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          id?: string
+          is_verified?: boolean | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          owner_id?: string
+          phone?: string | null
+          postal_code?: string | null
+          province?: string | null
+          umkm_name?: string
+          updated_at?: string | null
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "umkm_profiles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      umkm_subscriptions: {
+        Row: {
+          created_at: string | null
+          end_date: string | null
+          id: string
+          plan: string
+          start_date: string | null
+          status: string | null
+          umkm_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          plan: string
+          start_date?: string | null
+          status?: string | null
+          umkm_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          plan?: string
+          start_date?: string | null
+          status?: string | null
+          umkm_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "umkm_subscriptions_umkm_id_fkey"
+            columns: ["umkm_id"]
+            isOneToOne: false
+            referencedRelation: "umkm_profiles"
             referencedColumns: ["id"]
           },
         ]
