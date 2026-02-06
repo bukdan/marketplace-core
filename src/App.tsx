@@ -33,6 +33,11 @@ import AdminListings from "./pages/admin/AdminListings";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminKyc from "./pages/admin/AdminKyc";
 import AdminSettings from "./pages/admin/AdminSettings";
+// UMKM pages
+import UmkmRegister from "./pages/umkm/UmkmRegister";
+import UmkmDashboard from "./pages/umkm/UmkmDashboard";
+import UmkmProducts from "./pages/umkm/UmkmProducts";
+import Cart from "./pages/Cart";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +77,12 @@ const App = () => (
               <Route path="/admin/reports" element={<AdminReports />} />
               <Route path="/admin/kyc" element={<AdminKyc />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
+              
+              {/* UMKM Routes */}
+              <Route path="/umkm/register" element={<UmkmRegister />} />
+              <Route path="/umkm/dashboard" element={<UmkmDashboard />} />
+              <Route path="/umkm/products" element={<UmkmProducts />} />
+              <Route path="/cart" element={<Cart />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
