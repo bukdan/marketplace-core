@@ -1,19 +1,33 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
 import { useUmkmOrders } from '@/hooks/useUmkmOrders';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Loader2, ShoppingCart, Minus, Plus, Trash2, ArrowLeft, 
-  MapPin, CreditCard, Package, CheckCircle 
+  MapPin, CreditCard, Package, CheckCircle, AlertCircle
 } from 'lucide-react';
+
+declare global {
+  interface Window {
+    snap?: {
+      pay: (token: string, options: {
+        onSuccess?: (result: unknown) => void;
+        onPending?: (result: unknown) => void;
+        onError?: (result: unknown) => void;
+        onClose?: () => void;
+      }) => void;
+    };
+  }
+}
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('id-ID', {
@@ -25,19 +39,106 @@ const formatCurrency = (amount: number) => {
 
 const Cart = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
   const { cart, isLoading, totalItems, totalPrice, updateQuantity, removeFromCart, clearCart } = useCart();
   const { createOrder } = useUmkmOrders('buyer');
 
-  const [step, setStep] = useState<'cart' | 'checkout' | 'success'>('cart');
+  const [step, setStep] = useState<'cart' | 'checkout' | 'payment' | 'success'>('cart');
   const [shippingAddress, setShippingAddress] = useState('');
   const [notes, setNotes] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [createdOrderNumber, setCreatedOrderNumber] = useState('');
+  const [createdOrders, setCreatedOrders] = useState<string[]>([]);
+  const [currentPaymentIndex, setCurrentPaymentIndex] = useState(0);
+
+  // Check for payment success from URL params
+  useEffect(() => {
+    const paymentStatus = searchParams.get('payment');
+    const orderNumber = searchParams.get('order');
+    if (paymentStatus === 'success' && orderNumber) {
+      setCreatedOrderNumber(orderNumber);
+      setStep('success');
+    }
+  }, [searchParams]);
+
+  // Load Midtrans Snap script
+  useEffect(() => {
+    const midtransClientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
+    if (!midtransClientKey) {
+      console.warn('Midtrans client key not configured');
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+    script.setAttribute('data-client-key', midtransClientKey);
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
 
   const handleQuantityChange = (itemId: string, currentQuantity: number, delta: number) => {
     const newQuantity = currentQuantity + delta;
     updateQuantity.mutate({ itemId, quantity: newQuantity });
+  };
+
+  const initiatePayment = async (orderId: string) => {
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await supabase.functions.invoke('create-umkm-payment', {
+        body: { order_id: orderId },
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`,
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to create payment');
+      }
+
+      const { snap_token, order_number } = response.data;
+
+      if (!window.snap) {
+        // Fallback to redirect URL if Snap is not loaded
+        if (response.data.redirect_url) {
+          window.location.href = response.data.redirect_url;
+          return;
+        }
+        throw new Error('Payment system not available');
+      }
+
+      return new Promise<{ success: boolean; orderNumber: string }>((resolve) => {
+        window.snap!.pay(snap_token, {
+          onSuccess: () => {
+            resolve({ success: true, orderNumber: order_number });
+          },
+          onPending: () => {
+            resolve({ success: true, orderNumber: order_number });
+          },
+          onError: (result) => {
+            console.error('Payment error:', result);
+            resolve({ success: false, orderNumber: order_number });
+          },
+          onClose: () => {
+            resolve({ success: false, orderNumber: order_number });
+          },
+        });
+      });
+    } catch (error) {
+      console.error('Payment initiation error:', error);
+      throw error;
+    }
   };
 
   const handleCheckout = async () => {
@@ -58,6 +159,8 @@ const Cart = () => {
     }, {} as Record<string, typeof cart.items>);
 
     try {
+      const orderIds: string[] = [];
+
       // Create orders for each UMKM
       for (const [umkmId, items] of Object.entries(itemsByUmkm)) {
         const orderData = {
@@ -73,14 +176,41 @@ const Cart = () => {
         };
 
         const result = await createOrder.mutateAsync(orderData);
+        orderIds.push(result.id);
         setCreatedOrderNumber(result.order_number);
       }
 
-      // Clear cart after successful orders
+      setCreatedOrders(orderIds);
+
+      // Clear cart after successful order creation
       await clearCart.mutateAsync();
-      setStep('success');
+
+      // Start payment process for first order
+      if (orderIds.length > 0) {
+        setCurrentPaymentIndex(0);
+        setStep('payment');
+        
+        const paymentResult = await initiatePayment(orderIds[0]);
+        
+        if (paymentResult?.success) {
+          setCreatedOrderNumber(paymentResult.orderNumber);
+          setStep('success');
+        } else {
+          toast({
+            title: 'Pembayaran dibatalkan',
+            description: 'Pesanan Anda telah dibuat. Silakan lanjutkan pembayaran di halaman pesanan.',
+            variant: 'default',
+          });
+          navigate('/dashboard/orders');
+        }
+      }
     } catch (error) {
       console.error('Checkout error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Checkout gagal',
+        description: error instanceof Error ? error.message : 'Terjadi kesalahan',
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -99,6 +229,25 @@ const Cart = () => {
   if (!user) {
     navigate('/auth');
     return null;
+  }
+
+  // Payment Processing Step
+  if (step === 'payment') {
+    return (
+      <MainLayout>
+        <div className="container max-w-2xl py-16">
+          <Card className="text-center">
+            <CardContent className="pt-12 pb-8">
+              <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-6" />
+              <h1 className="text-2xl font-bold mb-2">Memproses Pembayaran</h1>
+              <p className="text-muted-foreground">
+                Silakan selesaikan pembayaran pada popup yang muncul...
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </MainLayout>
+    );
   }
 
   // Success Step

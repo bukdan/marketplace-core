@@ -60,11 +60,11 @@ Deno.serve(async (req) => {
     }
 
     // Parse order ID to determine type
-    // Format: TOPUP-{timestamp}-{user_id_prefix}, CREDIT-{timestamp}-{user_id_prefix}, or ORDER-{timestamp}-{user_id_prefix}
+    // Format: TOPUP-{timestamp}-{user_id_prefix}, CREDIT-{timestamp}-{user_id_prefix}, ORDER-{timestamp}-{user_id_prefix}, or UMKM-{timestamp}-{user_id_prefix}
     const orderParts = notification.order_id.split('-');
     const orderType = orderParts[0];
 
-    if (orderType !== 'TOPUP' && orderType !== 'CREDIT' && orderType !== 'ORDER') {
+    if (orderType !== 'TOPUP' && orderType !== 'CREDIT' && orderType !== 'ORDER' && orderType !== 'UMKM') {
       console.log('Unknown order type, ignoring:', orderType);
       return new Response(
         JSON.stringify({ message: 'Unknown order type' }),
@@ -310,6 +310,82 @@ Deno.serve(async (req) => {
           JSON.stringify({ 
             message: 'Order payment processed successfully',
             order_id: order.id,
+            amount: amount,
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Handle UMKM - UMKM marketplace order payment
+      if (orderType === 'UMKM') {
+        // Find UMKM order by looking at notes field containing midtrans_order_id
+        const { data: umkmOrders, error: umkmOrdersError } = await supabase
+          .from('umkm_orders')
+          .select('id, user_id, umkm_id, total_amount, status, order_number')
+          .like('notes', `%${notification.order_id}%`);
+
+        if (umkmOrdersError) {
+          console.error('Error fetching UMKM orders:', umkmOrdersError);
+          throw umkmOrdersError;
+        }
+
+        const umkmOrder = umkmOrders?.[0];
+        
+        if (!umkmOrder) {
+          console.error('UMKM Order not found for:', notification.order_id);
+          return new Response(
+            JSON.stringify({ error: 'UMKM Order not found' }),
+            { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Update UMKM order status to paid
+        const { error: updateUmkmOrderError } = await supabase
+          .from('umkm_orders')
+          .update({ 
+            status: 'paid',
+            payment_status: 'paid',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', umkmOrder.id);
+
+        if (updateUmkmOrderError) {
+          console.error('Error updating UMKM order:', updateUmkmOrderError);
+          throw updateUmkmOrderError;
+        }
+
+        // Update payment record
+        await supabase
+          .from('umkm_payments')
+          .update({ 
+            status: 'paid',
+            paid_at: new Date().toISOString(),
+          })
+          .eq('order_id', umkmOrder.id)
+          .eq('status', 'pending');
+
+        // Create notification for UMKM owner
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: umkmOrder.umkm_id, // This is the owner_id
+            type: 'order',
+            title: 'Pesanan Baru Dibayar!',
+            message: `Pesanan ${umkmOrder.order_number} telah dibayar. Segera proses pesanan.`,
+            data: { order_id: umkmOrder.id, order_number: umkmOrder.order_number },
+          });
+
+        console.log('UMKM Order payment processed successfully:', {
+          order_id: umkmOrder.id,
+          order_number: umkmOrder.order_number,
+          amount: amount,
+        });
+
+        return new Response(
+          JSON.stringify({ 
+            message: 'UMKM Order payment processed successfully',
+            order_id: umkmOrder.id,
+            order_number: umkmOrder.order_number,
             amount: amount,
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
