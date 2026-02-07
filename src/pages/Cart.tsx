@@ -260,11 +260,14 @@ const Cart = () => {
               <div className="mx-auto mb-6 h-20 w-20 rounded-full bg-success/10 flex items-center justify-center">
                 <CheckCircle className="h-10 w-10 text-success" />
               </div>
-              <h1 className="text-2xl font-bold mb-2">Pesanan Berhasil!</h1>
+              <h1 className="text-2xl font-bold mb-2">Pembayaran Berhasil!</h1>
               <p className="text-muted-foreground mb-4">
-                Pesanan Anda telah dibuat dengan nomor:
+                Pesanan Anda telah dibayar dan sedang diproses oleh penjual.
               </p>
-              <p className="font-mono text-lg font-semibold mb-8">{createdOrderNumber}</p>
+              <p className="text-sm text-muted-foreground mb-2">Nomor Pesanan:</p>
+              <p className="font-mono text-lg font-semibold mb-8 bg-muted px-4 py-2 rounded-lg inline-block">
+                {createdOrderNumber}
+              </p>
               <div className="flex gap-4 justify-center">
                 <Button variant="outline" onClick={() => navigate('/umkm/products')}>
                   Lanjut Belanja
