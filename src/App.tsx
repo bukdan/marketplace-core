@@ -37,6 +37,8 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import UmkmRegister from "./pages/umkm/UmkmRegister";
 import UmkmDashboard from "./pages/umkm/UmkmDashboard";
 import UmkmProducts from "./pages/umkm/UmkmProducts";
+import UmkmStores from "./pages/umkm/UmkmStores";
+import UmkmStore from "./pages/umkm/UmkmStore";
 import Cart from "./pages/Cart";
 
 const queryClient = new QueryClient();
@@ -82,6 +84,8 @@ const App = () => (
               <Route path="/umkm/register" element={<UmkmRegister />} />
               <Route path="/umkm/dashboard" element={<UmkmDashboard />} />
               <Route path="/umkm/products" element={<UmkmProducts />} />
+              <Route path="/umkm/stores" element={<UmkmStores />} />
+              <Route path="/umkm/store/:id" element={<UmkmStore />} />
               <Route path="/cart" element={<Cart />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
