@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { usePublicProducts } from '@/hooks/useUmkmProducts';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
@@ -6,7 +6,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Package, ShoppingCart, MapPin, Store } from 'lucide-react';
+import { Loader2, Package, ShoppingCart, MapPin, Store, Building2 } from 'lucide-react';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('id-ID', {
@@ -39,22 +39,28 @@ const UmkmProducts = () => {
     <MainLayout>
       <div className="container py-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-bold">Produk UMKM</h1>
             <p className="text-muted-foreground">Temukan produk berkualitas dari UMKM lokal</p>
           </div>
-          {user && (
-            <Button variant="outline" onClick={() => navigate('/cart')} className="relative">
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              Keranjang
-              {totalItems > 0 && (
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                  {totalItems}
-                </Badge>
-              )}
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate('/umkm/stores')}>
+              <Building2 className="h-4 w-4 mr-2" />
+              Lihat Toko
             </Button>
-          )}
+            {user && (
+              <Button variant="outline" onClick={() => navigate('/cart')} className="relative">
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Keranjang
+                {totalItems > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                    {totalItems}
+                  </Badge>
+                )}
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Products Grid */}
@@ -104,10 +110,14 @@ const UmkmProducts = () => {
                       {formatCurrency(product.price)}
                     </p>
                     {product.umkm && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Link 
+                        to={`/umkm/store/${product.umkm.id}`}
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Store className="h-3 w-3" />
                         <span className="line-clamp-1">{product.umkm.umkm_name}</span>
-                      </div>
+                      </Link>
                     )}
                     {product.umkm?.city && (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
