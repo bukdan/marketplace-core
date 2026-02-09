@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import Messages from "./pages/Messages";
 import Orders from "./pages/Orders";
 import NotFound from "./pages/NotFound";
+import Notifications from "./pages/Notifications";
 
 // Dashboard pages
 import DashboardHome from "./pages/dashboard/DashboardHome";
@@ -25,6 +26,9 @@ import DashboardMessages from "./pages/dashboard/DashboardMessages";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
 import DashboardSettings from "./pages/dashboard/DashboardSettings";
 import DashboardWishlist from "./pages/dashboard/DashboardWishlist";
+import DashboardWithdraw from "./pages/dashboard/DashboardWithdraw";
+import DashboardKyc from "./pages/dashboard/DashboardKyc";
+import DashboardSupport from "./pages/dashboard/DashboardSupport";
 
 // Admin pages
 import AdminHome from "./pages/admin/AdminHome";
@@ -39,6 +43,7 @@ import UmkmDashboard from "./pages/umkm/UmkmDashboard";
 import UmkmProducts from "./pages/umkm/UmkmProducts";
 import UmkmStores from "./pages/umkm/UmkmStores";
 import UmkmStore from "./pages/umkm/UmkmStore";
+import UmkmSubscription from "./pages/umkm/UmkmSubscription";
 import Cart from "./pages/Cart";
 
 const queryClient = new QueryClient();
@@ -61,6 +66,7 @@ const App = () => (
               <Route path="/orders" element={<Orders />} />
               <Route path="/listing/create" element={<CreateListing />} />
               <Route path="/listing/:id" element={<ListingDetail />} />
+              <Route path="/notifications" element={<Notifications />} />
               
               {/* Dashboard Routes */}
               <Route path="/dashboard" element={<DashboardHome />} />
@@ -71,6 +77,9 @@ const App = () => (
               <Route path="/dashboard/profile" element={<DashboardProfile />} />
               <Route path="/dashboard/settings" element={<DashboardSettings />} />
               <Route path="/dashboard/wishlist" element={<DashboardWishlist />} />
+              <Route path="/dashboard/withdraw" element={<DashboardWithdraw />} />
+              <Route path="/dashboard/kyc" element={<DashboardKyc />} />
+              <Route path="/dashboard/support" element={<DashboardSupport />} />
               
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminHome />} />
@@ -86,6 +95,7 @@ const App = () => (
               <Route path="/umkm/products" element={<UmkmProducts />} />
               <Route path="/umkm/stores" element={<UmkmStores />} />
               <Route path="/umkm/store/:id" element={<UmkmStore />} />
+              <Route path="/umkm/subscription" element={<UmkmSubscription />} />
               <Route path="/cart" element={<Cart />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
