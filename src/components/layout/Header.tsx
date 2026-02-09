@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCredits } from '@/hooks/useCredits';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
+import { useNotifications } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -29,6 +30,7 @@ import {
   ChevronDown,
   MessageCircle,
   Package,
+  Bell,
 } from 'lucide-react';
 
 export const Header = () => {
@@ -37,6 +39,7 @@ export const Header = () => {
   const { user, signOut } = useAuth();
   const { credits } = useCredits();
   const { unreadCount } = useUnreadMessages();
+  const { unreadCount: notifCount } = useNotifications();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -124,6 +127,21 @@ export const Header = () => {
                 >
                   <Coins className="h-4 w-4" />
                   <span>{credits?.balance || 0}</span>
+                </Button>
+
+                {/* Notifications Badge - Desktop */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/notifications')}
+                  className="relative hidden text-primary-foreground hover:bg-primary-foreground/10 md:flex"
+                >
+                  <Bell className="h-5 w-5" />
+                  {notifCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-xs flex items-center justify-center text-destructive-foreground">
+                      {notifCount > 9 ? '9+' : notifCount}
+                    </span>
+                  )}
                 </Button>
 
                 {/* Messages Badge - Desktop */}

@@ -30,6 +30,9 @@ import {
   Home,
   ShoppingBag,
   Heart,
+  ArrowDownCircle,
+  Shield,
+  HelpCircle,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCredits } from '@/hooks/useCredits';
@@ -39,10 +42,13 @@ import { Badge } from '@/components/ui/badge';
 const mainNavItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Wallet', url: '/dashboard/wallet', icon: Wallet },
+  { title: 'Penarikan', url: '/dashboard/withdraw', icon: ArrowDownCircle },
   { title: 'Iklan Saya', url: '/dashboard/listings', icon: Package },
   { title: 'Pesanan', url: '/dashboard/orders', icon: ShoppingCart },
   { title: 'Pesan', url: '/dashboard/messages', icon: MessageCircle, hasBadge: true },
   { title: 'Wishlist', url: '/dashboard/wishlist', icon: Heart },
+  { title: 'Verifikasi KYC', url: '/dashboard/kyc', icon: Shield },
+  { title: 'Bantuan', url: '/dashboard/support', icon: HelpCircle },
 ];
 
 const quickLinks = [
