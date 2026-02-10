@@ -27,6 +27,13 @@ import {
   ShieldCheck,
   Home,
   ArrowLeft,
+  Store,
+  ShoppingCart,
+  Wallet,
+  Image,
+  HelpCircle,
+  Coins,
+  BarChart3,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminData } from '@/hooks/useAdminData';
@@ -35,8 +42,15 @@ const adminNavItems = [
   { title: 'Overview', url: '/admin', icon: LayoutDashboard },
   { title: 'Users', url: '/admin/users', icon: Users },
   { title: 'Listings', url: '/admin/listings', icon: Package },
+  { title: 'UMKM', url: '/admin/umkm', icon: Store },
+  { title: 'Orders', url: '/admin/orders', icon: ShoppingCart },
+  { title: 'Withdrawals', url: '/admin/withdrawals', icon: Wallet },
+  { title: 'Banners', url: '/admin/banners', icon: Image },
   { title: 'Reports', url: '/admin/reports', icon: Flag, hasBadge: true },
   { title: 'KYC Verifications', url: '/admin/kyc', icon: UserCheck, hasBadge: true },
+  { title: 'Support', url: '/admin/support', icon: HelpCircle },
+  { title: 'Credits', url: '/admin/credits', icon: Coins },
+  { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
 ];
 
 export function AdminSidebar() {
