@@ -35,6 +35,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { z } from 'zod';
+import { provinceNames, getCitiesByProvince } from '@/data/indonesiaRegions';
 
 const MAX_FREE_IMAGES = 5;
 const CREDIT_PER_EXTRA_IMAGE = 1;
@@ -584,25 +585,40 @@ const CreateListing = () => {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="province">Provinsi *</Label>
-                  <Input
-                    id="province"
-                    placeholder="Contoh: DKI Jakarta"
+                  <Select
                     value={formData.province}
-                    onChange={(e) => setFormData({ ...formData, province: e.target.value })}
-                  />
+                    onValueChange={(value) => setFormData({ ...formData, province: value, city: '' })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih provinsi" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {provinceNames.map((prov) => (
+                        <SelectItem key={prov} value={prov}>{prov}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {errors.province && (
                     <p className="text-sm text-destructive">{errors.province}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="city">Kota *</Label>
-                  <Input
-                    id="city"
-                    placeholder="Contoh: Jakarta Selatan"
+                  <Label htmlFor="city">Kabupaten/Kota *</Label>
+                  <Select
                     value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  />
+                    onValueChange={(value) => setFormData({ ...formData, city: value })}
+                    disabled={!formData.province}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={formData.province ? "Pilih kabupaten/kota" : "Pilih provinsi dulu"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getCitiesByProvince(formData.province).map((city) => (
+                        <SelectItem key={city} value={city}>{city}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {errors.city && (
                     <p className="text-sm text-destructive">{errors.city}</p>
                   )}
