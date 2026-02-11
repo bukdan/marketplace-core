@@ -34,6 +34,7 @@ import {
   HelpCircle,
   Coins,
   BarChart3,
+  ScrollText,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminData } from '@/hooks/useAdminData';
@@ -51,6 +52,7 @@ const adminNavItems = [
   { title: 'Support', url: '/admin/support', icon: HelpCircle },
   { title: 'Credits', url: '/admin/credits', icon: Coins },
   { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
+  { title: 'Activity Log', url: '/admin/activity-log', icon: ScrollText },
 ];
 
 export function AdminSidebar() {

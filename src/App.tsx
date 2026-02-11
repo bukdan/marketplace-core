@@ -44,6 +44,7 @@ import AdminBanners from "./pages/admin/AdminBanners";
 import AdminSupport from "./pages/admin/AdminSupport";
 import AdminCredits from "./pages/admin/AdminCredits";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminActivityLog from "./pages/admin/AdminActivityLog";
 // UMKM pages
 import UmkmRegister from "./pages/umkm/UmkmRegister";
 import UmkmDashboard from "./pages/umkm/UmkmDashboard";
@@ -101,6 +102,7 @@ const App = () => (
               <Route path="/admin/support" element={<AdminSupport />} />
               <Route path="/admin/credits" element={<AdminCredits />} />
               <Route path="/admin/analytics" element={<AdminAnalytics />} />
+              <Route path="/admin/activity-log" element={<AdminActivityLog />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
               
               {/* UMKM Routes */}
