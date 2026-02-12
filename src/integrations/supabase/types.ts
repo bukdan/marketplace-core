@@ -457,10 +457,15 @@ export type Database = {
       kyc_verifications: {
         Row: {
           approved_at: string | null
+          city: string | null
           created_at: string | null
+          district: string | null
+          full_address: string | null
+          full_name: string | null
           id: string
           ktp_image_url: string | null
           ktp_number: string | null
+          province: string | null
           rejection_reason: string | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -468,13 +473,19 @@ export type Database = {
           status: string | null
           submitted_at: string | null
           user_id: string
+          village: string | null
         }
         Insert: {
           approved_at?: string | null
+          city?: string | null
           created_at?: string | null
+          district?: string | null
+          full_address?: string | null
+          full_name?: string | null
           id?: string
           ktp_image_url?: string | null
           ktp_number?: string | null
+          province?: string | null
           rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -482,13 +493,19 @@ export type Database = {
           status?: string | null
           submitted_at?: string | null
           user_id: string
+          village?: string | null
         }
         Update: {
           approved_at?: string | null
+          city?: string | null
           created_at?: string | null
+          district?: string | null
+          full_address?: string | null
+          full_name?: string | null
           id?: string
           ktp_image_url?: string | null
           ktp_number?: string | null
+          province?: string | null
           rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -496,6 +513,7 @@ export type Database = {
           status?: string | null
           submitted_at?: string | null
           user_id?: string
+          village?: string | null
         }
         Relationships: []
       }
