@@ -14,6 +14,24 @@ export interface KycVerification {
   approved_at: string | null;
   rejection_reason: string | null;
   created_at: string | null;
+  full_name: string | null;
+  province: string | null;
+  city: string | null;
+  district: string | null;
+  village: string | null;
+  full_address: string | null;
+}
+
+export interface KycSubmitData {
+  ktp_number: string;
+  ktp_image_url: string;
+  selfie_image_url: string;
+  full_name: string;
+  province: string;
+  city: string;
+  district: string;
+  village: string;
+  full_address: string;
 }
 
 export const useKyc = () => {
@@ -37,11 +55,10 @@ export const useKyc = () => {
   });
 
   const submitKyc = useMutation({
-    mutationFn: async (data: { ktp_number: string; ktp_image_url: string; selfie_image_url: string }) => {
+    mutationFn: async (data: KycSubmitData) => {
       if (!user?.id) throw new Error('Not authenticated');
       
       if (kyc) {
-        // Update existing
         const { error } = await supabase
           .from('kyc_verifications')
           .update({
@@ -53,7 +70,6 @@ export const useKyc = () => {
           .eq('id', kyc.id);
         if (error) throw error;
       } else {
-        // Insert new
         const { error } = await supabase
           .from('kyc_verifications')
           .insert({
