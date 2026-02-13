@@ -27,7 +27,7 @@ import {
   ShieldCheck,
   Home,
   ArrowLeft,
-  Store,
+  
   ShoppingCart,
   Wallet,
   Image,
@@ -43,7 +43,7 @@ const adminNavItems = [
   { title: 'Overview', url: '/admin', icon: LayoutDashboard },
   { title: 'Users', url: '/admin/users', icon: Users },
   { title: 'Listings', url: '/admin/listings', icon: Package },
-  { title: 'UMKM', url: '/admin/umkm', icon: Store },
+  
   { title: 'Orders', url: '/admin/orders', icon: ShoppingCart },
   { title: 'Withdrawals', url: '/admin/withdrawals', icon: Wallet },
   { title: 'Banners', url: '/admin/banners', icon: Image },
