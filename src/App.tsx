@@ -37,7 +37,7 @@ import AdminListings from "./pages/admin/AdminListings";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminKyc from "./pages/admin/AdminKyc";
 import AdminSettings from "./pages/admin/AdminSettings";
-import AdminUmkm from "./pages/admin/AdminUmkm";
+
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
 import AdminBanners from "./pages/admin/AdminBanners";
@@ -45,14 +45,6 @@ import AdminSupport from "./pages/admin/AdminSupport";
 import AdminCredits from "./pages/admin/AdminCredits";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminActivityLog from "./pages/admin/AdminActivityLog";
-// UMKM pages
-import UmkmRegister from "./pages/umkm/UmkmRegister";
-import UmkmDashboard from "./pages/umkm/UmkmDashboard";
-import UmkmProducts from "./pages/umkm/UmkmProducts";
-import UmkmStores from "./pages/umkm/UmkmStores";
-import UmkmStore from "./pages/umkm/UmkmStore";
-import UmkmSubscription from "./pages/umkm/UmkmSubscription";
-import Cart from "./pages/Cart";
 
 const queryClient = new QueryClient();
 
@@ -95,7 +87,7 @@ const App = () => (
               <Route path="/admin/listings" element={<AdminListings />} />
               <Route path="/admin/reports" element={<AdminReports />} />
               <Route path="/admin/kyc" element={<AdminKyc />} />
-              <Route path="/admin/umkm" element={<AdminUmkm />} />
+              
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/admin/withdrawals" element={<AdminWithdrawals />} />
               <Route path="/admin/banners" element={<AdminBanners />} />
@@ -105,14 +97,6 @@ const App = () => (
               <Route path="/admin/activity-log" element={<AdminActivityLog />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
               
-              {/* UMKM Routes */}
-              <Route path="/umkm/register" element={<UmkmRegister />} />
-              <Route path="/umkm/dashboard" element={<UmkmDashboard />} />
-              <Route path="/umkm/products" element={<UmkmProducts />} />
-              <Route path="/umkm/stores" element={<UmkmStores />} />
-              <Route path="/umkm/store/:id" element={<UmkmStore />} />
-              <Route path="/umkm/subscription" element={<UmkmSubscription />} />
-              <Route path="/cart" element={<Cart />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
