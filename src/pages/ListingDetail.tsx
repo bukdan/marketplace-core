@@ -159,7 +159,7 @@ export default function ListingDetail() {
         .select(`
           *,
           listing_images(*),
-          categories(name, slug)
+          categories!listings_category_id_fkey(name, slug)
         `)
         .eq('id', listingId)
         .eq('status', 'active')
