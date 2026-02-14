@@ -55,7 +55,7 @@ export const RelatedProducts = ({
           id, title, price, price_type, condition, status,
           city, province, view_count, is_featured, created_at,
           listing_images(id, image_url, is_primary),
-          categories(name)
+          categories!listings_category_id_fkey(name)
         `)
         .eq('category_id', categoryId)
         .eq('status', 'active')

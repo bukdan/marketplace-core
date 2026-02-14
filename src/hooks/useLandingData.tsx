@@ -119,7 +119,7 @@ export const useLandingData = () => {
   const fetchFeaturedListings = async () => {
     const { data } = await supabase
       .from('listings')
-      .select(`*, listing_images (*), categories (name)`)
+      .select(`*, listing_images (*), categories!listings_category_id_fkey (name)`)
       .eq('status', 'active')
       .eq('is_featured', true)
       .is('deleted_at', null)
@@ -131,7 +131,7 @@ export const useLandingData = () => {
   const fetchLatestListings = async () => {
     const { data } = await supabase
       .from('listings')
-      .select(`*, listing_images (*), categories (name)`)
+      .select(`*, listing_images (*), categories!listings_category_id_fkey (name)`)
       .eq('status', 'active')
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
@@ -142,7 +142,7 @@ export const useLandingData = () => {
   const fetchPopularListings = async () => {
     const { data } = await supabase
       .from('listings')
-      .select(`*, listing_images (*), categories (name)`)
+      .select(`*, listing_images (*), categories!listings_category_id_fkey (name)`)
       .eq('status', 'active')
       .is('deleted_at', null)
       .order('view_count', { ascending: false })

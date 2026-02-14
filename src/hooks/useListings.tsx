@@ -82,7 +82,7 @@ export const useListings = (filters: ListingsFilter = {}) => {
       .select(`
         *,
         listing_images (*),
-        categories (*)
+        categories!listings_category_id_fkey (*)
       `)
       .eq('status', 'active')
       .is('deleted_at', null);

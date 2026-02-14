@@ -9,33 +9,20 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  Card, CardContent, CardDescription, CardHeader, CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
+import { RegionSelect } from '@/components/shared/RegionSelect';
 import { toast } from 'sonner';
 import {
-  Camera,
-  X,
-  ArrowLeft,
-  Loader2,
-  ImagePlus,
-  Coins,
-  AlertCircle,
+  Camera, X, ArrowLeft, Loader2, ImagePlus, Coins, AlertCircle, Video, Search as SearchIcon,
 } from 'lucide-react';
 import { z } from 'zod';
-import { provinceNames, getCitiesByProvince } from '@/data/indonesiaRegions';
 
 const MAX_FREE_IMAGES = 5;
 const CREDIT_PER_EXTRA_IMAGE = 1;
@@ -50,8 +37,8 @@ const listingSchema = z.object({
   price_type: z.enum(['fixed', 'negotiable', 'auction']),
   listing_type: z.enum(['sale', 'rent', 'service', 'wanted']),
   condition: z.enum(['new', 'like_new', 'good', 'fair']),
-  city: z.string().min(2, 'Masukkan kota'),
-  province: z.string().min(2, 'Masukkan provinsi'),
+  province_id: z.string().min(1, 'Pilih provinsi'),
+  regency_id: z.string().min(1, 'Pilih kabupaten/kota'),
 });
 
 interface Category {
@@ -74,26 +61,33 @@ const CreateListing = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Form state
-  const [formData, setFormData] = useState<{
-    title: string;
-    description: string;
-    price: number;
-    category_id: string;
-    price_type: 'fixed' | 'negotiable' | 'auction';
-    listing_type: 'sale' | 'rent' | 'service' | 'wanted';
-    condition: 'new' | 'like_new' | 'good' | 'fair';
-    city: string;
-    province: string;
-  }>({
+  const [formData, setFormData] = useState({
     title: '',
     description: '',
     price: 0,
     category_id: '',
-    price_type: 'fixed',
-    listing_type: 'sale',
-    condition: 'good',
-    city: '',
-    province: '',
+    subcategory_id: '',
+    price_type: 'fixed' as 'fixed' | 'negotiable' | 'auction',
+    listing_type: 'sale' as 'sale' | 'rent' | 'service' | 'wanted',
+    condition: 'good' as 'new' | 'like_new' | 'good' | 'fair',
+    province_id: '',
+    province_name: '',
+    regency_id: '',
+    regency_name: '',
+    district_id: '',
+    village_id: '',
+    address: '',
+    video_url: '',
+    contact_name: '',
+    contact_phone: '',
+    contact_whatsapp: '',
+    contact_email: '',
+    contact_preference: 'whatsapp',
+    meta_title: '',
+    meta_description: '',
+    keywords: '',
+    rental_period: '',
+    rental_price: 0,
   });
 
   useEffect(() => {
@@ -119,47 +113,31 @@ const CreateListing = () => {
     setLoading(false);
   };
 
+  const parentCategories = categories.filter(c => !c.parent_id);
+  const subcategories = categories.filter(c => c.parent_id === formData.category_id);
+
   const calculateCreditsNeeded = () => {
     let total = CREDIT_PER_LISTING;
-    if (formData.price_type === 'auction') {
-      total = CREDIT_FOR_AUCTION;
-    }
+    if (formData.price_type === 'auction') total = CREDIT_FOR_AUCTION;
     const extraImages = Math.max(0, images.length - MAX_FREE_IMAGES);
     total += extraImages * CREDIT_PER_EXTRA_IMAGE;
     return total;
   };
 
-  const hasEnoughCredits = () => {
-    return (credits?.balance || 0) >= calculateCreditsNeeded();
-  };
+  const hasEnoughCredits = () => (credits?.balance || 0) >= calculateCreditsNeeded();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const validFiles = files.filter((file) => {
-      if (!file.type.startsWith('image/')) {
-        toast.error(`${file.name} bukan file gambar`);
-        return false;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error(`${file.name} terlalu besar (max 5MB)`);
-        return false;
-      }
+      if (!file.type.startsWith('image/')) { toast.error(`${file.name} bukan file gambar`); return false; }
+      if (file.size > 5 * 1024 * 1024) { toast.error(`${file.name} terlalu besar (max 5MB)`); return false; }
       return true;
     });
-
-    if (images.length + validFiles.length > 10) {
-      toast.error('Maksimal 10 gambar');
-      return;
-    }
-
+    if (images.length + validFiles.length > 10) { toast.error('Maksimal 10 gambar'); return; }
     setImages((prev) => [...prev, ...validFiles]);
-
-    // Create previews
     validFiles.forEach((file) => {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreviews((prev) => [...prev, e.target?.result as string]);
-      };
+      reader.onload = (e) => setImagePreviews((prev) => [...prev, e.target?.result as string]);
       reader.readAsDataURL(file);
     });
   };
@@ -171,91 +149,82 @@ const CreateListing = () => {
 
   const uploadImages = async (listingId: string): Promise<string[]> => {
     const uploadedUrls: string[] = [];
-
     for (const file of images) {
       const fileExt = file.name.split('.').pop();
       const fileName = `${user!.id}/${listingId}/${Date.now()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('listing-images')
-        .upload(fileName, file);
-
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        throw new Error(`Gagal upload gambar: ${file.name}`);
-      }
-
-      const { data: urlData } = supabase.storage
-        .from('listing-images')
-        .getPublicUrl(fileName);
-
+      const { error: uploadError } = await supabase.storage.from('listing-images').upload(fileName, file);
+      if (uploadError) throw new Error(`Gagal upload gambar: ${file.name}`);
+      const { data: urlData } = supabase.storage.from('listing-images').getPublicUrl(fileName);
       uploadedUrls.push(urlData.publicUrl);
     }
-
     return uploadedUrls;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate form
     try {
       listingSchema.parse(formData);
       setErrors({});
     } catch (err) {
       if (err instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
-        err.errors.forEach((error) => {
-          if (error.path[0]) {
-            newErrors[error.path[0] as string] = error.message;
-          }
-        });
+        err.errors.forEach((error) => { if (error.path[0]) newErrors[error.path[0] as string] = error.message; });
         setErrors(newErrors);
         toast.error('Mohon perbaiki form yang salah');
         return;
       }
     }
 
-    if (images.length === 0) {
-      toast.error('Minimal upload 1 gambar');
-      return;
-    }
-
-    if (!hasEnoughCredits()) {
-      toast.error('Kredit tidak cukup');
-      navigate('/credits');
-      return;
-    }
+    if (images.length === 0) { toast.error('Minimal upload 1 gambar'); return; }
+    if (!hasEnoughCredits()) { toast.error('Kredit tidak cukup'); navigate('/credits'); return; }
 
     setSubmitting(true);
-
     try {
-      // Create listing
+      const insertData: any = {
+        user_id: user!.id,
+        title: formData.title,
+        description: formData.description,
+        price: formData.price,
+        category_id: formData.category_id,
+        price_type: formData.price_type,
+        listing_type: formData.listing_type,
+        condition: formData.condition,
+        province_id: formData.province_id,
+        regency_id: formData.regency_id,
+        province: formData.province_name,
+        city: formData.regency_name,
+        status: 'pending_review',
+        credits_used: calculateCreditsNeeded(),
+        video_url: formData.video_url || null,
+        address: formData.address || null,
+        contact_name: formData.contact_name || null,
+        contact_phone: formData.contact_phone || null,
+        contact_whatsapp: formData.contact_whatsapp || null,
+        contact_email: formData.contact_email || null,
+        contact_preference: formData.contact_preference || null,
+        meta_title: formData.meta_title || null,
+        meta_description: formData.meta_description || null,
+        keywords: formData.keywords || null,
+      };
+
+      if (formData.subcategory_id) insertData.subcategory_id = formData.subcategory_id;
+      if (formData.district_id) insertData.district_id = formData.district_id;
+      if (formData.village_id) insertData.village_id = formData.village_id;
+      if (formData.listing_type === 'rent') {
+        insertData.rental_period = formData.rental_period || null;
+        insertData.rental_price = formData.rental_price || null;
+      }
+
       const { data: listing, error: listingError } = await supabase
         .from('listings')
-        .insert({
-          user_id: user!.id,
-          title: formData.title,
-          description: formData.description,
-          price: formData.price,
-          category_id: formData.category_id,
-          price_type: formData.price_type,
-          listing_type: formData.listing_type,
-          condition: formData.condition,
-          city: formData.city,
-          province: formData.province,
-          status: 'pending_review',
-          credits_used: calculateCreditsNeeded(),
-        })
+        .insert(insertData)
         .select('id')
         .single();
 
       if (listingError) throw listingError;
 
-      // Upload images
       const imageUrls = await uploadImages(listing.id);
-
-      // Create listing_images records
       const imageRecords = imageUrls.map((url, index) => ({
         listing_id: listing.id,
         image_url: url,
@@ -264,37 +233,26 @@ const CreateListing = () => {
         is_paid: index >= MAX_FREE_IMAGES,
       }));
 
-      const { error: imagesError } = await supabase
-        .from('listing_images')
-        .insert(imageRecords);
-
+      const { error: imagesError } = await supabase.from('listing_images').insert(imageRecords);
       if (imagesError) throw imagesError;
 
-      // If auction, create auction record
       if (formData.price_type === 'auction') {
-        const { error: auctionError } = await supabase
-          .from('listing_auctions')
-          .insert({
-            listing_id: listing.id,
-            starting_price: formData.price,
-            current_price: formData.price,
-            min_increment: Math.max(10000, formData.price * 0.05),
-            ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
-          });
-
+        const { error: auctionError } = await supabase.from('listing_auctions').insert({
+          listing_id: listing.id,
+          starting_price: formData.price,
+          current_price: formData.price,
+          min_increment: Math.max(10000, formData.price * 0.05),
+          ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        });
         if (auctionError) throw auctionError;
       }
 
-      // Deduct credits
-      // Note: In production, this should be done via an edge function for security
       await refetchCredits();
-
       toast.success('Iklan berhasil dibuat!');
       navigate('/dashboard');
     } catch (error: unknown) {
       console.error('Create listing error:', error);
-      const message = error instanceof Error ? error.message : 'Gagal membuat iklan';
-      toast.error(message);
+      toast.error(error instanceof Error ? error.message : 'Gagal membuat iklan');
     } finally {
       setSubmitting(false);
     }
@@ -325,9 +283,7 @@ const CreateListing = () => {
           </Button>
           <div>
             <h1 className="text-2xl font-bold">Pasang Iklan</h1>
-            <p className="text-sm text-muted-foreground">
-              Jual produk atau jasa Anda di UMKM ID
-            </p>
+            <p className="text-sm text-muted-foreground">Jual produk atau jasa Anda di UMKM ID</p>
           </div>
         </div>
 
@@ -338,9 +294,7 @@ const CreateListing = () => {
               <Coins className="h-5 w-5 text-primary" />
               <div>
                 <p className="text-sm font-medium">Saldo Kredit Anda</p>
-                <p className="text-xs text-muted-foreground">
-                  Biaya: {calculateCreditsNeeded()} kredit
-                </p>
+                <p className="text-xs text-muted-foreground">Biaya: {calculateCreditsNeeded()} kredit</p>
               </div>
             </div>
             <Badge variant={hasEnoughCredits() ? 'default' : 'destructive'}>
@@ -350,20 +304,16 @@ const CreateListing = () => {
         </Card>
 
         {!hasEnoughCredits() && (
-          <Card className="mb-6 border-destructive bg-destructive/10">
+          <Card className="mb-6 border-destructive">
             <CardContent className="flex items-center gap-3 p-4">
               <AlertCircle className="h-5 w-5 text-destructive" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-destructive">
-                  Kredit tidak cukup
-                </p>
+                <p className="text-sm font-medium text-destructive">Kredit tidak cukup</p>
                 <p className="text-xs text-muted-foreground">
-                  Anda membutuhkan {calculateCreditsNeeded()} kredit untuk pasang iklan ini
+                  Anda membutuhkan {calculateCreditsNeeded()} kredit
                 </p>
               </div>
-              <Button size="sm" onClick={() => navigate('/credits')}>
-                Beli Kredit
-              </Button>
+              <Button size="sm" onClick={() => navigate('/credits')}>Beli Kredit</Button>
             </CardContent>
           </Card>
         )}
@@ -380,22 +330,10 @@ const CreateListing = () => {
             <CardContent>
               <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
                 {imagePreviews.map((preview, index) => (
-                  <div
-                    key={index}
-                    className="relative aspect-square overflow-hidden rounded-lg border"
-                  >
-                    <img
-                      src={preview}
-                      alt={`Preview ${index + 1}`}
-                      className="h-full w-full object-cover"
-                    />
+                  <div key={index} className="relative aspect-square overflow-hidden rounded-lg border">
+                    <img src={preview} alt={`Preview ${index + 1}`} className="h-full w-full object-cover" />
                     {index >= MAX_FREE_IMAGES && (
-                      <Badge
-                        variant="secondary"
-                        className="absolute left-1 top-1 text-xs"
-                      >
-                        +1
-                      </Badge>
+                      <Badge variant="secondary" className="absolute left-1 top-1 text-xs">+1</Badge>
                     )}
                     <button
                       type="button"
@@ -404,30 +342,34 @@ const CreateListing = () => {
                     >
                       <X className="h-3 w-3" />
                     </button>
-                    {index === 0 && (
-                      <Badge className="absolute bottom-1 left-1 text-xs">
-                        Utama
-                      </Badge>
-                    )}
+                    {index === 0 && <Badge className="absolute bottom-1 left-1 text-xs">Utama</Badge>}
                   </div>
                 ))}
-                
                 {images.length < 10 && (
                   <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/25 transition-colors hover:border-primary hover:bg-muted/50">
                     <ImagePlus className="h-6 w-6 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">
-                      Tambah Foto
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
+                    <span className="text-xs text-muted-foreground">Tambah Foto</span>
+                    <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
                   </label>
                 )}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Video URL */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Video className="h-5 w-5" /> Video (Opsional)
+              </CardTitle>
+              <CardDescription>Tambahkan link video YouTube untuk produk Anda</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Input
+                placeholder="https://youtube.com/watch?v=..."
+                value={formData.video_url}
+                onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+              />
             </CardContent>
           </Card>
 
@@ -445,9 +387,7 @@ const CreateListing = () => {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 />
-                {errors.title && (
-                  <p className="text-sm text-destructive">{errors.title}</p>
-                )}
+                {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
               </div>
 
               <div className="space-y-2">
@@ -459,30 +399,45 @@ const CreateListing = () => {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 />
-                {errors.description && (
-                  <p className="text-sm text-destructive">{errors.description}</p>
-                )}
+                {errors.description && <p className="text-sm text-destructive">{errors.description}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="category">Kategori *</Label>
-                <Select
-                  value={formData.category_id}
-                  onValueChange={(value) => setFormData({ ...formData, category_id: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih kategori" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.category_id && (
-                  <p className="text-sm text-destructive">{errors.category_id}</p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Kategori *</Label>
+                  <Select
+                    value={formData.category_id}
+                    onValueChange={(value) => setFormData({ ...formData, category_id: value, subcategory_id: '' })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih kategori" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {parentCategories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.category_id && <p className="text-sm text-destructive">{errors.category_id}</p>}
+                </div>
+
+                {subcategories.length > 0 && (
+                  <div className="space-y-2">
+                    <Label>Sub Kategori</Label>
+                    <Select
+                      value={formData.subcategory_id}
+                      onValueChange={(value) => setFormData({ ...formData, subcategory_id: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih sub kategori" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {subcategories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -496,16 +451,14 @@ const CreateListing = () => {
             <CardContent className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="listing_type">Tipe Iklan</Label>
+                  <Label>Tipe Iklan</Label>
                   <Select
                     value={formData.listing_type}
                     onValueChange={(value: 'sale' | 'rent' | 'service' | 'wanted') =>
                       setFormData({ ...formData, listing_type: value })
                     }
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="sale">Jual</SelectItem>
                       <SelectItem value="rent">Sewa</SelectItem>
@@ -516,16 +469,14 @@ const CreateListing = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="condition">Kondisi</Label>
+                  <Label>Kondisi</Label>
                   <Select
                     value={formData.condition}
                     onValueChange={(value: 'new' | 'like_new' | 'good' | 'fair') =>
                       setFormData({ ...formData, condition: value })
                     }
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="new">Baru</SelectItem>
                       <SelectItem value="like_new">Seperti Baru</SelectItem>
@@ -537,16 +488,14 @@ const CreateListing = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="price_type">Tipe Harga</Label>
+                <Label>Tipe Harga</Label>
                 <Select
                   value={formData.price_type}
                   onValueChange={(value: 'fixed' | 'negotiable' | 'auction') =>
                     setFormData({ ...formData, price_type: value })
                   }
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="fixed">Harga Pas</SelectItem>
                     <SelectItem value="negotiable">Nego</SelectItem>
@@ -556,23 +505,47 @@ const CreateListing = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="price">
-                  {formData.price_type === 'auction' ? 'Harga Awal' : 'Harga'} (Rp) *
-                </Label>
+                <Label>{formData.price_type === 'auction' ? 'Harga Awal' : 'Harga'} (Rp) *</Label>
                 <Input
-                  id="price"
                   type="number"
                   min="0"
                   placeholder="0"
                   value={formData.price || ''}
-                  onChange={(e) =>
-                    setFormData({ ...formData, price: parseInt(e.target.value) || 0 })
-                  }
+                  onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
                 />
-                {errors.price && (
-                  <p className="text-sm text-destructive">{errors.price}</p>
-                )}
+                {errors.price && <p className="text-sm text-destructive">{errors.price}</p>}
               </div>
+
+              {formData.listing_type === 'rent' && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label>Harga Sewa (Rp)</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                      value={formData.rental_price || ''}
+                      onChange={(e) => setFormData({ ...formData, rental_price: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Periode Sewa</Label>
+                    <Select
+                      value={formData.rental_period}
+                      onValueChange={(value) => setFormData({ ...formData, rental_period: value })}
+                    >
+                      <SelectTrigger><SelectValue placeholder="Pilih periode" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="per_jam">Per Jam</SelectItem>
+                        <SelectItem value="per_hari">Per Hari</SelectItem>
+                        <SelectItem value="per_minggu">Per Minggu</SelectItem>
+                        <SelectItem value="per_bulan">Per Bulan</SelectItem>
+                        <SelectItem value="per_tahun">Per Tahun</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -582,76 +555,151 @@ const CreateListing = () => {
               <CardTitle className="text-lg">Lokasi</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <RegionSelect
+                provinceId={formData.province_id}
+                regencyId={formData.regency_id}
+                districtId={formData.district_id}
+                villageId={formData.village_id}
+                onProvinceChange={(id, name) => setFormData({
+                  ...formData, province_id: id, province_name: name,
+                  regency_id: '', regency_name: '', district_id: '', village_id: '',
+                })}
+                onRegencyChange={(id, name) => setFormData({
+                  ...formData, regency_id: id, regency_name: name,
+                  district_id: '', village_id: '',
+                })}
+                onDistrictChange={(id) => setFormData({ ...formData, district_id: id, village_id: '' })}
+                onVillageChange={(id) => setFormData({ ...formData, village_id: id })}
+                showDistrict
+                showVillage
+              />
+              {errors.province_id && <p className="text-sm text-destructive">{errors.province_id}</p>}
+              {errors.regency_id && <p className="text-sm text-destructive">{errors.regency_id}</p>}
+
+              <div className="space-y-2">
+                <Label>Alamat Lengkap</Label>
+                <Textarea
+                  placeholder="Jl. Contoh No. 123, RT/RW ..."
+                  rows={2}
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Contact */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Kontak</CardTitle>
+              <CardDescription>Informasi kontak untuk calon pembeli</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="province">Provinsi *</Label>
-                  <Select
-                    value={formData.province}
-                    onValueChange={(value) => setFormData({ ...formData, province: value, city: '' })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih provinsi" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {provinceNames.map((prov) => (
-                        <SelectItem key={prov} value={prov}>{prov}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.province && (
-                    <p className="text-sm text-destructive">{errors.province}</p>
-                  )}
+                  <Label>Nama Kontak</Label>
+                  <Input
+                    placeholder="Nama Anda"
+                    value={formData.contact_name}
+                    onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })}
+                  />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="city">Kabupaten/Kota *</Label>
+                  <Label>Preferensi Kontak</Label>
                   <Select
-                    value={formData.city}
-                    onValueChange={(value) => setFormData({ ...formData, city: value })}
-                    disabled={!formData.province}
+                    value={formData.contact_preference}
+                    onValueChange={(value) => setFormData({ ...formData, contact_preference: value })}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder={formData.province ? "Pilih kabupaten/kota" : "Pilih provinsi dulu"} />
-                    </SelectTrigger>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {getCitiesByProvince(formData.province).map((city) => (
-                        <SelectItem key={city} value={city}>{city}</SelectItem>
-                      ))}
+                      <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                      <SelectItem value="phone">Telepon</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="chat">Chat Platform</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.city && (
-                    <p className="text-sm text-destructive">{errors.city}</p>
-                  )}
                 </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>No. Telepon</Label>
+                  <Input
+                    placeholder="08xx..."
+                    value={formData.contact_phone}
+                    onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>WhatsApp</Label>
+                  <Input
+                    placeholder="08xx..."
+                    value={formData.contact_whatsapp}
+                    onChange={(e) => setFormData({ ...formData, contact_whatsapp: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input
+                    placeholder="email@example.com"
+                    value={formData.contact_email}
+                    onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* SEO */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <SearchIcon className="h-5 w-5" /> SEO (Opsional)
+              </CardTitle>
+              <CardDescription>Optimalkan iklan agar mudah ditemukan di pencarian</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Meta Title</Label>
+                <Input
+                  placeholder="Judul untuk mesin pencari (max 60 karakter)"
+                  maxLength={60}
+                  value={formData.meta_title}
+                  onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">{formData.meta_title.length}/60</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Meta Description</Label>
+                <Textarea
+                  placeholder="Deskripsi singkat untuk mesin pencari (max 160 karakter)"
+                  maxLength={160}
+                  rows={2}
+                  value={formData.meta_description}
+                  onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">{formData.meta_description.length}/160</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Keywords</Label>
+                <Input
+                  placeholder="kata kunci 1, kata kunci 2, ..."
+                  value={formData.keywords}
+                  onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
+                />
               </div>
             </CardContent>
           </Card>
 
           {/* Submit */}
           <div className="flex gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1"
-              onClick={() => navigate(-1)}
-            >
+            <Button type="button" variant="outline" className="flex-1" onClick={() => navigate(-1)}>
               Batal
             </Button>
-            <Button
-              type="submit"
-              className="flex-1"
-              disabled={submitting || !hasEnoughCredits()}
-            >
+            <Button type="submit" className="flex-1" disabled={submitting || !hasEnoughCredits()}>
               {submitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Memproses...
-                </>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Memproses...</>
               ) : (
-                <>
-                  <Camera className="mr-2 h-4 w-4" />
-                  Pasang Iklan ({calculateCreditsNeeded()} Kredit)
-                </>
+                <><Camera className="mr-2 h-4 w-4" />Pasang Iklan ({calculateCreditsNeeded()} Kredit)</>
               )}
             </Button>
           </div>
