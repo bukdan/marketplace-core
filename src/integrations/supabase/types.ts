@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_logs: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          target_id: string | null
+          target_type: string
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_type: string
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_type?: string
+        }
+        Relationships: []
+      }
       auction_bids: {
         Row: {
           amount: number
@@ -131,6 +164,8 @@ export type Database = {
       }
       banners: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           budget_spent: number
           budget_total: number
           clicks: number | null
@@ -153,6 +188,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           budget_spent?: number
           budget_total?: number
           clicks?: number | null
@@ -175,6 +212,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           budget_spent?: number
           budget_total?: number
           clicks?: number | null
@@ -298,38 +337,68 @@ export type Database = {
         Row: {
           attributes_schema: Json | null
           created_at: string | null
+          created_by: string | null
+          description: string | null
           icon_url: string | null
           id: string
+          image_banner_url: string | null
           is_active: boolean | null
+          is_featured: boolean
+          keywords: string | null
+          listing_count: number
+          meta_description: string | null
+          meta_title: string | null
           name: string
           parent_id: string | null
           slug: string
           sort_order: number | null
+          umkm_count: number
           updated_at: string | null
+          updated_by: string | null
         }
         Insert: {
           attributes_schema?: Json | null
           created_at?: string | null
+          created_by?: string | null
+          description?: string | null
           icon_url?: string | null
           id?: string
+          image_banner_url?: string | null
           is_active?: boolean | null
+          is_featured?: boolean
+          keywords?: string | null
+          listing_count?: number
+          meta_description?: string | null
+          meta_title?: string | null
           name: string
           parent_id?: string | null
           slug: string
           sort_order?: number | null
+          umkm_count?: number
           updated_at?: string | null
+          updated_by?: string | null
         }
         Update: {
           attributes_schema?: Json | null
           created_at?: string | null
+          created_by?: string | null
+          description?: string | null
           icon_url?: string | null
           id?: string
+          image_banner_url?: string | null
           is_active?: boolean | null
+          is_featured?: boolean
+          keywords?: string | null
+          listing_count?: number
+          meta_description?: string | null
+          meta_title?: string | null
           name?: string
           parent_id?: string | null
           slug?: string
           sort_order?: number | null
+          umkm_count?: number
           updated_at?: string | null
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -454,6 +523,200 @@ export type Database = {
         }
         Relationships: []
       }
+      districts: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          latitude: number | null
+          longitude: number | null
+          name: string
+          regency_id: string
+          updated_at: string
+          village_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          regency_id: string
+          updated_at?: string
+          village_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          regency_id?: string
+          updated_at?: string
+          village_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "districts_regency_id_fkey"
+            columns: ["regency_id"]
+            isOneToOne: false
+            referencedRelation: "regencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kyc_documents: {
+        Row: {
+          address: string | null
+          birth_date: string | null
+          birth_place: string | null
+          blood_type: string | null
+          business_address: string | null
+          business_name: string | null
+          business_type: string | null
+          created_at: string
+          district_id: string | null
+          document_name: string
+          document_number: string | null
+          document_type: string
+          file_name: string | null
+          full_name: string | null
+          gender: string | null
+          id: string
+          image_url: string
+          kyc_verification_id: string
+          marital_status: string | null
+          nationality: string | null
+          npwp_address: string | null
+          npwp_name: string | null
+          npwp_number: string | null
+          occupation: string | null
+          postal_code: string | null
+          province_id: string | null
+          regency_id: string | null
+          rejection_reason: string | null
+          religion: string | null
+          rt: string | null
+          rw: string | null
+          status: string
+          updated_at: string
+          village_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          birth_date?: string | null
+          birth_place?: string | null
+          blood_type?: string | null
+          business_address?: string | null
+          business_name?: string | null
+          business_type?: string | null
+          created_at?: string
+          district_id?: string | null
+          document_name: string
+          document_number?: string | null
+          document_type: string
+          file_name?: string | null
+          full_name?: string | null
+          gender?: string | null
+          id?: string
+          image_url: string
+          kyc_verification_id: string
+          marital_status?: string | null
+          nationality?: string | null
+          npwp_address?: string | null
+          npwp_name?: string | null
+          npwp_number?: string | null
+          occupation?: string | null
+          postal_code?: string | null
+          province_id?: string | null
+          regency_id?: string | null
+          rejection_reason?: string | null
+          religion?: string | null
+          rt?: string | null
+          rw?: string | null
+          status?: string
+          updated_at?: string
+          village_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          birth_date?: string | null
+          birth_place?: string | null
+          blood_type?: string | null
+          business_address?: string | null
+          business_name?: string | null
+          business_type?: string | null
+          created_at?: string
+          district_id?: string | null
+          document_name?: string
+          document_number?: string | null
+          document_type?: string
+          file_name?: string | null
+          full_name?: string | null
+          gender?: string | null
+          id?: string
+          image_url?: string
+          kyc_verification_id?: string
+          marital_status?: string | null
+          nationality?: string | null
+          npwp_address?: string | null
+          npwp_name?: string | null
+          npwp_number?: string | null
+          occupation?: string | null
+          postal_code?: string | null
+          province_id?: string | null
+          regency_id?: string | null
+          rejection_reason?: string | null
+          religion?: string | null
+          rt?: string | null
+          rw?: string | null
+          status?: string
+          updated_at?: string
+          village_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kyc_documents_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kyc_documents_kyc_verification_id_fkey"
+            columns: ["kyc_verification_id"]
+            isOneToOne: false
+            referencedRelation: "kyc_verifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kyc_documents_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "provinces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kyc_documents_regency_id_fkey"
+            columns: ["regency_id"]
+            isOneToOne: false
+            referencedRelation: "regencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kyc_documents_village_id_fkey"
+            columns: ["village_id"]
+            isOneToOne: false
+            referencedRelation: "villages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kyc_verifications: {
         Row: {
           approved_at: string | null
@@ -465,6 +728,7 @@ export type Database = {
           id: string
           ktp_image_url: string | null
           ktp_number: string | null
+          notes: string | null
           province: string | null
           rejection_reason: string | null
           reviewed_at: string | null
@@ -472,6 +736,7 @@ export type Database = {
           selfie_image_url: string | null
           status: string | null
           submitted_at: string | null
+          updated_at: string
           user_id: string
           village: string | null
         }
@@ -485,6 +750,7 @@ export type Database = {
           id?: string
           ktp_image_url?: string | null
           ktp_number?: string | null
+          notes?: string | null
           province?: string | null
           rejection_reason?: string | null
           reviewed_at?: string | null
@@ -492,6 +758,7 @@ export type Database = {
           selfie_image_url?: string | null
           status?: string | null
           submitted_at?: string | null
+          updated_at?: string
           user_id: string
           village?: string | null
         }
@@ -505,6 +772,7 @@ export type Database = {
           id?: string
           ktp_image_url?: string | null
           ktp_number?: string | null
+          notes?: string | null
           province?: string | null
           rejection_reason?: string | null
           reviewed_at?: string | null
@@ -512,6 +780,7 @@ export type Database = {
           selfie_image_url?: string | null
           status?: string | null
           submitted_at?: string | null
+          updated_at?: string
           user_id?: string
           village?: string | null
         }
@@ -666,6 +935,7 @@ export type Database = {
       }
       listing_reports: {
         Row: {
+          admin_notes: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -677,6 +947,7 @@ export type Database = {
           status: Database["public"]["Enums"]["report_status"]
         }
         Insert: {
+          admin_notes?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -688,6 +959,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["report_status"]
         }
         Update: {
+          admin_notes?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -710,88 +982,202 @@ export type Database = {
       }
       listings: {
         Row: {
+          address: string | null
+          approved_at: string | null
+          approved_by: string | null
           attributes: Json | null
           category_id: string
           city: string | null
+          click_count: number
           condition: Database["public"]["Enums"]["listing_condition"] | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          contact_preference: string | null
+          contact_whatsapp: string | null
           created_at: string | null
           credits_used: number | null
           deleted_at: string | null
           description: string | null
+          district_id: string | null
           expires_at: string | null
+          favorite_count: number
           featured_until: string | null
+          gallery: Json | null
           group_id: string | null
           id: string
+          image_url: string | null
+          inquiry_count: number
           is_featured: boolean | null
+          is_rented: boolean
+          is_sold: boolean
+          keywords: string | null
           listing_type: Database["public"]["Enums"]["listing_type"]
           location_lat: number | null
           location_lng: number | null
+          meta_description: string | null
+          meta_title: string | null
           price: number
+          price_formatted: string | null
+          price_negotiable: boolean
           price_type: Database["public"]["Enums"]["listing_price_type"]
+          promo_details: Json | null
+          promo_type: string
           province: string | null
+          province_id: string | null
           published_at: string | null
+          regency_id: string | null
           rejection_reason: string | null
+          rental_period: string | null
+          rental_price: number | null
+          rented_at: string | null
+          rented_to: string | null
+          share_count: number
+          slug: string | null
+          sold_at: string | null
+          sold_to: string | null
+          specifications: Json | null
           status: Database["public"]["Enums"]["listing_status"]
+          subcategory_id: string | null
           title: string
+          umkm_id: string | null
           updated_at: string | null
           user_id: string
+          video_url: string | null
           view_count: number | null
+          village_id: string | null
         }
         Insert: {
+          address?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           attributes?: Json | null
           category_id: string
           city?: string | null
+          click_count?: number
           condition?: Database["public"]["Enums"]["listing_condition"] | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contact_preference?: string | null
+          contact_whatsapp?: string | null
           created_at?: string | null
           credits_used?: number | null
           deleted_at?: string | null
           description?: string | null
+          district_id?: string | null
           expires_at?: string | null
+          favorite_count?: number
           featured_until?: string | null
+          gallery?: Json | null
           group_id?: string | null
           id?: string
+          image_url?: string | null
+          inquiry_count?: number
           is_featured?: boolean | null
+          is_rented?: boolean
+          is_sold?: boolean
+          keywords?: string | null
           listing_type?: Database["public"]["Enums"]["listing_type"]
           location_lat?: number | null
           location_lng?: number | null
+          meta_description?: string | null
+          meta_title?: string | null
           price?: number
+          price_formatted?: string | null
+          price_negotiable?: boolean
           price_type?: Database["public"]["Enums"]["listing_price_type"]
+          promo_details?: Json | null
+          promo_type?: string
           province?: string | null
+          province_id?: string | null
           published_at?: string | null
+          regency_id?: string | null
           rejection_reason?: string | null
+          rental_period?: string | null
+          rental_price?: number | null
+          rented_at?: string | null
+          rented_to?: string | null
+          share_count?: number
+          slug?: string | null
+          sold_at?: string | null
+          sold_to?: string | null
+          specifications?: Json | null
           status?: Database["public"]["Enums"]["listing_status"]
+          subcategory_id?: string | null
           title: string
+          umkm_id?: string | null
           updated_at?: string | null
           user_id: string
+          video_url?: string | null
           view_count?: number | null
+          village_id?: string | null
         }
         Update: {
+          address?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           attributes?: Json | null
           category_id?: string
           city?: string | null
+          click_count?: number
           condition?: Database["public"]["Enums"]["listing_condition"] | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contact_preference?: string | null
+          contact_whatsapp?: string | null
           created_at?: string | null
           credits_used?: number | null
           deleted_at?: string | null
           description?: string | null
+          district_id?: string | null
           expires_at?: string | null
+          favorite_count?: number
           featured_until?: string | null
+          gallery?: Json | null
           group_id?: string | null
           id?: string
+          image_url?: string | null
+          inquiry_count?: number
           is_featured?: boolean | null
+          is_rented?: boolean
+          is_sold?: boolean
+          keywords?: string | null
           listing_type?: Database["public"]["Enums"]["listing_type"]
           location_lat?: number | null
           location_lng?: number | null
+          meta_description?: string | null
+          meta_title?: string | null
           price?: number
+          price_formatted?: string | null
+          price_negotiable?: boolean
           price_type?: Database["public"]["Enums"]["listing_price_type"]
+          promo_details?: Json | null
+          promo_type?: string
           province?: string | null
+          province_id?: string | null
           published_at?: string | null
+          regency_id?: string | null
           rejection_reason?: string | null
+          rental_period?: string | null
+          rental_price?: number | null
+          rented_at?: string | null
+          rented_to?: string | null
+          share_count?: number
+          slug?: string | null
+          sold_at?: string | null
+          sold_to?: string | null
+          specifications?: Json | null
           status?: Database["public"]["Enums"]["listing_status"]
+          subcategory_id?: string | null
           title?: string
+          umkm_id?: string | null
           updated_at?: string | null
           user_id?: string
+          video_url?: string | null
           view_count?: number | null
+          village_id?: string | null
         }
         Relationships: [
           {
@@ -799,6 +1185,48 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listings_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listings_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "provinces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listings_regency_id_fkey"
+            columns: ["regency_id"]
+            isOneToOne: false
+            referencedRelation: "regencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listings_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listings_umkm_id_fkey"
+            columns: ["umkm_id"]
+            isOneToOne: false
+            referencedRelation: "umkm_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listings_village_id_fkey"
+            columns: ["village_id"]
+            isOneToOne: false
+            referencedRelation: "villages"
             referencedColumns: ["id"]
           },
         ]
@@ -988,6 +1416,33 @@ export type Database = {
         }
         Relationships: []
       }
+      permissions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          module: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          module: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          module?: string
+          name?: string
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           created_at: string | null
@@ -1164,6 +1619,7 @@ export type Database = {
           is_active: boolean | null
           name: string | null
           phone_number: string | null
+          primary_role: string
           updated_at: string | null
           user_id: string
         }
@@ -1176,6 +1632,7 @@ export type Database = {
           is_active?: boolean | null
           name?: string | null
           phone_number?: string | null
+          primary_role?: string
           updated_at?: string | null
           user_id: string
         }
@@ -1188,10 +1645,141 @@ export type Database = {
           is_active?: boolean | null
           name?: string | null
           phone_number?: string | null
+          primary_role?: string
           updated_at?: string | null
           user_id?: string
         }
         Relationships: []
+      }
+      provinces: {
+        Row: {
+          code: string
+          created_at: string
+          district_count: number
+          id: string
+          is_active: boolean
+          latitude: number | null
+          longitude: number | null
+          name: string
+          name_alt: string | null
+          regency_count: number
+          updated_at: string
+          village_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          district_count?: number
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          name_alt?: string | null
+          regency_count?: number
+          updated_at?: string
+          village_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          district_count?: number
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          name_alt?: string | null
+          regency_count?: number
+          updated_at?: string
+          village_count?: number
+        }
+        Relationships: []
+      }
+      regencies: {
+        Row: {
+          code: string
+          created_at: string
+          district_count: number
+          id: string
+          is_active: boolean
+          latitude: number | null
+          longitude: number | null
+          name: string
+          province_id: string
+          type: string
+          updated_at: string
+          village_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          district_count?: number
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          province_id: string
+          type?: string
+          updated_at?: string
+          village_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          district_count?: number
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          province_id?: string
+          type?: string
+          updated_at?: string
+          village_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "regencies_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "provinces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_permissions: {
+        Row: {
+          can_access: boolean
+          created_at: string
+          id: string
+          permission_id: string
+          role: string
+        }
+        Insert: {
+          can_access?: boolean
+          created_at?: string
+          id?: string
+          permission_id: string
+          role: string
+        }
+        Update: {
+          can_access?: boolean
+          created_at?: string
+          id?: string
+          permission_id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       saved_listings: {
         Row: {
@@ -1266,32 +1854,89 @@ export type Database = {
           },
         ]
       }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          display_name: string
+          duration_days: number
+          features: Json
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          name: string
+          price: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          duration_days?: number
+          features?: Json
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          name: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          duration_days?: number
+          features?: Json
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          name?: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       support_tickets: {
         Row: {
+          assigned_at: string | null
+          assigned_to: string | null
+          category: string | null
           created_at: string | null
           id: string
           message: string | null
           priority: string | null
+          resolved_at: string | null
+          resolved_by: string | null
           status: string | null
           subject: string
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          assigned_at?: string | null
+          assigned_to?: string | null
+          category?: string | null
           created_at?: string | null
           id?: string
           message?: string | null
           priority?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
           status?: string | null
           subject: string
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          assigned_at?: string | null
+          assigned_to?: string | null
+          category?: string | null
           created_at?: string | null
           id?: string
           message?: string | null
           priority?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
           status?: string | null
           subject?: string
           updated_at?: string | null
@@ -1340,6 +1985,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      ticket_replies: {
+        Row: {
+          created_at: string
+          id: string
+          is_internal: boolean
+          message: string
+          ticket_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          message: string
+          ticket_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          message?: string
+          ticket_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_replies_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transactions: {
         Row: {
@@ -1539,75 +2219,197 @@ export type Database = {
           },
         ]
       }
+      umkm_portfolios: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string
+          is_active: boolean
+          sort_order: number
+          title: string
+          umkm_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url: string
+          is_active?: boolean
+          sort_order?: number
+          title: string
+          umkm_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          sort_order?: number
+          title?: string
+          umkm_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "umkm_portfolios_umkm_id_fkey"
+            columns: ["umkm_id"]
+            isOneToOne: false
+            referencedRelation: "umkm_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       umkm_profiles: {
         Row: {
           address: string | null
           banner_url: string | null
           brand_name: string | null
+          business_scale: string
+          business_type: string | null
           category_id: string | null
           city: string | null
+          contact_count: number
           created_at: string | null
+          current_plan: string
           description: string | null
+          district_id: string | null
           email: string | null
+          facebook: string | null
+          gallery: Json | null
+          google_maps_url: string | null
           id: string
+          instagram: string | null
           is_verified: boolean | null
           latitude: number | null
+          linkedin: string | null
           logo_url: string | null
           longitude: number | null
+          operational_hours: Json | null
           owner_id: string
           phone: string | null
+          plan_ends_at: string | null
+          plan_starts_at: string | null
           postal_code: string | null
           province: string | null
+          province_id: string | null
+          regency_id: string | null
+          slug: string | null
+          status: string
+          subcategory_id: string | null
+          tagline: string | null
+          tiktok: string | null
+          twitter: string | null
           umkm_name: string
           updated_at: string | null
+          verified_at: string | null
+          verified_by: string | null
+          view_count: number
+          village_id: string | null
           website: string | null
           whatsapp: string | null
+          year_established: number | null
+          youtube: string | null
         }
         Insert: {
           address?: string | null
           banner_url?: string | null
           brand_name?: string | null
+          business_scale?: string
+          business_type?: string | null
           category_id?: string | null
           city?: string | null
+          contact_count?: number
           created_at?: string | null
+          current_plan?: string
           description?: string | null
+          district_id?: string | null
           email?: string | null
+          facebook?: string | null
+          gallery?: Json | null
+          google_maps_url?: string | null
           id?: string
+          instagram?: string | null
           is_verified?: boolean | null
           latitude?: number | null
+          linkedin?: string | null
           logo_url?: string | null
           longitude?: number | null
+          operational_hours?: Json | null
           owner_id: string
           phone?: string | null
+          plan_ends_at?: string | null
+          plan_starts_at?: string | null
           postal_code?: string | null
           province?: string | null
+          province_id?: string | null
+          regency_id?: string | null
+          slug?: string | null
+          status?: string
+          subcategory_id?: string | null
+          tagline?: string | null
+          tiktok?: string | null
+          twitter?: string | null
           umkm_name: string
           updated_at?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          view_count?: number
+          village_id?: string | null
           website?: string | null
           whatsapp?: string | null
+          year_established?: number | null
+          youtube?: string | null
         }
         Update: {
           address?: string | null
           banner_url?: string | null
           brand_name?: string | null
+          business_scale?: string
+          business_type?: string | null
           category_id?: string | null
           city?: string | null
+          contact_count?: number
           created_at?: string | null
+          current_plan?: string
           description?: string | null
+          district_id?: string | null
           email?: string | null
+          facebook?: string | null
+          gallery?: Json | null
+          google_maps_url?: string | null
           id?: string
+          instagram?: string | null
           is_verified?: boolean | null
           latitude?: number | null
+          linkedin?: string | null
           logo_url?: string | null
           longitude?: number | null
+          operational_hours?: Json | null
           owner_id?: string
           phone?: string | null
+          plan_ends_at?: string | null
+          plan_starts_at?: string | null
           postal_code?: string | null
           province?: string | null
+          province_id?: string | null
+          regency_id?: string | null
+          slug?: string | null
+          status?: string
+          subcategory_id?: string | null
+          tagline?: string | null
+          tiktok?: string | null
+          twitter?: string | null
           umkm_name?: string
           updated_at?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          view_count?: number
+          village_id?: string | null
           website?: string | null
           whatsapp?: string | null
+          year_established?: number | null
+          youtube?: string | null
         }
         Relationships: [
           {
@@ -1615,6 +2417,88 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "umkm_profiles_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "umkm_profiles_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "provinces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "umkm_profiles_regency_id_fkey"
+            columns: ["regency_id"]
+            isOneToOne: false
+            referencedRelation: "regencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "umkm_profiles_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "umkm_profiles_village_id_fkey"
+            columns: ["village_id"]
+            isOneToOne: false
+            referencedRelation: "villages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      umkm_reviews: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          is_anonymous: boolean
+          is_verified: boolean
+          rating: number
+          reviewer_id: string
+          title: string | null
+          umkm_id: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          is_verified?: boolean
+          rating: number
+          reviewer_id: string
+          title?: string | null
+          umkm_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          is_verified?: boolean
+          rating?: number
+          reviewer_id?: string
+          title?: string | null
+          umkm_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "umkm_reviews_umkm_id_fkey"
+            columns: ["umkm_id"]
+            isOneToOne: false
+            referencedRelation: "umkm_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1692,24 +2576,86 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          assigned_at: string | null
+          assigned_by: string | null
           created_at: string | null
           id: string
+          is_active: boolean
+          notes: string | null
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
+          assigned_at?: string | null
+          assigned_by?: string | null
           created_at?: string | null
           id?: string
+          is_active?: boolean
+          notes?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
+          assigned_at?: string | null
+          assigned_by?: string | null
           created_at?: string | null
           id?: string
+          is_active?: boolean
+          notes?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
         Relationships: []
+      }
+      villages: {
+        Row: {
+          code: string
+          created_at: string
+          district_id: string
+          id: string
+          is_active: boolean
+          latitude: number | null
+          longitude: number | null
+          name: string
+          postal_code: string | null
+          type: string | null
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          district_id: string
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          postal_code?: string | null
+          type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          district_id?: string
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          postal_code?: string | null
+          type?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "villages_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wallets: {
         Row: {
