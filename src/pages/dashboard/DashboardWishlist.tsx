@@ -83,7 +83,7 @@ export default function DashboardWishlist() {
             id, title, price, price_type, condition, status,
             city, province, view_count, is_featured, created_at,
             listing_images(image_url, is_primary),
-            categories(name)
+            categories!listings_category_id_fkey(name)
           )
         `)
         .eq('user_id', user.id)
