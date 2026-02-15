@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Shield, CheckCircle, XCircle, Clock, Loader2, AlertTriangle, Upload, MapPin } from 'lucide-react';
 import { provinceNames, getCitiesByProvince } from '@/data/indonesiaRegions';
+import { KycImageUpload } from '@/components/kyc/KycImageUpload';
 
 const statusConfig: Record<string, { label: string; icon: any; color: string }> = {
   not_submitted: { label: 'Belum Diajukan', icon: Upload, color: 'text-muted-foreground' },
@@ -261,24 +262,22 @@ export default function DashboardKyc() {
               <CardDescription>Upload foto KTP dan selfie untuk verifikasi</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>URL Foto KTP</Label>
-                <Input
-                  value={form.ktp_image_url}
-                  onChange={(e) => setForm(p => ({ ...p, ktp_image_url: e.target.value }))}
-                  placeholder="https://... (upload via storage terlebih dahulu)"
-                />
-                <p className="text-xs text-muted-foreground">Upload foto KTP yang jelas dan terbaca</p>
-              </div>
-              <div className="space-y-2">
-                <Label>URL Foto Selfie dengan KTP</Label>
-                <Input
-                  value={form.selfie_image_url}
-                  onChange={(e) => setForm(p => ({ ...p, selfie_image_url: e.target.value }))}
-                  placeholder="https://... (upload via storage terlebih dahulu)"
-                />
-                <p className="text-xs text-muted-foreground">Foto selfie sambil memegang KTP</p>
-              </div>
+              <KycImageUpload
+                label="Foto KTP *"
+                hint="Upload foto KTP yang jelas dan terbaca"
+                value={form.ktp_image_url}
+                userId={user!.id}
+                folder="ktp"
+                onChange={(url) => setForm(p => ({ ...p, ktp_image_url: url }))}
+              />
+              <KycImageUpload
+                label="Foto Selfie dengan KTP *"
+                hint="Foto selfie sambil memegang KTP di samping wajah"
+                value={form.selfie_image_url}
+                userId={user!.id}
+                folder="selfie"
+                onChange={(url) => setForm(p => ({ ...p, selfie_image_url: url }))}
+              />
             </CardContent>
           </Card>
 
