@@ -1,30 +1,50 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Loader2, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Loader2, X, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface KycImageUploadProps {
   label: string;
   hint: string;
-  value: string;
+  value: string; // file path atau URL
   userId: string;
   folder: string; // e.g. 'ktp' or 'selfie'
-  onChange: (url: string) => void;
+  onChange: (path: string) => void;
   disabled?: boolean;
 }
 
 export function KycImageUpload({ label, hint, value, userId, folder, onChange, disabled }: KycImageUploadProps) {
   const [uploading, setUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
   const fileRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Load signed URL setiap kali value berubah (path dari DB)
+  useEffect(() => {
+    if (!value) {
+      setPreviewUrl('');
+      return;
+    }
+    // Jika sudah berupa URL lengkap (lama), tampilkan langsung
+    if (value.startsWith('http')) {
+      setPreviewUrl(value);
+      return;
+    }
+    // Jika berupa path, buat signed URL
+    supabase.storage
+      .from('kyc-documents')
+      .createSignedUrl(value, 3600)
+      .then(({ data }) => {
+        if (data) setPreviewUrl(data.signedUrl);
+      });
+  }, [value]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
       toast({ variant: 'destructive', title: 'File terlalu besar', description: 'Maksimal ukuran file 5MB' });
@@ -48,11 +68,16 @@ export function KycImageUpload({ label, hint, value, userId, folder, onChange, d
 
       if (uploadError) throw uploadError;
 
-      const { data: urlData } = supabase.storage
+      // Buat signed URL untuk preview langsung
+      const { data: signedData, error: signedError } = await supabase.storage
         .from('kyc-documents')
-        .getPublicUrl(filePath);
+        .createSignedUrl(filePath, 3600);
 
-      onChange(urlData.publicUrl);
+      if (signedError) throw signedError;
+
+      // Simpan file path ke database (bukan URL)
+      onChange(filePath);
+      setPreviewUrl(signedData.signedUrl);
       toast({ title: 'Upload berhasil', description: `${label} berhasil diupload` });
     } catch (err: any) {
       toast({ variant: 'destructive', title: 'Upload gagal', description: err.message });
@@ -64,6 +89,7 @@ export function KycImageUpload({ label, hint, value, userId, folder, onChange, d
 
   const handleRemove = () => {
     onChange('');
+    setPreviewUrl('');
   };
 
   return (
@@ -78,9 +104,9 @@ export function KycImageUpload({ label, hint, value, userId, folder, onChange, d
         disabled={disabled || uploading}
       />
 
-      {value ? (
+      {previewUrl ? (
         <div className="relative rounded-lg border border-border overflow-hidden bg-muted">
-          <img src={value} alt={label} className="w-full h-48 object-cover" />
+          <img src={previewUrl} alt={label} className="w-full h-48 object-cover" />
           {!disabled && (
             <Button
               type="button"

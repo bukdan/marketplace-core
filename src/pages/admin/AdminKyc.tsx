@@ -24,20 +24,75 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Check, X, Eye, Image } from 'lucide-react';
+import { Check, X, Eye, Image, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
 
 interface KycData {
   id: string;
   user_id: string;
+  full_name: string | null;
   ktp_number: string | null;
   ktp_image_url: string | null;
   selfie_image_url: string | null;
   status: string;
   submitted_at: string | null;
   created_at: string;
+  province: string | null;
+  city: string | null;
+  district: string | null;
+  village: string | null;
+  full_address: string | null;
+  rejection_reason: string | null;
   profile?: { name: string | null; email: string | null };
+}
+
+// Komponen untuk menampilkan gambar dari bucket private (signed URL)
+function KycImage({ path, alt }: { path: string | null; alt: string }) {
+  const [url, setUrl] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!path) return;
+    // Jika sudah URL lengkap
+    if (path.startsWith('http')) {
+      setUrl(path);
+      return;
+    }
+    // Buat signed URL untuk path di bucket private
+    setLoading(true);
+    supabase.storage
+      .from('kyc-documents')
+      .createSignedUrl(path, 3600)
+      .then(({ data }) => {
+        if (data) setUrl(data.signedUrl);
+      })
+      .finally(() => setLoading(false));
+  }, [path]);
+
+  if (!path) {
+    return (
+      <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
+        <Image className="h-8 w-8 text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return url ? (
+    <img src={url} alt={alt} className="w-full rounded-lg border object-cover max-h-64" />
+  ) : (
+    <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
+      <Image className="h-8 w-8 text-muted-foreground" />
+    </div>
+  );
 }
 
 export default function AdminKyc() {
@@ -63,7 +118,6 @@ export default function AdminKyc() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      // Fetch profile data for each KYC
       if (data) {
         const userIds = data.map(k => k.user_id);
         const { data: profiles } = await supabase
@@ -94,11 +148,13 @@ export default function AdminKyc() {
       pending: 'bg-yellow-500/10 text-yellow-600 border-yellow-200',
       approved: 'bg-green-500/10 text-green-600 border-green-200',
       rejected: 'bg-red-500/10 text-red-600 border-red-200',
+      not_submitted: 'bg-muted text-muted-foreground',
     };
     const labels: Record<string, string> = {
-      pending: 'Pending',
-      approved: 'Approved',
-      rejected: 'Rejected',
+      pending: 'Menunggu',
+      approved: 'Disetujui',
+      rejected: 'Ditolak',
+      not_submitted: 'Belum Diajukan',
     };
     return (
       <Badge variant="outline" className={styles[status] || ''}>
@@ -119,17 +175,11 @@ export default function AdminKyc() {
       .eq('id', kycId);
 
     if (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Gagal menyetujui KYC',
-      });
+      toast({ variant: 'destructive', title: 'Error', description: 'Gagal menyetujui KYC' });
     } else {
-      toast({
-        title: 'Berhasil',
-        description: 'KYC telah disetujui',
-      });
+      toast({ title: 'Berhasil', description: 'KYC telah disetujui' });
       fetchKycData();
+      setViewDialog({ open: false, kyc: null });
     }
   };
 
@@ -147,16 +197,9 @@ export default function AdminKyc() {
       .eq('id', rejectDialog.kycId);
 
     if (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Gagal menolak KYC',
-      });
+      toast({ variant: 'destructive', title: 'Error', description: 'Gagal menolak KYC' });
     } else {
-      toast({
-        title: 'Berhasil',
-        description: 'KYC telah ditolak',
-      });
+      toast({ title: 'Berhasil', description: 'KYC telah ditolak' });
       fetchKycData();
     }
     setRejectDialog({ open: false, kycId: null });
@@ -171,6 +214,7 @@ export default function AdminKyc() {
       <TableHeader>
         <TableRow>
           <TableHead>Pengguna</TableHead>
+          <TableHead>Nama KTP</TableHead>
           <TableHead>No. KTP</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Tanggal Submit</TableHead>
@@ -180,7 +224,7 @@ export default function AdminKyc() {
       <TableBody>
         {data.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+            <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
               Tidak ada data KYC
             </TableCell>
           </TableRow>
@@ -189,14 +233,13 @@ export default function AdminKyc() {
             <TableRow key={kyc.id}>
               <TableCell>
                 <div>
-                  <p className="font-medium">{kyc.profile?.name || 'No Name'}</p>
+                  <p className="font-medium">{kyc.profile?.name || '-'}</p>
                   <p className="text-xs text-muted-foreground">{kyc.profile?.email}</p>
                 </div>
               </TableCell>
-              <TableCell className="font-mono text-sm">
-                {kyc.ktp_number || '-'}
-              </TableCell>
-              <TableCell>{getStatusBadge(kyc.status || 'pending')}</TableCell>
+              <TableCell>{kyc.full_name || '-'}</TableCell>
+              <TableCell className="font-mono text-sm">{kyc.ktp_number || '-'}</TableCell>
+              <TableCell>{getStatusBadge(kyc.status || 'not_submitted')}</TableCell>
               <TableCell>
                 {kyc.submitted_at
                   ? format(new Date(kyc.submitted_at), 'dd MMM yyyy', { locale: idLocale })
@@ -204,11 +247,7 @@ export default function AdminKyc() {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setViewDialog({ open: true, kyc })}
-                  >
+                  <Button variant="ghost" size="icon" onClick={() => setViewDialog({ open: true, kyc })}>
                     <Eye className="h-4 w-4" />
                   </Button>
                   {kyc.status === 'pending' && (
@@ -216,7 +255,7 @@ export default function AdminKyc() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-green-600 hover:text-green-700"
+                        className="text-primary hover:text-primary"
                         onClick={() => handleApprove(kyc.id)}
                       >
                         <Check className="h-4 w-4" />
@@ -224,7 +263,7 @@ export default function AdminKyc() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-red-600 hover:text-red-700"
+                        className="text-destructive hover:text-destructive"
                         onClick={() => setRejectDialog({ open: true, kycId: kyc.id })}
                       >
                         <X className="h-4 w-4" />
@@ -244,80 +283,131 @@ export default function AdminKyc() {
     <AdminLayout title="KYC Verifications" description="Verifikasi identitas pengguna">
       <Card>
         <CardHeader>
-          <CardTitle>Daftar KYC</CardTitle>
+          <CardTitle>Daftar Verifikasi KYC</CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="pending">
-            <TabsList>
-              <TabsTrigger value="pending">
-                Pending
-                {pendingKyc.length > 0 && (
-                  <Badge variant="destructive" className="ml-2">
-                    {pendingKyc.length}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="processed">Processed ({processedKyc.length})</TabsTrigger>
-            </TabsList>
-            <TabsContent value="pending" className="mt-4">
-              <KycTable data={pendingKyc} />
-            </TabsContent>
-            <TabsContent value="processed" className="mt-4">
-              <KycTable data={processedKyc} />
-            </TabsContent>
-          </Tabs>
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <Tabs defaultValue="pending">
+              <TabsList>
+                <TabsTrigger value="pending">
+                  Menunggu
+                  {pendingKyc.length > 0 && (
+                    <Badge variant="destructive" className="ml-2">{pendingKyc.length}</Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="processed">Selesai ({processedKyc.length})</TabsTrigger>
+              </TabsList>
+              <TabsContent value="pending" className="mt-4">
+                <KycTable data={pendingKyc} />
+              </TabsContent>
+              <TabsContent value="processed" className="mt-4">
+                <KycTable data={processedKyc} />
+              </TabsContent>
+            </Tabs>
+          )}
         </CardContent>
       </Card>
 
-      {/* View Dialog */}
-      <Dialog open={viewDialog.open} onOpenChange={(open) => setViewDialog({ open, kyc: null })}>
-        <DialogContent className="max-w-2xl">
+      {/* Detail Dialog */}
+      <Dialog open={viewDialog.open} onOpenChange={(open) => !open && setViewDialog({ open: false, kyc: null })}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Detail KYC</DialogTitle>
             <DialogDescription>
-              {viewDialog.kyc?.profile?.name} - {viewDialog.kyc?.profile?.email}
+              {viewDialog.kyc?.profile?.name} — {viewDialog.kyc?.profile?.email}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm font-medium mb-1">Nomor KTP</p>
-              <p className="font-mono bg-muted p-2 rounded">{viewDialog.kyc?.ktp_number || '-'}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm font-medium mb-2">Foto KTP</p>
-                {viewDialog.kyc?.ktp_image_url ? (
-                  <img
-                    src={viewDialog.kyc.ktp_image_url}
-                    alt="KTP"
-                    className="w-full rounded-lg border"
-                  />
-                ) : (
-                  <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
-                    <Image className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                )}
+
+          {viewDialog.kyc && (
+            <div className="space-y-4">
+              {/* Status */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Status:</span>
+                {getStatusBadge(viewDialog.kyc.status)}
               </div>
-              <div>
-                <p className="text-sm font-medium mb-2">Foto Selfie</p>
-                {viewDialog.kyc?.selfie_image_url ? (
-                  <img
-                    src={viewDialog.kyc.selfie_image_url}
-                    alt="Selfie"
-                    className="w-full rounded-lg border"
-                  />
-                ) : (
-                  <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
-                    <Image className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                )}
+
+              {viewDialog.kyc.rejection_reason && (
+                <div className="p-3 bg-destructive/10 rounded-lg border border-destructive/30">
+                  <p className="text-sm font-medium text-destructive">Alasan Penolakan:</p>
+                  <p className="text-sm text-muted-foreground">{viewDialog.kyc.rejection_reason}</p>
+                </div>
+              )}
+
+              {/* Data Identitas */}
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs text-muted-foreground">Nama Lengkap (KTP)</p>
+                  <p className="font-medium">{viewDialog.kyc.full_name || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Nomor KTP</p>
+                  <p className="font-mono font-medium">{viewDialog.kyc.ktp_number || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Provinsi</p>
+                  <p className="font-medium">{viewDialog.kyc.province || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Kabupaten/Kota</p>
+                  <p className="font-medium">{viewDialog.kyc.city || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Kecamatan</p>
+                  <p className="font-medium">{viewDialog.kyc.district || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Desa/Kelurahan</p>
+                  <p className="font-medium">{viewDialog.kyc.village || '-'}</p>
+                </div>
+              </div>
+              {viewDialog.kyc.full_address && (
+                <div>
+                  <p className="text-xs text-muted-foreground">Alamat Lengkap</p>
+                  <p className="font-medium">{viewDialog.kyc.full_address}</p>
+                </div>
+              )}
+
+              {/* Dokumen */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium mb-2">Foto KTP</p>
+                  <KycImage path={viewDialog.kyc.ktp_image_url} alt="KTP" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium mb-2">Foto Selfie + KTP</p>
+                  <KycImage path={viewDialog.kyc.selfie_image_url} alt="Selfie" />
+                </div>
               </div>
             </div>
-          </div>
-          <DialogFooter>
+          )}
+
+          <DialogFooter className="flex-wrap gap-2">
             <Button variant="outline" onClick={() => setViewDialog({ open: false, kyc: null })}>
               Tutup
             </Button>
+            {viewDialog.kyc?.status === 'pending' && (
+              <>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    setViewDialog({ open: false, kyc: null });
+                    setRejectDialog({ open: true, kycId: viewDialog.kyc!.id });
+                  }}
+                >
+                  <X className="h-4 w-4 mr-1" /> Tolak
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={() => handleApprove(viewDialog.kyc!.id)}
+                >
+                  <Check className="h-4 w-4 mr-1" /> Setujui
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -327,12 +417,10 @@ export default function AdminKyc() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Tolak KYC</DialogTitle>
-            <DialogDescription>
-              Berikan alasan penolakan untuk verifikasi KYC ini.
-            </DialogDescription>
+            <DialogDescription>Berikan alasan penolakan untuk verifikasi KYC ini.</DialogDescription>
           </DialogHeader>
           <Textarea
-            placeholder="Alasan penolakan..."
+            placeholder="Alasan penolakan... (contoh: foto KTP buram, data tidak sesuai, dll)"
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
             rows={4}
@@ -342,7 +430,7 @@ export default function AdminKyc() {
               Batal
             </Button>
             <Button variant="destructive" onClick={handleReject} disabled={!rejectReason.trim()}>
-              Tolak
+              Tolak KYC
             </Button>
           </DialogFooter>
         </DialogContent>
