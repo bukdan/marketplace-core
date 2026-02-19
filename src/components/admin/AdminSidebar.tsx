@@ -27,7 +27,6 @@ import {
   ShieldCheck,
   Home,
   ArrowLeft,
-  
   ShoppingCart,
   Wallet,
   Image,
@@ -35,6 +34,7 @@ import {
   Coins,
   BarChart3,
   ScrollText,
+  Ticket,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminData } from '@/hooks/useAdminData';
@@ -43,7 +43,6 @@ const adminNavItems = [
   { title: 'Overview', url: '/admin', icon: LayoutDashboard },
   { title: 'Users', url: '/admin/users', icon: Users },
   { title: 'Listings', url: '/admin/listings', icon: Package },
-  
   { title: 'Orders', url: '/admin/orders', icon: ShoppingCart },
   { title: 'Withdrawals', url: '/admin/withdrawals', icon: Wallet },
   { title: 'Banners', url: '/admin/banners', icon: Image },
@@ -51,6 +50,7 @@ const adminNavItems = [
   { title: 'KYC Verifications', url: '/admin/kyc', icon: UserCheck, hasBadge: true },
   { title: 'Support', url: '/admin/support', icon: HelpCircle },
   { title: 'Credits', url: '/admin/credits', icon: Coins },
+  { title: 'Kupon', url: '/admin/coupons', icon: Ticket },
   { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
   { title: 'Activity Log', url: '/admin/activity-log', icon: ScrollText },
 ];

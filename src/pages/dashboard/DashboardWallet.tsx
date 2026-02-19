@@ -3,11 +3,12 @@ import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Wallet, Plus, ArrowUpCircle, ArrowDownCircle, RefreshCw, Coins } from 'lucide-react';
+import { Wallet, Plus, ArrowUpCircle, ArrowDownCircle, RefreshCw, Coins, Ticket, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
 import { useCredits } from '@/hooks/useCredits';
@@ -30,24 +31,21 @@ interface Transaction {
 export default function DashboardWallet() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { credits } = useCredits();
+  const { credits, refetchCredits } = useCredits();
 
   const [wallet, setWallet] = useState<WalletData | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [isTopupLoading, setIsTopupLoading] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [redeemLoading, setRedeemLoading] = useState(false);
 
   const fetchData = async () => {
     if (!user) return;
-
     setLoading(true);
     try {
       const [walletRes, txRes] = await Promise.all([
-        supabase
-          .from('wallets')
-          .select('id, balance, status')
-          .eq('user_id', user.id)
-          .single(),
+        supabase.from('wallets').select('id, balance, status').eq('user_id', user.id).single(),
         supabase
           .from('transactions')
           .select('id, type, amount, description, reference_type, created_at')
@@ -55,7 +53,6 @@ export default function DashboardWallet() {
           .order('created_at', { ascending: false })
           .limit(50),
       ]);
-
       if (walletRes.data) setWallet(walletRes.data);
       if (txRes.data) setTransactions(txRes.data);
     } catch (error) {
@@ -65,36 +62,24 @@ export default function DashboardWallet() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [user]);
+  useEffect(() => { fetchData(); }, [user]);
 
   const handleTopup = async () => {
     if (!wallet) {
       toast({ variant: 'destructive', title: 'Error', description: 'Wallet tidak ditemukan' });
       return;
     }
-
     setIsTopupLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-topup', {
         body: { amount: 100000, wallet_id: wallet.id },
       });
-
       if (error) throw error;
-
       if (data?.snap_token) {
         (window as any).snap.pay(data.snap_token, {
-          onSuccess: () => {
-            toast({ title: 'Topup Berhasil', description: 'Saldo wallet Anda telah ditambahkan' });
-            fetchData();
-          },
-          onPending: () => {
-            toast({ title: 'Menunggu Pembayaran', description: 'Silakan selesaikan pembayaran Anda' });
-          },
-          onError: () => {
-            toast({ variant: 'destructive', title: 'Pembayaran Gagal' });
-          },
+          onSuccess: () => { toast({ title: 'Topup Berhasil' }); fetchData(); },
+          onPending: () => { toast({ title: 'Menunggu Pembayaran' }); },
+          onError: () => { toast({ variant: 'destructive', title: 'Pembayaran Gagal' }); },
         });
       }
     } catch (error: any) {
@@ -104,13 +89,33 @@ export default function DashboardWallet() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(amount);
+  const handleRedeemCoupon = async () => {
+    if (!couponCode.trim() || !user) return;
+    setRedeemLoading(true);
+    try {
+      const { data, error } = await supabase.rpc('redeem_coupon', {
+        p_code: couponCode.trim().toUpperCase(),
+        p_user_id: user.id,
+      });
+      if (error) throw error;
+      const result = data as any;
+      if (!result.success) {
+        toast({ variant: 'destructive', title: 'Gagal', description: result.message });
+      } else {
+        toast({ title: '🎉 Kupon Berhasil!', description: result.message });
+        setCouponCode('');
+        refetchCredits();
+      }
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Error', description: err.message });
+    } finally {
+      setRedeemLoading(false);
+    }
   };
+
+  const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
+    style: 'currency', currency: 'IDR', minimumFractionDigits: 0,
+  }).format(amount);
 
   return (
     <DashboardLayout title="Wallet" description="Kelola saldo dan transaksi Anda">
@@ -157,9 +162,7 @@ export default function DashboardWallet() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-3xl font-bold">
-                  {loading ? '...' : (credits?.balance || 0)}
-                </p>
+                <p className="text-3xl font-bold">{loading ? '...' : (credits?.balance || 0)}</p>
                 <p className="text-sm text-muted-foreground">Untuk boost & fitur premium</p>
               </div>
               <Button variant="outline" onClick={() => window.location.href = '/credits'}>
@@ -171,8 +174,45 @@ export default function DashboardWallet() {
         </Card>
       </div>
 
+      {/* Redeem Coupon */}
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Ticket className="h-5 w-5 text-primary" />
+            Tukar Kupon Kredit
+          </CardTitle>
+          <CardDescription>Punya kode kupon? Masukkan di sini untuk mendapatkan kredit gratis</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-3 max-w-md">
+            <Input
+              placeholder="Contoh: PROMO2025 atau ADFFDS2311_4"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+              onKeyDown={(e) => e.key === 'Enter' && handleRedeemCoupon()}
+              className="font-mono uppercase"
+              maxLength={30}
+            />
+            <Button
+              onClick={handleRedeemCoupon}
+              disabled={redeemLoading || !couponCode.trim()}
+              className="shrink-0"
+            >
+              {redeemLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <Ticket className="mr-2 h-4 w-4" />
+                  Tukar
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Transaction History */}
-      <Card className="mt-6">
+      <Card className="mt-4">
         <CardHeader>
           <CardTitle>Riwayat Transaksi</CardTitle>
           <CardDescription>Semua transaksi wallet Anda</CardDescription>
@@ -202,9 +242,9 @@ export default function DashboardWallet() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {tx.type === 'credit' ? (
-                          <ArrowDownCircle className="h-4 w-4 text-green-500" />
+                          <ArrowDownCircle className="h-4 w-4 text-primary" />
                         ) : (
-                          <ArrowUpCircle className="h-4 w-4 text-red-500" />
+                          <ArrowUpCircle className="h-4 w-4 text-destructive" />
                         )}
                         <Badge variant={tx.type === 'credit' ? 'default' : 'secondary'}>
                           {tx.type === 'credit' ? 'Masuk' : 'Keluar'}
@@ -215,7 +255,7 @@ export default function DashboardWallet() {
                       {tx.description || tx.reference_type || '-'}
                     </TableCell>
                     <TableCell className={`text-right font-medium ${
-                      tx.type === 'credit' ? 'text-green-600' : 'text-red-600'
+                      tx.type === 'credit' ? 'text-primary' : 'text-destructive'
                     }`}>
                       {tx.type === 'credit' ? '+' : '-'}{formatCurrency(Number(tx.amount))}
                     </TableCell>

@@ -45,6 +45,7 @@ import AdminSupport from "./pages/admin/AdminSupport";
 import AdminCredits from "./pages/admin/AdminCredits";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminActivityLog from "./pages/admin/AdminActivityLog";
+import AdminCoupons from "./pages/admin/AdminCoupons";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,7 @@ const App = () => (
               <Route path="/admin/credits" element={<AdminCredits />} />
               <Route path="/admin/analytics" element={<AdminAnalytics />} />
               <Route path="/admin/activity-log" element={<AdminActivityLog />} />
+              <Route path="/admin/coupons" element={<AdminCoupons />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
               
               
