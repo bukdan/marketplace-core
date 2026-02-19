@@ -27,7 +27,7 @@ import {
 import {
   Loader2, Search, RefreshCw, Users, Shield, UserCog, Calendar,
   Mail, Phone, Ban, Pencil, ShieldOff, Key, Eye, CheckSquare,
-  UserCheck, UserX,
+  UserCheck, UserX, Coins,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -79,6 +79,12 @@ export default function AdminUsers() {
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [saving, setSaving] = useState(false);
+
+  // Add credits dialog
+  const [creditDialogOpen, setCreditDialogOpen] = useState(false);
+  const [creditAmount, setCreditAmount] = useState('');
+  const [creditNote, setCreditNote] = useState('');
+  const [addingCredits, setAddingCredits] = useState(false);
 
   // Bulk selection
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
@@ -264,6 +270,45 @@ export default function AdminUsers() {
       toast({ variant: 'destructive', title: 'Error', description: 'Gagal memperbarui profile' });
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Add credits manual by admin
+  const handleAddCredits = async () => {
+    if (!selectedUser || !creditAmount) return;
+    const amount = parseInt(creditAmount);
+    if (isNaN(amount) || amount <= 0 || amount > 100000) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Jumlah kredit harus antara 1 - 100.000' });
+      return;
+    }
+    setAddingCredits(true);
+    try {
+      const { data, error } = await supabase.rpc('admin_add_credits', {
+        p_user_id: selectedUser.user_id,
+        p_amount: amount,
+        p_description: creditNote || `Penambahan kredit oleh admin`,
+        p_admin_id: currentUser?.id,
+      });
+      if (error) throw error;
+      const result = data as any;
+      if (!result.success) throw new Error(result.message);
+
+      await logAuditAction('credits_added', selectedUser.user_id, {
+        user_name: selectedUser.name,
+        amount,
+        note: creditNote,
+        new_balance: result.new_balance,
+      });
+
+      toast({ title: 'Kredit Ditambahkan', description: `${amount} kredit berhasil ditambahkan ke ${selectedUser.name || selectedUser.email}` });
+      setCreditDialogOpen(false);
+      setCreditAmount('');
+      setCreditNote('');
+      setSelectedUser(null);
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Gagal', description: error.message });
+    } finally {
+      setAddingCredits(false);
     }
   };
 
@@ -604,6 +649,14 @@ export default function AdminUsers() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => { setSelectedUser(user); setCreditAmount(''); setCreditNote(''); setCreditDialogOpen(true); }}
+                          title="Tambah Kredit"
+                        >
+                          <Coins className="h-4 w-4 text-primary" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => { setSelectedUser(user); setBlockDialogOpen(true); }}
                           title={user.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                         >
@@ -786,6 +839,54 @@ export default function AdminUsers() {
             <Button onClick={handleEditProfile} disabled={saving}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Simpan
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Credits Dialog */}
+      <Dialog open={creditDialogOpen} onOpenChange={setCreditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Coins className="h-5 w-5 text-primary" />
+              Tambah Kredit Manual
+            </DialogTitle>
+            <DialogDescription>
+              Tambah kredit untuk: <strong>{selectedUser?.name || selectedUser?.email}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label>Jumlah Kredit *</Label>
+              <Input
+                type="number"
+                min="1"
+                max="100000"
+                placeholder="Contoh: 500"
+                value={creditAmount}
+                onChange={(e) => setCreditAmount(e.target.value)}
+                className="mt-1"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Maksimal 100.000 kredit sekali tambah</p>
+            </div>
+            <div>
+              <Label>Catatan / Alasan</Label>
+              <Input
+                placeholder="Contoh: Bonus promosi, kompensasi, dll."
+                value={creditNote}
+                onChange={(e) => setCreditNote(e.target.value)}
+                className="mt-1"
+                maxLength={100}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreditDialogOpen(false)}>Batal</Button>
+            <Button onClick={handleAddCredits} disabled={addingCredits || !creditAmount}>
+              {addingCredits && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Coins className="mr-2 h-4 w-4" />
+              Tambah Kredit
             </Button>
           </DialogFooter>
         </DialogContent>

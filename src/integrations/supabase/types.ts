@@ -445,6 +445,80 @@ export type Database = {
           },
         ]
       }
+      coupon_uses: {
+        Row: {
+          coupon_id: string
+          credits_given: number
+          id: string
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          coupon_id: string
+          credits_given: number
+          id?: string
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          coupon_id?: string
+          credits_given?: number
+          id?: string
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_uses_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          credits_amount: number
+          description: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          credits_amount?: number
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          credits_amount?: number
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number
+          updated_at?: string
+          used_count?: number
+        }
+        Relationships: []
+      }
       credit_packages: {
         Row: {
           bonus_credits: number | null
@@ -2745,6 +2819,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_add_credits: {
+        Args: {
+          p_admin_id: string
+          p_amount: number
+          p_description: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       get_platform_stats: {
         Args: never
         Returns: {
@@ -2772,6 +2855,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      redeem_coupon: {
+        Args: { p_code: string; p_user_id: string }
+        Returns: Json
       }
     }
     Enums: {
