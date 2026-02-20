@@ -48,7 +48,7 @@ const mainNavItems = [
   { title: 'Pesanan', url: '/dashboard/orders', icon: ShoppingCart },
   { title: 'Pesan', url: '/dashboard/messages', icon: MessageCircle, hasBadge: true },
   { title: 'Wishlist', url: '/dashboard/wishlist', icon: Heart },
-  { title: 'Kupon', url: '/dashboard/wallet', icon: Ticket },
+  { title: 'Kupon', url: '/dashboard/coupons', icon: Ticket },
   { title: 'Verifikasi KYC', url: '/dashboard/kyc', icon: Shield },
   { title: 'Bantuan', url: '/dashboard/support', icon: HelpCircle },
 ];

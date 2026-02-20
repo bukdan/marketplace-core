@@ -29,6 +29,7 @@ import DashboardWishlist from "./pages/dashboard/DashboardWishlist";
 import DashboardWithdraw from "./pages/dashboard/DashboardWithdraw";
 import DashboardKyc from "./pages/dashboard/DashboardKyc";
 import DashboardSupport from "./pages/dashboard/DashboardSupport";
+import DashboardCoupons from "./pages/dashboard/DashboardCoupons";
 
 // Admin pages
 import AdminHome from "./pages/admin/AdminHome";
@@ -82,6 +83,7 @@ const App = () => (
               <Route path="/dashboard/withdraw" element={<DashboardWithdraw />} />
               <Route path="/dashboard/kyc" element={<DashboardKyc />} />
               <Route path="/dashboard/support" element={<DashboardSupport />} />
+              <Route path="/dashboard/coupons" element={<DashboardCoupons />} />
               
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminHome />} />

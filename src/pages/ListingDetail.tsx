@@ -23,7 +23,7 @@ import { ReportListingModal } from '@/components/listing/ReportListingModal';
 import { SocialShareButtons } from '@/components/listing/SocialShareButtons';
 import { 
   MapPin, Eye, Clock, Heart, Flag, 
-  Gavel, Timer, ShoppingCart, Sparkles, Tag, CheckCircle
+  Gavel, Timer, ShoppingCart, Sparkles, Tag, CheckCircle, AlertTriangle
 } from 'lucide-react';
 import { formatDistanceToNow, differenceInSeconds } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -48,6 +48,7 @@ interface Listing {
   view_count: number;
   is_featured: boolean;
   created_at: string;
+  status: string;
   user_id: string;
   listing_images: ListingImage[];
   categories: { name: string; slug: string } | null;
@@ -162,7 +163,6 @@ export default function ListingDetail() {
           categories!listings_category_id_fkey(name, slug)
         `)
         .eq('id', listingId)
-        .eq('status', 'active')
         .single();
 
       if (listingError) throw listingError;
@@ -343,6 +343,23 @@ export default function ListingDetail() {
   return (
     <MainLayout>
       <div className="container mx-auto px-4 py-6">
+        {listing.status !== 'active' && (
+          <div className="mb-4 flex items-center gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-950">
+            <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400 shrink-0" />
+            <div>
+              <p className="font-semibold text-orange-800 dark:text-orange-200">
+                {listing.status === 'pending_review' ? 'Menunggu Review' :
+                 listing.status === 'rejected' ? 'Ditolak' :
+                 listing.status === 'draft' ? 'Draft' :
+                 listing.status === 'suspended' ? 'Ditangguhkan' :
+                 listing.status === 'expired' ? 'Kedaluwarsa' : listing.status}
+              </p>
+              <p className="text-sm text-orange-600 dark:text-orange-400">
+                Iklan ini belum aktif dan tidak terlihat oleh publik.
+              </p>
+            </div>
+          </div>
+        )}
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Left Column - Images & Details */}
           <div className="lg:col-span-2 space-y-6">
