@@ -33,6 +33,7 @@ import {
   ArrowDownCircle,
   Shield,
   HelpCircle,
+  Ticket,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCredits } from '@/hooks/useCredits';
@@ -47,6 +48,7 @@ const mainNavItems = [
   { title: 'Pesanan', url: '/dashboard/orders', icon: ShoppingCart },
   { title: 'Pesan', url: '/dashboard/messages', icon: MessageCircle, hasBadge: true },
   { title: 'Wishlist', url: '/dashboard/wishlist', icon: Heart },
+  { title: 'Kupon', url: '/dashboard/wallet', icon: Ticket },
   { title: 'Verifikasi KYC', url: '/dashboard/kyc', icon: Shield },
   { title: 'Bantuan', url: '/dashboard/support', icon: HelpCircle },
 ];
