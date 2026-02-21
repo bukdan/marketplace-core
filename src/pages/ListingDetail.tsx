@@ -163,9 +163,14 @@ export default function ListingDetail() {
           categories!listings_category_id_fkey(name, slug)
         `)
         .eq('id', listingId)
-        .single();
+        .maybeSingle();
 
       if (listingError) throw listingError;
+      if (!listingData) {
+        setListing(null);
+        setLoading(false);
+        return;
+      }
       
       // Store category_id for related products
       setCategoryId(listingData.category_id);
@@ -174,7 +179,7 @@ export default function ListingDetail() {
         .from('profiles')
         .select('name, phone_number, created_at, avatar_url')
         .eq('user_id', listingData.user_id)
-        .single();
+        .maybeSingle();
       
       const fullListing = {
         ...listingData,
