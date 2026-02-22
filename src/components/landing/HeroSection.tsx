@@ -25,10 +25,10 @@ export const HeroSection = ({ stats }: HeroSectionProps) => {
   };
 
   const statItems = [
-    { icon: ShoppingBag, label: 'Total Iklan', value: stats.total_listings },
-    { icon: Users, label: 'Penjual Aktif', value: stats.total_sellers },
-    { icon: TrendingUp, label: 'Kategori', value: stats.total_categories },
-    { icon: Gavel, label: 'Lelang Aktif', value: stats.active_auctions },
+    { icon: ShoppingBag, label: 'Total Iklan', value: stats.total_listings, color: 'bg-primary text-primary-foreground' },
+    { icon: Users, label: 'Penjual Aktif', value: stats.total_sellers, color: 'bg-secondary text-secondary-foreground' },
+    { icon: TrendingUp, label: 'Kategori', value: stats.total_categories, color: 'bg-success text-success-foreground' },
+    { icon: Gavel, label: 'Lelang Aktif', value: stats.active_auctions, color: 'bg-warning text-warning-foreground' },
   ];
 
   return (
@@ -105,16 +105,16 @@ export const HeroSection = ({ stats }: HeroSectionProps) => {
             {statItems.map((item, index) => (
               <div 
                 key={item.label} 
-                className="group relative rounded-xl border border-primary-foreground/10 bg-primary-foreground/10 p-5 backdrop-blur-md transition-all duration-300 hover:bg-primary-foreground/15 hover:border-primary-foreground/20 hover:scale-105 hover:shadow-[0_0_30px_hsl(var(--primary-foreground)/0.1)]"
+                className={`group relative rounded-xl p-5 transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-lg hover:shadow-xl ${item.color}`}
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-foreground/15 transition-colors group-hover:bg-primary-foreground/25">
-                  <item.icon className="h-5 w-5 text-primary-foreground" />
+                <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-background/20 backdrop-blur-sm transition-colors group-hover:bg-background/30">
+                  <item.icon className="h-5 w-5" />
                 </div>
-                <div className="text-2xl font-bold text-primary-foreground md:text-3xl">
+                <div className="text-2xl font-bold md:text-3xl">
                   {item.value.toLocaleString('id-ID')}
                 </div>
-                <div className="mt-1 text-sm text-primary-foreground/60">{item.label}</div>
+                <div className="mt-1 text-sm opacity-80">{item.label}</div>
               </div>
             ))}
           </div>
