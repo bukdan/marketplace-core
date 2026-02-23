@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, TrendingUp, Users, ShoppingBag, Gavel, Sparkles, ArrowRight } from 'lucide-react';
+import { Search, ShoppingBag, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -23,13 +23,6 @@ export const HeroSection = ({ stats }: HeroSectionProps) => {
       navigate(`/marketplace?search=${encodeURIComponent(searchQuery)}`);
     }
   };
-
-  const statItems = [
-    { icon: ShoppingBag, label: 'Total Iklan', value: stats.total_listings, color: 'bg-primary text-primary-foreground' },
-    { icon: Users, label: 'Penjual Aktif', value: stats.total_sellers, color: 'bg-secondary text-secondary-foreground' },
-    { icon: TrendingUp, label: 'Kategori', value: stats.total_categories, color: 'bg-success text-success-foreground' },
-    { icon: Gavel, label: 'Lelang Aktif', value: stats.active_auctions, color: 'bg-warning text-warning-foreground' },
-  ];
 
   return (
     <section className="relative overflow-hidden bg-primary py-20 md:py-28">
@@ -79,7 +72,7 @@ export const HeroSection = ({ stats }: HeroSectionProps) => {
           </form>
 
           {/* CTA Buttons */}
-          <div className="mb-14 flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
             <Button 
               size="lg" 
               variant="secondary"
@@ -98,25 +91,6 @@ export const HeroSection = ({ stats }: HeroSectionProps) => {
               Mulai Jualan
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {statItems.map((item, index) => (
-              <div 
-                key={item.label} 
-                className={`group relative rounded-xl p-5 transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-lg hover:shadow-xl ${item.color}`}
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-background/20 backdrop-blur-sm transition-colors group-hover:bg-background/30">
-                  <item.icon className="h-5 w-5" />
-                </div>
-                <div className="text-2xl font-bold md:text-3xl">
-                  {item.value.toLocaleString('id-ID')}
-                </div>
-                <div className="mt-1 text-sm opacity-80">{item.label}</div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
