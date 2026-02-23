@@ -2856,6 +2856,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_view_count: {
+        Args: { p_listing_id: string }
+        Returns: undefined
+      }
       redeem_coupon: {
         Args: { p_code: string; p_user_id: string }
         Returns: Json
