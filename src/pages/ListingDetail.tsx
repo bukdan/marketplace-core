@@ -115,9 +115,18 @@ export default function ListingDetail() {
   useEffect(() => {
     if (listingId) {
       fetchListing();
+      incrementViewCount(listingId);
       if (user) checkIfSaved();
     }
   }, [listingId, user]);
+
+  const incrementViewCount = async (id: string) => {
+    try {
+      await supabase.rpc('increment_view_count', { p_listing_id: id });
+    } catch (error) {
+      console.error('Error incrementing view count:', error);
+    }
+  };
 
   useEffect(() => {
     if (!auction || auction.status !== 'active') return;
