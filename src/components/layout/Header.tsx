@@ -23,7 +23,6 @@ import {
   LogOut,
   Settings,
   Coins,
-  ShoppingBag,
   Home,
   LayoutDashboard,
   MapPin,
@@ -32,6 +31,7 @@ import {
   Package,
   Bell,
 } from 'lucide-react';
+import logoImg from '@/assets/logo.png';
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -57,7 +57,7 @@ export const Header = () => {
 
   const navLinks = [
     { href: '/', label: 'Beranda', icon: Home },
-    { href: '/marketplace', label: 'Jelajahi', icon: ShoppingBag },
+    { href: '/marketplace', label: 'Jelajahi', icon: Package },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -69,7 +69,7 @@ export const Header = () => {
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <ShoppingBag className="h-7 w-7" />
+            <img src={logoImg} alt="UMKM ID" className="h-8 w-auto" />
             <span className="hidden text-xl font-bold sm:block">UMKM ID</span>
           </Link>
 
