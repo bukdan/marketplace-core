@@ -15,8 +15,8 @@ export const Footer = () => {
     seller: [
       { label: 'Mulai Jualan', href: '/auth' },
       { label: 'Beli Kredit', href: '/credits' },
-      { label: 'Panduan Seller', href: '#' },
-      { label: 'Tips & Trik', href: '#' },
+      { label: 'FAQ & Bantuan', href: '/faq' },
+      { label: 'Panduan Seller', href: '/faq' },
     ],
     company: [
       { label: 'Tentang Kami', href: '#' },
