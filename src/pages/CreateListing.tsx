@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCredits } from '@/hooks/useCredits';
+import { useKyc } from '@/hooks/useKyc';
 import { supabase } from '@/integrations/supabase/client';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -16,11 +17,9 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
-import { RegionSelect } from '@/components/shared/RegionSelect';
 import { toast } from 'sonner';
 import {
-  Camera, X, ArrowLeft, Loader2, ImagePlus, Coins, AlertCircle, Video, Search as SearchIcon,
+  Camera, X, ArrowLeft, Loader2, ImagePlus, Coins, AlertCircle, Video, Search as SearchIcon, ShieldAlert,
 } from 'lucide-react';
 import { z } from 'zod';
 
@@ -37,8 +36,6 @@ const listingSchema = z.object({
   price_type: z.enum(['fixed', 'negotiable', 'auction']),
   listing_type: z.enum(['sale', 'rent', 'service', 'wanted']),
   condition: z.enum(['new', 'like_new', 'good', 'fair']),
-  province_id: z.string().min(1, 'Pilih provinsi'),
-  regency_id: z.string().min(1, 'Pilih kabupaten/kota'),
 });
 
 interface Category {
@@ -52,6 +49,7 @@ const CreateListing = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { credits, refetchCredits } = useCredits();
+  const { kyc, isLoading: kycLoading } = useKyc();
   
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,13 +68,6 @@ const CreateListing = () => {
     price_type: 'fixed' as 'fixed' | 'negotiable' | 'auction',
     listing_type: 'sale' as 'sale' | 'rent' | 'service' | 'wanted',
     condition: 'good' as 'new' | 'like_new' | 'good' | 'fair',
-    province_id: '',
-    province_name: '',
-    regency_id: '',
-    regency_name: '',
-    district_id: '',
-    village_id: '',
-    address: '',
     video_url: '',
     contact_name: '',
     contact_phone: '',
@@ -190,14 +181,12 @@ const CreateListing = () => {
         price_type: formData.price_type,
         listing_type: formData.listing_type,
         condition: formData.condition,
-        province_id: formData.province_id,
-        regency_id: formData.regency_id,
-        province: formData.province_name,
-        city: formData.regency_name,
+        province: kyc?.province || null,
+        city: kyc?.city || null,
+        address: kyc?.full_address || null,
         status: 'pending_review',
         credits_used: calculateCreditsNeeded(),
         video_url: formData.video_url || null,
-        address: formData.address || null,
         contact_name: formData.contact_name || null,
         contact_phone: formData.contact_phone || null,
         contact_whatsapp: formData.contact_whatsapp || null,
@@ -209,8 +198,6 @@ const CreateListing = () => {
       };
 
       if (formData.subcategory_id) insertData.subcategory_id = formData.subcategory_id;
-      if (formData.district_id) insertData.district_id = formData.district_id;
-      if (formData.village_id) insertData.village_id = formData.village_id;
       if (formData.listing_type === 'rent') {
         insertData.rental_period = formData.rental_period || null;
         insertData.rental_price = formData.rental_price || null;
@@ -258,7 +245,7 @@ const CreateListing = () => {
     }
   };
 
-  if (authLoading || loading) {
+  if (authLoading || loading || kycLoading) {
     return (
       <MainLayout>
         <div className="container max-w-2xl px-4 py-6">
@@ -268,6 +255,41 @@ const CreateListing = () => {
             <Skeleton className="h-12 w-full" />
             <Skeleton className="h-32 w-full" />
           </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  const isKycApproved = kyc?.status === 'approved';
+
+  if (!isKycApproved) {
+    return (
+      <MainLayout>
+        <div className="container max-w-lg px-4 py-12">
+          <Card className="text-center">
+            <CardContent className="flex flex-col items-center gap-4 py-10">
+              <div className="rounded-full bg-destructive/10 p-4">
+                <ShieldAlert className="h-10 w-10 text-destructive" />
+              </div>
+              <h2 className="text-xl font-bold">Verifikasi KYC Diperlukan</h2>
+              <p className="text-muted-foreground max-w-sm">
+                Anda harus menyelesaikan verifikasi identitas (KYC) sebelum dapat memasang iklan di UMKM ID.
+              </p>
+              {kyc?.status === 'pending' ? (
+                <Badge variant="secondary" className="text-sm">KYC Anda sedang diproses</Badge>
+              ) : kyc?.status === 'rejected' ? (
+                <div className="space-y-2">
+                  <Badge variant="destructive" className="text-sm">KYC Ditolak</Badge>
+                  {kyc.rejection_reason && (
+                    <p className="text-sm text-muted-foreground">Alasan: {kyc.rejection_reason}</p>
+                  )}
+                  <Button onClick={() => navigate('/dashboard/kyc')}>Ajukan Ulang KYC</Button>
+                </div>
+              ) : (
+                <Button onClick={() => navigate('/dashboard/kyc')}>Mulai Verifikasi KYC</Button>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </MainLayout>
     );
@@ -549,44 +571,6 @@ const CreateListing = () => {
             </CardContent>
           </Card>
 
-          {/* Location */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Lokasi</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <RegionSelect
-                provinceId={formData.province_id}
-                regencyId={formData.regency_id}
-                districtId={formData.district_id}
-                villageId={formData.village_id}
-                onProvinceChange={(id, name) => setFormData({
-                  ...formData, province_id: id, province_name: name,
-                  regency_id: '', regency_name: '', district_id: '', village_id: '',
-                })}
-                onRegencyChange={(id, name) => setFormData({
-                  ...formData, regency_id: id, regency_name: name,
-                  district_id: '', village_id: '',
-                })}
-                onDistrictChange={(id) => setFormData({ ...formData, district_id: id, village_id: '' })}
-                onVillageChange={(id) => setFormData({ ...formData, village_id: id })}
-                showDistrict
-                showVillage
-              />
-              {errors.province_id && <p className="text-sm text-destructive">{errors.province_id}</p>}
-              {errors.regency_id && <p className="text-sm text-destructive">{errors.regency_id}</p>}
-
-              <div className="space-y-2">
-                <Label>Alamat Lengkap</Label>
-                <Textarea
-                  placeholder="Jl. Contoh No. 123, RT/RW ..."
-                  rows={2}
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                />
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Contact */}
           <Card>
