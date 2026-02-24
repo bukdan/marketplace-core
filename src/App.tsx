@@ -16,6 +16,7 @@ import Messages from "./pages/Messages";
 import Orders from "./pages/Orders";
 import NotFound from "./pages/NotFound";
 import Notifications from "./pages/Notifications";
+import Faq from "./pages/Faq";
 
 // Dashboard pages
 import DashboardHome from "./pages/dashboard/DashboardHome";
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="/listing/:id" element={<ListingDetail />} />
               <Route path="/marketplace/:id" element={<ListingDetail />} />
               <Route path="/notifications" element={<Notifications />} />
+              <Route path="/faq" element={<Faq />} />
               
               {/* Dashboard Routes */}
               <Route path="/dashboard" element={<DashboardHome />} />
