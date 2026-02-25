@@ -16,6 +16,8 @@ import { useWishlist } from '@/hooks/useWishlist';
 import { supabase } from '@/integrations/supabase/client';
 import { ImageGallery } from '@/components/listing/ImageGallery';
 import { SellerCard } from '@/components/listing/SellerCard';
+import { SellerLocationMap } from '@/components/listing/SellerLocationMap';
+import 'leaflet/dist/leaflet.css';
 import { ReviewSection } from '@/components/listing/ReviewSection';
 import { ProductSpecs } from '@/components/listing/ProductSpecs';
 import { RatingDisplay } from '@/components/listing/RatingDisplay';
@@ -513,6 +515,15 @@ export default function ListingDetail() {
               onChat={handleWhatsApp}
               onCall={() => window.open(`tel:${listing.profiles?.phone_number}`)}
               chatLoading={chatLoading}
+            />
+
+            {/* Seller Location Map */}
+            <SellerLocationMap
+              city={listing.city}
+              province={listing.province}
+              lat={(listing as any).location_lat}
+              lng={(listing as any).location_lng}
+              sellerName={listing.profiles?.name}
             />
 
             {/* Security Notice */}
