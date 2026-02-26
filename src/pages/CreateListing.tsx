@@ -19,7 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import {
-  Camera, X, ArrowLeft, Loader2, ImagePlus, Coins, AlertCircle, Video, Search as SearchIcon, ShieldAlert,
+  Camera, X, ArrowLeft, Loader2, ImagePlus, Coins, AlertCircle, Video, ShieldAlert,
 } from 'lucide-react';
 import { z } from 'zod';
 
@@ -74,9 +74,6 @@ const CreateListing = () => {
     contact_whatsapp: '',
     contact_email: '',
     contact_preference: 'whatsapp',
-    meta_title: '',
-    meta_description: '',
-    keywords: '',
     rental_period: '',
     rental_price: 0,
   });
@@ -192,9 +189,6 @@ const CreateListing = () => {
         contact_whatsapp: formData.contact_whatsapp || null,
         contact_email: formData.contact_email || null,
         contact_preference: formData.contact_preference || null,
-        meta_title: formData.meta_title || null,
-        meta_description: formData.meta_description || null,
-        keywords: formData.keywords || null,
       };
 
       if (formData.subcategory_id) insertData.subcategory_id = formData.subcategory_id;
@@ -629,47 +623,6 @@ const CreateListing = () => {
                     onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
                   />
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* SEO */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <SearchIcon className="h-5 w-5" /> SEO (Opsional)
-              </CardTitle>
-              <CardDescription>Optimalkan iklan agar mudah ditemukan di pencarian</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Meta Title</Label>
-                <Input
-                  placeholder="Judul untuk mesin pencari (max 60 karakter)"
-                  maxLength={60}
-                  value={formData.meta_title}
-                  onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
-                />
-                <p className="text-xs text-muted-foreground">{formData.meta_title.length}/60</p>
-              </div>
-              <div className="space-y-2">
-                <Label>Meta Description</Label>
-                <Textarea
-                  placeholder="Deskripsi singkat untuk mesin pencari (max 160 karakter)"
-                  maxLength={160}
-                  rows={2}
-                  value={formData.meta_description}
-                  onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
-                />
-                <p className="text-xs text-muted-foreground">{formData.meta_description.length}/160</p>
-              </div>
-              <div className="space-y-2">
-                <Label>Keywords</Label>
-                <Input
-                  placeholder="kata kunci 1, kata kunci 2, ..."
-                  value={formData.keywords}
-                  onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
-                />
               </div>
             </CardContent>
           </Card>
