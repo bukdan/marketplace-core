@@ -4,6 +4,7 @@ import { CategorySection } from '@/components/landing/CategorySection';
 import { ListingsSection } from '@/components/landing/ListingsSection';
 import { AuctionSection } from '@/components/landing/AuctionSection';
 import { BannerSection } from '@/components/landing/BannerSection';
+import { AdBanner } from '@/components/ads/AdBanner';
 import { Footer } from '@/components/landing/Footer';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -96,6 +97,11 @@ const Index = () => {
           />
         </div>
 
+        {/* Inline Ad between sections */}
+        <div className="container mx-auto px-4 py-4">
+          <AdBanner position="inline" className="rounded-lg" />
+        </div>
+
         {/* Active Auctions */}
         <AuctionSection auctions={activeAuctions} />
 
@@ -126,6 +132,11 @@ const Index = () => {
           filterParam="sort=newest"
           showViewAll={false}
         />
+
+        {/* Inline Ad between sections */}
+        <div className="container mx-auto px-4 py-4">
+          <AdBanner position="inline" className="rounded-lg" />
+        </div>
 
         {/* Popular Listings Section */}
         <section className="bg-background">

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AdBanner } from '@/components/ads/AdBanner';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCredits } from '@/hooks/useCredits';
@@ -64,6 +65,8 @@ export const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 border-b bg-primary text-primary-foreground">
+      {/* Header Ad Banner */}
+      <AdBanner position="header" showPlaceholder={false} className="rounded-none" />
       {/* Top Bar */}
       <div className="container px-4">
         <div className="flex h-16 items-center justify-between gap-4">

@@ -3,6 +3,7 @@ import { useListings } from '@/hooks/useListings';
 import { ListingCard } from '@/components/marketplace/ListingCard';
 import { SearchFilter } from '@/components/marketplace/SearchFilter';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { AdBanner } from '@/components/ads/AdBanner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -350,6 +351,11 @@ const Marketplace = () => {
                 </Button>
               </div>
             )}
+
+            {/* Inline Ad at bottom of listings */}
+            <div className="mt-6">
+              <AdBanner position="inline" className="rounded-lg" />
+            </div>
           </main>
         </div>
       </div>
