@@ -24,6 +24,7 @@ import { RatingDisplay } from '@/components/listing/RatingDisplay';
 import { RelatedProducts } from '@/components/listing/RelatedProducts';
 import { ReportListingModal } from '@/components/listing/ReportListingModal';
 import { SocialShareButtons } from '@/components/listing/SocialShareButtons';
+import { AdBanner } from '@/components/ads/AdBanner';
 import { 
   MapPin, Eye, Clock, Heart, Flag, 
   Gavel, Timer, ShoppingCart, Sparkles, Tag, CheckCircle, AlertTriangle,
@@ -526,6 +527,9 @@ export default function ListingDetail() {
               sellerName={listing.profiles?.name}
             />
 
+            {/* Ad Banner in Sidebar */}
+            <AdBanner position="detail" className="rounded-lg" />
+
             {/* Security Notice */}
             <Card className="border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-950 dark:to-emerald-900/30">
               <CardContent className="p-4 space-y-3">
@@ -540,6 +544,9 @@ export default function ListingDetail() {
                 </ul>
               </CardContent>
             </Card>
+
+            {/* Another Ad Banner */}
+            <AdBanner position="sidebar" className="rounded-lg" />
           </div>
         </div>
 
