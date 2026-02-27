@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Store, Mail, Phone, MapPin, Facebook, Instagram, Twitter } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { AdBanner } from '@/components/ads/AdBanner';
+import { SponsorCarousel } from '@/components/landing/SponsorCarousel';
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -120,7 +121,10 @@ export const Footer = () => {
 
         <Separator className="my-8 bg-background/20" />
 
-        {/* Bottom Footer */}
+        {/* Sponsor Carousel */}
+        <SponsorCarousel />
+
+        <Separator className="my-8 bg-background/20" />
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
           <p className="text-sm text-background/70">
             © {currentYear} Marketplace UMKM ID. All rights reserved.
