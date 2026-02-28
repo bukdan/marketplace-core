@@ -2866,7 +2866,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "user" | "admin" | "bandar"
+      app_role: "user" | "admin" | "bandar" | "umkm_owner"
       auction_status: "active" | "ended" | "sold" | "cancelled" | "no_winner"
       banner_position: "hero" | "sidebar" | "inline" | "footer"
       banner_pricing_model: "cpc" | "cpm" | "fixed"
@@ -3025,7 +3025,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["user", "admin", "bandar"],
+      app_role: ["user", "admin", "bandar", "umkm_owner"],
       auction_status: ["active", "ended", "sold", "cancelled", "no_winner"],
       banner_position: ["hero", "sidebar", "inline", "footer"],
       banner_pricing_model: ["cpc", "cpm", "fixed"],

@@ -15,14 +15,14 @@ interface Sponsor {
 }
 
 const sponsors: Sponsor[] = [
-  { name: 'Google', logo: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_160x56dp.png', url: 'https://google.com', description: 'Search & Cloud Platform' },
-  { name: 'Tokopedia', logo: 'https://images.tokopedia.net/img/tokopedia_logo.png', url: 'https://tokopedia.com', description: 'E-Commerce Indonesia' },
-  { name: 'Shopee', logo: 'https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg/assets/icon_favicon_1_32.bbb652fc.png', url: 'https://shopee.co.id', description: 'Online Shopping Platform' },
-  { name: 'BCA', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/200px-Bank_Central_Asia.svg.png', url: 'https://bca.co.id', description: 'Bank Central Asia' },
-  { name: 'Telkomsel', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Telkomsel_2021_icon.svg/120px-Telkomsel_2021_icon.svg.png', url: 'https://telkomsel.com', description: 'Telekomunikasi Indonesia' },
-  { name: 'Gojek', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Gojek_logo_2022.svg/200px-Gojek_logo_2022.svg.png', url: 'https://gojek.com', description: 'Super App Indonesia' },
-  { name: 'Grab', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Grab_logo.svg/200px-Grab_logo.svg.png', url: 'https://grab.com', description: 'Ride-hailing & Delivery' },
-  { name: 'Bukalapak', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Bukalapak_Official_Logo.png/200px-Bukalapak_Official_Logo.png', url: 'https://bukalapak.com', description: 'Marketplace UMKM' },
+  { name: 'Google', logo: 'https://logo.clearbit.com/google.com', url: 'https://google.com', description: 'Search & Cloud Platform' },
+  { name: 'Tokopedia', logo: 'https://logo.clearbit.com/tokopedia.com', url: 'https://tokopedia.com', description: 'E-Commerce Indonesia' },
+  { name: 'Shopee', logo: 'https://logo.clearbit.com/shopee.co.id', url: 'https://shopee.co.id', description: 'Online Shopping Platform' },
+  { name: 'BCA', logo: 'https://logo.clearbit.com/bca.co.id', url: 'https://bca.co.id', description: 'Bank Central Asia' },
+  { name: 'Telkomsel', logo: 'https://logo.clearbit.com/telkomsel.com', url: 'https://telkomsel.com', description: 'Telekomunikasi Indonesia' },
+  { name: 'Gojek', logo: 'https://logo.clearbit.com/gojek.com', url: 'https://gojek.com', description: 'Super App Indonesia' },
+  { name: 'Grab', logo: 'https://logo.clearbit.com/grab.com', url: 'https://grab.com', description: 'Ride-hailing & Delivery' },
+  { name: 'Bukalapak', logo: 'https://logo.clearbit.com/bukalapak.com', url: 'https://bukalapak.com', description: 'Marketplace UMKM' },
 ];
 
 // Double the array for seamless infinite scroll
@@ -66,6 +66,15 @@ export const SponsorCarousel = () => {
                     alt={sponsor.name}
                     className="h-8 max-w-[100px] object-contain brightness-0 invert opacity-40 transition-all duration-300 group-hover:opacity-100 group-hover:brightness-100 group-hover:invert-0 group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]"
                     loading="lazy"
+                    onError={(e) => {
+                      // Fallback: show sponsor name as text
+                      const target = e.currentTarget;
+                      target.style.display = 'none';
+                      const span = document.createElement('span');
+                      span.textContent = sponsor.name;
+                      span.className = 'text-sm font-bold opacity-40 group-hover:opacity-100 transition-opacity text-background';
+                      target.parentElement?.appendChild(span);
+                    }}
                   />
                   <ExternalLink className="absolute -top-1 -right-1 h-3 w-3 text-background/0 group-hover:text-background/60 transition-all duration-300" />
                 </a>
