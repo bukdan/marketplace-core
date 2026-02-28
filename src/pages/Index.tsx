@@ -50,12 +50,8 @@ const Index = () => {
   return (
     <MainLayout>
       <div className="min-h-screen bg-muted/30">
-        {/* Top Banner Carousel - Full width like Lazada */}
-        <BannerSection
-          banners={banners.filter((b) => b.position === 'inline')}
-          onImpression={(id) => trackBannerEvent(id, 'impression')}
-          onClick={(id) => trackBannerEvent(id, 'click')}
-        />
+
+
 
         {/* Category Icons Row - Compact like Lazada */}
         <CategorySection categories={categories} />
