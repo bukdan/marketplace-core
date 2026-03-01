@@ -56,7 +56,7 @@ const Index = () => {
         {/* Featured / Flash Sale */}
         {featuredListings.length > 0 && (
           <section className="bg-background">
-            <div className="container mx-auto px-4 pt-6">
+            <div className="container mx-auto px-4 pt-3">
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                   <h2 className="text-lg font-bold text-foreground">⚡ Flash Sale</h2>
@@ -83,7 +83,7 @@ const Index = () => {
         {/* Latest */}
         {latestListings.length > 0 && (
           <section className="bg-background">
-            <div className="container mx-auto px-4 pt-6">
+            <div className="container mx-auto px-4 pt-3">
               <div className="flex items-center justify-between mb-1">
                 <h2 className="text-lg font-bold text-foreground">Produk Terbaru</h2>
                 <Button
@@ -104,7 +104,7 @@ const Index = () => {
         {/* Popular */}
         {popularListings.length > 0 && (
           <section className="bg-background">
-            <div className="container mx-auto px-4 pt-6">
+            <div className="container mx-auto px-4 pt-3">
               <div className="flex items-center justify-between mb-1">
                 <h2 className="text-lg font-bold text-foreground">Populer Minggu Ini</h2>
                 <Button
@@ -123,7 +123,7 @@ const Index = () => {
         )}
 
         {/* CTA */}
-        <section className="py-10 bg-primary">
+        <section className="py-6 bg-primary">
           <div className="container mx-auto px-4 text-center">
             <h3 className="text-xl font-bold text-primary-foreground mb-2">
               Mulai jualan di UMKM ID sekarang!

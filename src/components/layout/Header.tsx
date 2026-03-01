@@ -86,8 +86,11 @@ export const Header = () => {
                 placeholder="Cari produk, toko, atau kategori..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 h-10 rounded-full border-border bg-muted/50 text-foreground text-sm focus:bg-background"
+                className="w-full pl-10 pr-10 h-10 rounded-full border-border bg-muted/50 text-foreground text-sm focus:bg-background"
               />
+              <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors">
+                <Search className="h-3.5 w-3.5 text-primary-foreground" />
+              </button>
             </div>
           </form>
 

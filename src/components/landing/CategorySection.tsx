@@ -83,13 +83,13 @@ export const CategorySection = ({ categories }: CategorySectionProps) => {
   };
 
   return (
-    <section className="py-6 bg-background">
+    <section className="py-3 bg-background">
       <div className="container mx-auto px-4">
         <Carousel
           opts={{ align: 'start', loop: true }}
           className="w-full"
         >
-          <CarouselContent className="-ml-2 md:-ml-4">
+          <CarouselContent className="-ml-1.5 md:-ml-2">
             {categories.map((category) => {
               const config = categoryConfig[category.slug] || defaultConfig;
               const IconComponent = config.icon;
@@ -97,35 +97,33 @@ export const CategorySection = ({ categories }: CategorySectionProps) => {
               return (
                 <CarouselItem
                   key={category.id}
-                  className="pl-2 md:pl-4 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6"
+                  className="pl-1.5 md:pl-2 basis-1/4 sm:basis-1/5 md:basis-1/6 lg:basis-[12.5%]"
                 >
                   <div
-                    className="group flex flex-col items-center gap-3 cursor-pointer py-4"
+                    className="group flex flex-col items-center gap-2 cursor-pointer py-2"
                     onClick={() => handleCategoryClick(category.id)}
                   >
-                    {/* Icon Container */}
+                    {/* Icon Container - Circle */}
                     <div
                       className={`
-                        relative flex h-16 w-16 items-center justify-center rounded-2xl
+                        relative flex h-14 w-14 items-center justify-center rounded-full
                         bg-gradient-to-br ${config.gradient}
                         shadow-lg ${config.shadow} ${config.glow}
                         transition-all duration-500 ease-out
                         group-hover:scale-110 group-hover:shadow-2xl
-                        group-hover:-translate-y-2 group-hover:rotate-3
+                        group-hover:-translate-y-1
                       `}
                     >
-                      {/* Pulse ring animation on hover */}
                       <div
                         className={`
-                          absolute inset-0 rounded-2xl bg-gradient-to-br ${config.gradient}
+                          absolute inset-0 rounded-full bg-gradient-to-br ${config.gradient}
                           opacity-0 group-hover:opacity-40
                           group-hover:animate-ping
                         `}
                       />
-                      {/* Shimmer sweep */}
                       <div
                         className="
-                          absolute inset-0 rounded-2xl overflow-hidden
+                          absolute inset-0 rounded-full overflow-hidden
                           before:absolute before:inset-0
                           before:-translate-x-full before:bg-gradient-to-r
                           before:from-transparent before:via-white/30 before:to-transparent
@@ -133,11 +131,11 @@ export const CategorySection = ({ categories }: CategorySectionProps) => {
                           group-hover:before:translate-x-full
                         "
                       />
-                      <IconComponent className="h-8 w-8 text-white relative z-10 transition-transform duration-300 group-hover:scale-110" />
+                      <IconComponent className="h-6 w-6 text-white relative z-10 transition-transform duration-300 group-hover:scale-110" />
                     </div>
 
                     {/* Label */}
-                    <span className="text-center text-xs font-semibold text-foreground transition-colors duration-300 group-hover:text-primary">
+                    <span className="text-center text-[11px] font-semibold text-foreground transition-colors duration-300 group-hover:text-primary leading-tight">
                       {category.name}
                     </span>
                   </div>
