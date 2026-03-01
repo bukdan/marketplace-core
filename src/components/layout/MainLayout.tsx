@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { Header } from './Header';
+import { Footer } from '@/components/landing/Footer';
 import { AdBanner } from '@/components/ads/AdBanner';
 
 interface MainLayoutProps {
@@ -25,6 +26,7 @@ export const MainLayout = ({ children, showHeader = true, showAds = true }: Main
           <AdBanner position="footer" className="rounded-lg" />
         </div>
       )}
+      <Footer />
     </div>
   );
 };
