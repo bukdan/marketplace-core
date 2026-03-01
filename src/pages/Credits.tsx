@@ -6,9 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Coins, Sparkles, Check, ArrowLeft } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Coins, Sparkles, Check, CreditCard, Banknote } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { ManualTransferForm } from '@/components/credits/ManualTransferForm';
 
 declare global {
   interface Window {
@@ -28,42 +30,22 @@ const Credits = () => {
   const { user } = useAuth();
   const { credits, packages, loading, purchaseCredits, refetchCredits } = useCredits();
   const [processingPackage, setProcessingPackage] = useState<string | null>(null);
+  const [selectedTransferPkg, setSelectedTransferPkg] = useState<any>(null);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
 
   const handlePurchase = async (packageId: string) => {
-    if (!user) {
-      toast.error('Silakan login terlebih dahulu');
-      navigate('/auth');
-      return;
-    }
-
+    if (!user) { toast.error('Silakan login terlebih dahulu'); navigate('/auth'); return; }
     setProcessingPackage(packageId);
-
     try {
       const result = await purchaseCredits(packageId);
-
       if (result.snap_token && window.snap) {
         window.snap.pay(result.snap_token, {
-          onSuccess: () => {
-            toast.success('Pembelian kredit berhasil!');
-            refetchCredits();
-          },
-          onPending: () => {
-            toast.info('Pembayaran sedang diproses');
-          },
-          onError: () => {
-            toast.error('Pembayaran gagal');
-          },
-          onClose: () => {
-            setProcessingPackage(null);
-          },
+          onSuccess: () => { toast.success('Pembelian kredit berhasil!'); refetchCredits(); },
+          onPending: () => { toast.info('Pembayaran sedang diproses'); },
+          onError: () => { toast.error('Pembayaran gagal'); },
+          onClose: () => { setProcessingPackage(null); },
         });
       } else if (result.redirect_url) {
         window.location.href = result.redirect_url;
@@ -85,6 +67,21 @@ const Credits = () => {
           <p className="mb-4 text-muted-foreground">Anda perlu login untuk membeli kredit</p>
           <Button onClick={() => navigate('/auth')}>Login Sekarang</Button>
         </div>
+      </MainLayout>
+    );
+  }
+
+  // If user selected manual transfer package
+  if (selectedTransferPkg) {
+    return (
+      <MainLayout>
+        <main className="container max-w-2xl px-4 py-6">
+          <ManualTransferForm
+            selectedPackage={selectedTransferPkg}
+            onBack={() => setSelectedTransferPkg(null)}
+            onSuccess={() => {}}
+          />
+        </main>
       </MainLayout>
     );
   }
@@ -116,29 +113,17 @@ const Credits = () => {
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-primary" />
-                <span><strong>1 Kredit</strong> = Pasang 1 Iklan</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-primary" />
-                <span><strong>1 Kredit</strong> = Tambah Gambar Extra</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-primary" />
-                <span><strong>5-20 Kredit/hari</strong> = Boost Iklan</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-primary" />
-                <span><strong>2 Kredit</strong> = Buat Lelang</span>
-              </li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /><span><strong>1 Kredit</strong> = Pasang 1 Iklan</span></li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /><span><strong>1 Kredit</strong> = Tambah Gambar Extra</span></li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /><span><strong>5-20 Kredit/hari</strong> = Boost Iklan</span></li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /><span><strong>2 Kredit</strong> = Buat Lelang</span></li>
             </ul>
           </CardContent>
         </Card>
 
         {/* Credit Packages */}
         <h2 className="mb-4 text-lg font-bold">Pilih Paket Kredit</h2>
-        
+
         {loading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -148,48 +133,50 @@ const Credits = () => {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {packages.map((pkg) => (
-              <Card 
-                key={pkg.id} 
-                className={`relative transition-all hover:shadow-lg ${
-                  pkg.is_featured ? 'ring-2 ring-primary' : ''
-                }`}
+              <Card
+                key={pkg.id}
+                className={`relative transition-all hover:shadow-lg ${pkg.is_featured ? 'ring-2 ring-primary' : ''}`}
               >
                 {pkg.is_featured && (
                   <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary">
                     <Sparkles className="mr-1 h-3 w-3" /> Terpopuler
                   </Badge>
                 )}
-                
                 <CardHeader className="pb-2">
                   <CardTitle>{pkg.name}</CardTitle>
                   <CardDescription>
                     {pkg.credits} Kredit
                     {pkg.bonus_credits > 0 && (
-                      <span className="ml-1 text-primary">
-                        + {pkg.bonus_credits} Bonus
-                      </span>
+                      <span className="ml-1 text-primary"> + {pkg.bonus_credits} Bonus</span>
                     )}
                   </CardDescription>
                 </CardHeader>
-                
                 <CardContent>
                   <div className="mb-4">
-                    <span className="text-2xl font-bold">
-                      {formatPrice(pkg.price)}
-                    </span>
+                    <span className="text-2xl font-bold">{formatPrice(pkg.price)}</span>
                     <span className="text-sm text-muted-foreground">
                       {' '}({formatPrice(pkg.price / (pkg.credits + pkg.bonus_credits))}/kredit)
                     </span>
                   </div>
-                  
-                  <Button 
-                    className="w-full"
-                    variant={pkg.is_featured ? 'default' : 'outline'}
-                    onClick={() => handlePurchase(pkg.id)}
-                    disabled={processingPackage !== null}
-                  >
-                    {processingPackage === pkg.id ? 'Memproses...' : 'Beli Sekarang'}
-                  </Button>
+                  <div className="space-y-2">
+                    <Button
+                      className="w-full"
+                      variant={pkg.is_featured ? 'default' : 'outline'}
+                      onClick={() => handlePurchase(pkg.id)}
+                      disabled={processingPackage !== null}
+                    >
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      {processingPackage === pkg.id ? 'Memproses...' : 'Bayar Online'}
+                    </Button>
+                    <Button
+                      className="w-full"
+                      variant="outline"
+                      onClick={() => setSelectedTransferPkg(pkg)}
+                    >
+                      <Banknote className="mr-2 h-4 w-4" />
+                      Transfer Manual BNI
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}

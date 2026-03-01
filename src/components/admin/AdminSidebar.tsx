@@ -37,6 +37,8 @@ import {
   Ticket,
   FolderTree,
   Zap,
+  Megaphone,
+  Banknote,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminData } from '@/hooks/useAdminData';
@@ -55,6 +57,8 @@ const adminNavItems = [
   { title: 'Credits', url: '/admin/credits', icon: Coins },
   { title: 'Boost Settings', url: '/admin/boost-settings', icon: Zap },
   { title: 'Kupon', url: '/admin/coupons', icon: Ticket },
+  { title: 'Broadcast', url: '/admin/broadcast', icon: Megaphone },
+  { title: 'Verifikasi Topup', url: '/admin/topup-requests', icon: Banknote },
   { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
   { title: 'Activity Log', url: '/admin/activity-log', icon: ScrollText },
 ];

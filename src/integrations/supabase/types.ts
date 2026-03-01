@@ -558,6 +558,71 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_topup_requests: {
+        Row: {
+          account_holder: string
+          account_number: string
+          admin_notes: string | null
+          amount: number
+          bank_name: string
+          bonus_credits: number
+          created_at: string
+          credits_amount: number
+          id: string
+          package_id: string | null
+          proof_image_url: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_holder?: string
+          account_number?: string
+          admin_notes?: string | null
+          amount: number
+          bank_name?: string
+          bonus_credits?: number
+          created_at?: string
+          credits_amount: number
+          id?: string
+          package_id?: string | null
+          proof_image_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_holder?: string
+          account_number?: string
+          admin_notes?: string | null
+          amount?: number
+          bank_name?: string
+          bonus_credits?: number
+          created_at?: string
+          credits_amount?: number
+          id?: string
+          package_id?: string | null
+          proof_image_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_topup_requests_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "credit_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_transactions: {
         Row: {
           amount: number
