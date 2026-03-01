@@ -6,6 +6,7 @@ import { AuctionSection } from '@/components/landing/AuctionSection';
 import { Footer } from '@/components/landing/Footer';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 
@@ -47,12 +48,15 @@ const Index = () => {
         {/* Categories */}
         <CategorySection categories={categories} />
 
-        {/* Featured */}
+        {/* Featured / Premium */}
         {featuredListings.length > 0 && (
           <section className="bg-background">
             <div className="container mx-auto px-4 pt-6">
               <div className="flex items-center justify-between mb-1">
-                <h2 className="text-lg font-bold text-foreground">Flash Sale</h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-bold text-foreground">⚡ Flash Sale</h2>
+                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 border-0 text-xs">Premium</Badge>
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"

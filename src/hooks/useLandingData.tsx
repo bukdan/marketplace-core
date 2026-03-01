@@ -124,7 +124,7 @@ export const useLandingData = () => {
       .eq('is_featured', true)
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
-      .limit(8);
+      .limit(12);
     setFeaturedListings((data as unknown as Listing[]) || []);
   };
 
@@ -135,7 +135,7 @@ export const useLandingData = () => {
       .eq('status', 'active')
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
-      .limit(8);
+      .limit(12);
     setLatestListings((data as unknown as Listing[]) || []);
   };
 
@@ -146,7 +146,7 @@ export const useLandingData = () => {
       .eq('status', 'active')
       .is('deleted_at', null)
       .order('view_count', { ascending: false })
-      .limit(8);
+      .limit(12);
     setPopularListings((data as unknown as Listing[]) || []);
   };
 

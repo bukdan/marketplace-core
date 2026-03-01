@@ -36,6 +36,7 @@ import {
   ScrollText,
   Ticket,
   FolderTree,
+  Zap,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminData } from '@/hooks/useAdminData';
@@ -52,6 +53,7 @@ const adminNavItems = [
   { title: 'KYC Verifications', url: '/admin/kyc', icon: UserCheck, hasBadge: true },
   { title: 'Support', url: '/admin/support', icon: HelpCircle },
   { title: 'Credits', url: '/admin/credits', icon: Coins },
+  { title: 'Boost Settings', url: '/admin/boost-settings', icon: Zap },
   { title: 'Kupon', url: '/admin/coupons', icon: Ticket },
   { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
   { title: 'Activity Log', url: '/admin/activity-log', icon: ScrollText },
