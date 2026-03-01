@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +19,8 @@ import {
   Star,
   Gavel,
   Tag,
-  ArrowUpDown
+  ArrowUpDown,
+  MapPin
 } from 'lucide-react';
 import {
   Sheet,
@@ -30,15 +31,23 @@ import {
 } from '@/components/ui/sheet';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Province {
+  id: string;
+  name: string;
+}
 
 interface SearchFilterProps {
   onSearchChange: (search: string) => void;
   onSortChange: (sort: string) => void;
   onConditionChange: (condition: string | null) => void;
   onPriceTypeChange: (priceType: string | null) => void;
+  onProvinceChange?: (provinceId: string | null) => void;
   currentSort: string;
   currentCondition: string | null;
   currentPriceType: string | null;
+  currentProvince?: string | null;
 }
 
 const conditionOptions = [
@@ -59,12 +68,27 @@ export const SearchFilter = ({
   onSortChange,
   onConditionChange,
   onPriceTypeChange,
+  onProvinceChange,
   currentSort,
   currentCondition,
   currentPriceType,
+  currentProvince,
 }: SearchFilterProps) => {
   const [searchInput, setSearchInput] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [provinces, setProvinces] = useState<Province[]>([]);
+
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      const { data } = await supabase
+        .from('provinces')
+        .select('id, name')
+        .eq('is_active', true)
+        .order('name');
+      if (data) setProvinces(data);
+    };
+    fetchProvinces();
+  }, []);
 
   const handleSearch = () => {
     onSearchChange(searchInput);
@@ -79,11 +103,12 @@ export const SearchFilter = ({
   const clearFilters = () => {
     onConditionChange(null);
     onPriceTypeChange(null);
+    onProvinceChange?.(null);
     onSortChange('newest');
   };
 
-  const hasActiveFilters = currentCondition || currentPriceType || currentSort !== 'newest';
-  const activeFilterCount = [currentCondition, currentPriceType].filter(Boolean).length;
+  const hasActiveFilters = currentCondition || currentPriceType || currentProvince || currentSort !== 'newest';
+  const activeFilterCount = [currentCondition, currentPriceType, currentProvince].filter(Boolean).length;
 
   return (
     <div className="space-y-4">
@@ -104,6 +129,23 @@ export const SearchFilter = ({
         <Button onClick={handleSearch} className="h-11 px-6">
           Cari
         </Button>
+
+        {/* Province Select */}
+        <Select 
+          value={currentProvince || 'all'} 
+          onValueChange={(v) => onProvinceChange?.(v === 'all' ? null : v)}
+        >
+          <SelectTrigger className="w-[170px] h-11">
+            <MapPin className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+            <SelectValue placeholder="Semua Provinsi" />
+          </SelectTrigger>
+          <SelectContent className="max-h-[300px]">
+            <SelectItem value="all">Semua Provinsi</SelectItem>
+            {provinces.map((p) => (
+              <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         {/* Sort Select */}
         <Select value={currentSort} onValueChange={onSortChange}>
