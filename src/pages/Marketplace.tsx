@@ -55,6 +55,7 @@ const Marketplace = () => {
   const [sortBy, setSortBy] = useState<'newest' | 'price_low' | 'price_high' | 'popular'>('newest');
   const [condition, setCondition] = useState<string | null>(null);
   const [priceType, setPriceType] = useState<string | null>(null);
+  const [provinceId, setProvinceId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
 
@@ -64,6 +65,7 @@ const Marketplace = () => {
     sort_by: sortBy,
     condition: condition || undefined,
     price_type: priceType || undefined,
+    province_id: provinceId || undefined,
   });
 
   const featuredListings = listings.filter(l => l.is_featured);
@@ -73,6 +75,7 @@ const Marketplace = () => {
     selectedCategory && categories.find(c => c.id === selectedCategory)?.name,
     condition,
     priceType,
+    provinceId && 'Provinsi',
   ].filter(Boolean);
 
   return (
@@ -85,9 +88,11 @@ const Marketplace = () => {
             onSortChange={(v) => setSortBy(v as typeof sortBy)}
             onConditionChange={setCondition}
             onPriceTypeChange={setPriceType}
+            onProvinceChange={setProvinceId}
             currentSort={sortBy}
             currentCondition={condition}
             currentPriceType={priceType}
+            currentProvince={provinceId}
           />
         </div>
 
@@ -207,6 +212,7 @@ const Marketplace = () => {
                       setSelectedCategory(null);
                       setCondition(null);
                       setPriceType(null);
+                      setProvinceId(null);
                     }}
                     className="text-muted-foreground hover:text-foreground"
                   >

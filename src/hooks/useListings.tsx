@@ -41,6 +41,7 @@ interface ListingsFilter {
   price_type?: string;
   condition?: string;
   city?: string;
+  province_id?: string;
   search?: string;
   sort_by?: 'newest' | 'price_low' | 'price_high' | 'popular';
 }
@@ -57,7 +58,7 @@ export const useListings = (filters: ListingsFilter = {}) => {
 
   useEffect(() => {
     fetchListings();
-  }, [filters.category_id, filters.price_type, filters.condition, filters.city, filters.search, filters.sort_by]);
+  }, [filters.category_id, filters.price_type, filters.condition, filters.city, filters.province_id, filters.search, filters.sort_by]);
 
   const fetchCategories = async () => {
     const { data, error } = await supabase
@@ -99,6 +100,9 @@ export const useListings = (filters: ListingsFilter = {}) => {
     }
     if (filters.city) {
       query = query.ilike('city', `%${filters.city}%`);
+    }
+    if (filters.province_id) {
+      query = query.eq('province_id', filters.province_id);
     }
     if (filters.search) {
       query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
