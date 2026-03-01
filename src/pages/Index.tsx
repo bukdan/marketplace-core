@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Clock, TrendingUp, Zap } from 'lucide-react';
 
 const LoadingSkeleton = () => (
   <div className="min-h-screen bg-background">
@@ -60,7 +60,8 @@ const Index = () => {
             <div className="container mx-auto px-4 pt-3">
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-bold text-foreground">⚡ Flash Sale</h2>
+                  <Zap className="h-4.5 w-4.5 text-amber-500" />
+                  <h2 className="text-lg font-bold text-foreground">Flash Sale</h2>
                   <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 border-0 text-xs">Premium</Badge>
                 </div>
                 <Button
@@ -86,7 +87,10 @@ const Index = () => {
           <section className="bg-background">
             <div className="container mx-auto px-4 pt-3">
               <div className="flex items-center justify-between mb-1">
-                <h2 className="text-lg font-bold text-foreground">Produk Terbaru</h2>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4.5 w-4.5 text-primary" />
+                  <h2 className="text-lg font-bold text-foreground">Produk Terbaru</h2>
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -107,7 +111,10 @@ const Index = () => {
           <section className="bg-background">
             <div className="container mx-auto px-4 pt-3">
               <div className="flex items-center justify-between mb-1">
-                <h2 className="text-lg font-bold text-foreground">Populer Minggu Ini</h2>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-4.5 w-4.5 text-primary" />
+                  <h2 className="text-lg font-bold text-foreground">Populer Minggu Ini</h2>
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
