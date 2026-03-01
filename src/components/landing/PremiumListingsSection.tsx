@@ -26,9 +26,10 @@ interface Listing {
 
 interface PremiumListingsSectionProps {
   listings: Listing[];
+  highlightedIds?: Set<string>;
 }
 
-export const PremiumListingsSection = ({ listings }: PremiumListingsSectionProps) => {
+export const PremiumListingsSection = ({ listings, highlightedIds }: PremiumListingsSectionProps) => {
   const navigate = useNavigate();
 
   if (listings.length === 0) return null;
@@ -51,6 +52,7 @@ export const PremiumListingsSection = ({ listings }: PremiumListingsSectionProps
               key={listing.id}
               listing={listing}
               onClick={() => navigate(`/marketplace/${listing.id}`)}
+              isHighlighted={highlightedIds?.has(listing.id)}
             />
           ))}
         </div>

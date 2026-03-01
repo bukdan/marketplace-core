@@ -34,6 +34,7 @@ interface ListingCardProps {
   };
   onClick?: () => void;
   variant?: 'default' | 'compact';
+  isHighlighted?: boolean;
 }
 
 const conditionConfig: Record<string, { label: string; color: string; icon?: React.ElementType }> = {
@@ -49,7 +50,7 @@ const priceTypeConfig: Record<string, { label: string; color: string }> = {
   auction: { label: 'Lelang', color: 'bg-purple-500/10 text-purple-600 border-purple-200' },
 };
 
-export const ListingCard = ({ listing, onClick, variant = 'default' }: ListingCardProps) => {
+export const ListingCard = ({ listing, onClick, variant = 'default', isHighlighted = false }: ListingCardProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -203,7 +204,8 @@ export const ListingCard = ({ listing, onClick, variant = 'default' }: ListingCa
       className={cn(
         "group cursor-pointer overflow-hidden transition-all duration-300",
         "hover:shadow-xl hover:-translate-y-1",
-        listing.is_featured && "ring-2 ring-primary shadow-lg shadow-primary/10",
+        isHighlighted && "ring-2 ring-amber-400 shadow-lg shadow-amber-200/30 bg-gradient-to-b from-amber-50/50 to-background dark:from-amber-950/20 dark:to-background",
+        listing.is_featured && !isHighlighted && "ring-2 ring-primary shadow-lg shadow-primary/10",
         isSold && "opacity-75"
       )}
       onClick={handleClick}
@@ -232,7 +234,13 @@ export const ListingCard = ({ listing, onClick, variant = 'default' }: ListingCa
 
         {/* Top badges */}
         <div className="absolute left-2 top-2 flex flex-wrap gap-1.5">
-          {listing.is_featured && (
+          {isHighlighted && (
+            <Badge className="bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-950 border-0 shadow-lg animate-pulse">
+              <Sparkles className="mr-1 h-3 w-3" />
+              Highlight
+            </Badge>
+          )}
+          {listing.is_featured && !isHighlighted && (
             <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-lg">
               <Sparkles className="mr-1 h-3 w-3" />
               Premium

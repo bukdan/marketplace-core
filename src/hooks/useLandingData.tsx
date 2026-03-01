@@ -74,6 +74,7 @@ export const useLandingData = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [featuredListings, setFeaturedListings] = useState<Listing[]>([]);
   const [premiumBoostedListings, setPremiumBoostedListings] = useState<Listing[]>([]);
+  const [highlightedListingIds, setHighlightedListingIds] = useState<Set<string>>(new Set());
   const [latestListings, setLatestListings] = useState<Listing[]>([]);
   const [popularListings, setPopularListings] = useState<Listing[]>([]);
   const [activeAuctions, setActiveAuctions] = useState<Auction[]>([]);
@@ -98,6 +99,7 @@ export const useLandingData = () => {
       fetchCategories(),
       fetchFeaturedListings(),
       fetchPremiumBoostedListings(),
+      fetchHighlightedListingIds(),
       fetchLatestListings(),
       fetchPopularListings(),
       fetchActiveAuctions(),
@@ -166,6 +168,19 @@ export const useLandingData = () => {
       .is('deleted_at', null);
 
     setPremiumBoostedListings((listings as unknown as Listing[]) || []);
+  };
+
+  const fetchHighlightedListingIds = async () => {
+    const { data: boosts } = await supabase
+      .from('listing_boosts')
+      .select('listing_id, ends_at')
+      .in('boost_type', ['highlight', 'top_search'])
+      .eq('status', 'active')
+      .gte('ends_at', new Date().toISOString());
+
+    if (boosts && boosts.length > 0) {
+      setHighlightedListingIds(new Set(boosts.map(b => b.listing_id)));
+    }
   };
 
   const fetchLatestListings = async () => {
@@ -256,6 +271,7 @@ export const useLandingData = () => {
     categories,
     featuredListings,
     premiumBoostedListings,
+    highlightedListingIds,
     latestListings,
     popularListings,
     activeAuctions,

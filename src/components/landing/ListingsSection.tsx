@@ -36,6 +36,7 @@ interface ListingsSectionProps {
   listings: Listing[];
   showViewAll?: boolean;
   filterParam?: string;
+  highlightedIds?: Set<string>;
 }
 
 export const ListingsSection = ({
@@ -44,6 +45,7 @@ export const ListingsSection = ({
   listings,
   showViewAll = true,
   filterParam,
+  highlightedIds,
 }: ListingsSectionProps) => {
   const navigate = useNavigate();
 
@@ -89,6 +91,7 @@ export const ListingsSection = ({
                 <ListingCard 
                   listing={listing}
                   onClick={() => navigate(`/marketplace/${listing.id}`)}
+                  isHighlighted={highlightedIds?.has(listing.id)}
                 />
               </CarouselItem>
             ))}
