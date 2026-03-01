@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 import { ExternalLink } from 'lucide-react';
 import {
@@ -6,6 +6,35 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+
+const SponsorLink = forwardRef<HTMLAnchorElement, { sponsor: { name: string; logo: string; url: string }; } & React.AnchorHTMLAttributes<HTMLAnchorElement>>(
+  ({ sponsor, ...props }, ref) => (
+    <a
+      ref={ref}
+      href={sponsor.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group relative flex-shrink-0 flex items-center justify-center h-14 w-28 rounded-lg transition-all duration-300 hover:scale-110"
+      {...props}
+    >
+      <img
+        src={sponsor.logo}
+        alt={sponsor.name}
+        className="h-8 max-w-[100px] object-contain brightness-0 invert opacity-40 transition-all duration-300 group-hover:opacity-100 group-hover:brightness-100 group-hover:invert-0 group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]"
+        loading="lazy"
+        onError={(e) => {
+          const target = e.currentTarget;
+          target.style.display = 'none';
+          const span = document.createElement('span');
+          span.textContent = sponsor.name;
+          span.className = 'text-sm font-bold opacity-40 group-hover:opacity-100 transition-opacity text-background';
+          target.parentElement?.appendChild(span);
+        }}
+      />
+      <ExternalLink className="absolute -top-1 -right-1 h-3 w-3 text-background/0 group-hover:text-background/60 transition-all duration-300" />
+    </a>
+  )
+);
 
 interface Sponsor {
   name: string;
@@ -55,29 +84,7 @@ export const SponsorCarousel = () => {
           {doubledSponsors.map((sponsor, i) => (
             <Tooltip key={`${sponsor.name}-${i}`}>
               <TooltipTrigger asChild>
-                <a
-                  href={sponsor.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative flex-shrink-0 flex items-center justify-center h-14 w-28 rounded-lg transition-all duration-300 hover:scale-110"
-                >
-                  <img
-                    src={sponsor.logo}
-                    alt={sponsor.name}
-                    className="h-8 max-w-[100px] object-contain brightness-0 invert opacity-40 transition-all duration-300 group-hover:opacity-100 group-hover:brightness-100 group-hover:invert-0 group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]"
-                    loading="lazy"
-                    onError={(e) => {
-                      // Fallback: show sponsor name as text
-                      const target = e.currentTarget;
-                      target.style.display = 'none';
-                      const span = document.createElement('span');
-                      span.textContent = sponsor.name;
-                      span.className = 'text-sm font-bold opacity-40 group-hover:opacity-100 transition-opacity text-background';
-                      target.parentElement?.appendChild(span);
-                    }}
-                  />
-                  <ExternalLink className="absolute -top-1 -right-1 h-3 w-3 text-background/0 group-hover:text-background/60 transition-all duration-300" />
-                </a>
+                <SponsorLink sponsor={sponsor} />
               </TooltipTrigger>
               <TooltipContent side="top" className="text-center">
                 <p className="font-semibold text-sm">{sponsor.name}</p>

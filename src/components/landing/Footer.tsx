@@ -21,10 +21,10 @@ export const Footer = () => {
       { label: 'Panduan Seller', href: '/faq' },
     ],
     company: [
-      { label: 'Tentang Kami', href: '#' },
-      { label: 'Kontak', href: '#' },
-      { label: 'Karir', href: '#' },
-      { label: 'Blog', href: '#' },
+      { label: 'Tentang Kami', href: '/about' },
+      { label: 'FAQ & Bantuan', href: '/faq' },
+      { label: 'Karir', href: '/about' },
+      { label: 'Blog', href: '/faq' },
     ],
     legal: [
       { label: 'Syarat & Ketentuan', href: '/terms' },
