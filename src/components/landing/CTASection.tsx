@@ -15,8 +15,8 @@ export const CTASection = () => {
     <section className="py-16 bg-primary">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="mb-4 text-2xl font-bold text-primary-foreground md:text-4xl">
-            Siap Mengembangkan Bisnis UMKM Anda?
+          <h2 className="mb-4 text-2xl font-bold md:text-4xl">
+            <span className="gradient-heading-light">Siap Mengembangkan Bisnis UMKM Anda?</span>
           </h2>
           <p className="mb-8 text-lg text-primary-foreground/80">
             Bergabunglah dengan ribuan pelaku UMKM yang telah sukses berjualan 

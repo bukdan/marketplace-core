@@ -84,8 +84,8 @@ export const AuctionSection = ({ auctions }: AuctionSectionProps) => {
               <Gavel className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-foreground md:text-3xl">
-                Lelang Aktif
+              <h2 className="text-2xl font-bold md:text-3xl">
+                <span className="gradient-heading">Lelang Aktif</span>
               </h2>
               <p className="text-muted-foreground">
                 Ikuti lelang dan dapatkan harga terbaik
