@@ -110,7 +110,7 @@ export function DashboardSidebar() {
                 size={isCollapsed ? 'icon' : 'default'}
               >
                 <Plus className="h-4 w-4" />
-                {!isCollapsed && <span>Pasang Iklan</span>}
+                {!isCollapsed && <span>Jual Barang</span>}
               </Button>
             </div>
           </SidebarGroupContent>

@@ -148,7 +148,7 @@ const Index = () => {
                 className="text-primary-foreground border border-primary-foreground/20 hover:bg-primary-foreground/10"
                 onClick={() => navigate('/listing/create')}
               >
-                Pasang Iklan
+                Jual Barang
               </Button>
             </div>
           </div>

@@ -240,7 +240,7 @@ export default function Orders() {
                   <Package className="h-12 w-12 text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">Belum ada pesanan penjualan</p>
                   <Button className="mt-4" onClick={() => navigate('/listing/create')}>
-                    Pasang Iklan
+                    Jual Barang
                   </Button>
                 </CardContent>
               </Card>

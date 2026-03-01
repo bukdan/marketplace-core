@@ -120,7 +120,7 @@ export default function DashboardListings() {
         </div>
         <Button onClick={() => navigate('/listing/create')}>
           <Plus className="mr-2 h-4 w-4" />
-          Pasang Iklan Baru
+          Jual Barang Baru
         </Button>
       </div>
 

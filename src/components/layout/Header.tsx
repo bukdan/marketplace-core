@@ -115,7 +115,7 @@ export const Header = () => {
               className="hidden gap-1.5 sm:flex h-9 text-xs rounded-full"
             >
               <Plus className="h-3.5 w-3.5" />
-              Pasang Iklan
+              Jual Barang
             </Button>
 
             {user ? (
@@ -298,7 +298,7 @@ export const Header = () => {
                     className="w-full h-9"
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    Pasang Iklan
+                    Jual Barang
                   </Button>
 
                   {user && (

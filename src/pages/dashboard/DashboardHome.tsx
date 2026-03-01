@@ -102,7 +102,7 @@ export default function DashboardHome() {
             <Plus className="h-5 w-5 text-primary" />
           </div>
           <div className="text-left">
-            <div className="font-medium">Pasang Iklan Baru</div>
+            <div className="font-medium">Jual Barang Baru</div>
             <div className="text-sm text-muted-foreground">Jual produk atau jasa</div>
           </div>
         </Button>

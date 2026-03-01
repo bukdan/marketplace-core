@@ -14,7 +14,7 @@ const steps = [
   },
   {
     icon: Upload,
-    title: 'Pasang Iklan',
+    title: 'Jual Barang',
     description: 'Upload foto produk, isi detail, dan publikasikan iklan Anda.',
   },
   {
