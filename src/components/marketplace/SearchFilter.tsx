@@ -289,7 +289,7 @@ export const SearchFilter = ({
               variant="outline"
               size="sm"
               className={cn(
-                "gap-1.5 transition-all",
+                "gap-1.5 transition-all rounded-full",
                 isSelected && option.color
               )}
               onClick={() => onConditionChange(isSelected ? null : option.value)}
@@ -309,7 +309,7 @@ export const SearchFilter = ({
               variant="outline"
               size="sm"
               className={cn(
-                "gap-1.5 transition-all",
+                "gap-1.5 transition-all rounded-full",
                 isSelected && option.color
               )}
               onClick={() => onPriceTypeChange(isSelected ? null : option.value)}
