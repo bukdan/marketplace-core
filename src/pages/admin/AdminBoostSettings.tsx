@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Zap, Edit, Sparkles, Search, Crown } from 'lucide-react';
+import { Zap, Edit, Sparkles, Search, Crown, LayoutDashboard } from 'lucide-react';
 
 const boostIconMap: Record<string, React.ElementType> = {
   highlight: Sparkles,
@@ -41,18 +41,41 @@ export default function AdminBoostSettings() {
   const [editSetting, setEditSetting] = useState<any>(null);
   const [settingValue, setSettingValue] = useState('');
 
+  // Premium homepage setting
+  const [premiumCount, setPremiumCount] = useState(6);
+  const [savingPremiumCount, setSavingPremiumCount] = useState(false);
+
+  // Active boosts
+  const [activeBoosts, setActiveBoosts] = useState<any[]>([]);
+
   const fetchData = async () => {
     setLoading(true);
-    const [{ data: types }, { data: platformSettings }] = await Promise.all([
+    const [{ data: types }, { data: platformSettings }, { data: boosts }] = await Promise.all([
       supabase.from('boost_types').select('*').order('credits_per_day', { ascending: true }),
       supabase.from('platform_settings').select('*').order('key', { ascending: true }),
+      supabase
+        .from('listing_boosts')
+        .select('*, listings(title)')
+        .eq('status', 'active')
+        .gte('ends_at', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(20),
     ]);
     setBoostTypes(types || []);
+    setActiveBoosts(boosts || []);
+
     // Filter credit-related settings
     const creditSettings = (platformSettings || []).filter(
-      (s: any) => s.key.includes('credit') || s.key.includes('cost') || s.key.includes('fee') || s.key.includes('initial')
+      (s: any) => (s.key.includes('credit') || s.key.includes('cost') || s.key.includes('fee') || s.key.includes('initial')) && s.key !== 'premium_homepage_count'
     );
     setSettings(creditSettings);
+
+    // Get premium homepage count
+    const premSetting = (platformSettings || []).find((s: any) => s.key === 'premium_homepage_count');
+    if (premSetting?.value && typeof premSetting.value === 'object' && 'amount' in premSetting.value) {
+      setPremiumCount((premSetting.value as any).amount);
+    }
+
     setLoading(false);
   };
 
@@ -114,8 +137,106 @@ export default function AdminBoostSettings() {
     }
   };
 
+  const savePremiumCount = async () => {
+    setSavingPremiumCount(true);
+    const { error } = await supabase
+      .from('platform_settings')
+      .update({ value: { amount: premiumCount } })
+      .eq('key', 'premium_homepage_count');
+
+    if (error) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Gagal menyimpan' });
+    } else {
+      toast({ title: 'Berhasil', description: `Jumlah card premium di homepage: ${premiumCount}` });
+    }
+    setSavingPremiumCount(false);
+  };
+
   return (
     <AdminLayout title="Boost & Credit Settings" description="Kelola tipe boost dan pengaturan kredit">
+      {/* Premium Homepage Settings */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <LayoutDashboard className="h-5 w-5 text-primary" />
+            Pengaturan Iklan Premium Homepage
+          </CardTitle>
+          <CardDescription>Atur jumlah card iklan premium yang tampil di halaman utama</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-end gap-4">
+            <div className="space-y-2">
+              <Label>Jumlah Card Premium di Homepage</Label>
+              <Input
+                type="number"
+                min={1}
+                max={24}
+                value={premiumCount}
+                onChange={(e) => setPremiumCount(+e.target.value)}
+                className="w-32"
+              />
+              <p className="text-xs text-muted-foreground">Iklan dengan boost "Premium" aktif akan muncul di section khusus setelah kategori di halaman utama.</p>
+            </div>
+            <Button onClick={savePremiumCount} disabled={savingPremiumCount}>
+              {savingPremiumCount ? 'Menyimpan...' : 'Simpan'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Active Boosts */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Crown className="h-5 w-5 text-primary" />
+            Boost Aktif ({activeBoosts.length})
+          </CardTitle>
+          <CardDescription>Daftar iklan yang sedang di-boost</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Iklan</TableHead>
+                <TableHead>Tipe</TableHead>
+                <TableHead>Kredit</TableHead>
+                <TableHead>Berakhir</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {activeBoosts.length === 0 ? (
+                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Tidak ada boost aktif</TableCell></TableRow>
+              ) : (
+                activeBoosts.map((boost) => {
+                  const Icon = boostIconMap[boost.boost_type] || Zap;
+                  return (
+                    <TableRow key={boost.id}>
+                      <TableCell className="font-medium truncate max-w-[200px]">
+                        {(boost.listings as any)?.title || boost.listing_id.slice(0, 8)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Icon className="h-4 w-4 text-primary" />
+                          <Badge variant="outline">{boost.boost_type}</Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell>{boost.credits_used}</TableCell>
+                      <TableCell className="text-sm">
+                        {new Date(boost.ends_at).toLocaleDateString('id-ID')}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="default">Active</Badge>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
       {/* Boost Types */}
       <Card className="mb-6">
         <CardHeader>

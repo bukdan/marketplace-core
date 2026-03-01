@@ -73,6 +73,7 @@ interface PlatformStats {
 export const useLandingData = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [featuredListings, setFeaturedListings] = useState<Listing[]>([]);
+  const [premiumBoostedListings, setPremiumBoostedListings] = useState<Listing[]>([]);
   const [latestListings, setLatestListings] = useState<Listing[]>([]);
   const [popularListings, setPopularListings] = useState<Listing[]>([]);
   const [activeAuctions, setActiveAuctions] = useState<Auction[]>([]);
@@ -96,6 +97,7 @@ export const useLandingData = () => {
     await Promise.all([
       fetchCategories(),
       fetchFeaturedListings(),
+      fetchPremiumBoostedListings(),
       fetchLatestListings(),
       fetchPopularListings(),
       fetchActiveAuctions(),
@@ -126,6 +128,44 @@ export const useLandingData = () => {
       .order('created_at', { ascending: false })
       .limit(12);
     setFeaturedListings((data as unknown as Listing[]) || []);
+  };
+
+  const fetchPremiumBoostedListings = async () => {
+    // Get premium_homepage_count setting
+    let maxCount = 6;
+    const { data: setting } = await supabase
+      .from('platform_settings')
+      .select('value')
+      .eq('key', 'premium_homepage_count')
+      .maybeSingle();
+    if (setting?.value && typeof setting.value === 'object' && 'amount' in (setting.value as any)) {
+      maxCount = (setting.value as any).amount;
+    }
+
+    // Get listing IDs with active premium boosts
+    const { data: boosts } = await supabase
+      .from('listing_boosts')
+      .select('listing_id')
+      .eq('boost_type', 'premium')
+      .eq('status', 'active')
+      .gte('ends_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(maxCount);
+
+    if (!boosts || boosts.length === 0) {
+      setPremiumBoostedListings([]);
+      return;
+    }
+
+    const listingIds = [...new Set(boosts.map(b => b.listing_id))];
+    const { data: listings } = await supabase
+      .from('listings')
+      .select(`*, listing_images (*), categories!listings_category_id_fkey (name)`)
+      .in('id', listingIds)
+      .eq('status', 'active')
+      .is('deleted_at', null);
+
+    setPremiumBoostedListings((listings as unknown as Listing[]) || []);
   };
 
   const fetchLatestListings = async () => {
@@ -215,6 +255,7 @@ export const useLandingData = () => {
   return {
     categories,
     featuredListings,
+    premiumBoostedListings,
     latestListings,
     popularListings,
     activeAuctions,
