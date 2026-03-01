@@ -5,8 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
+import { useKyc } from '@/hooks/useKyc';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Shield, CreditCard, LogOut } from 'lucide-react';
+import { Bell, Shield, CreditCard, LogOut, FileCheck, Loader2, CheckCircle, Clock, XCircle, Upload, Pencil } from 'lucide-react';
 
 export default function DashboardSettings() {
   const { user, signOut } = useAuth();
