@@ -2,6 +2,7 @@ import { useLandingData } from '@/hooks/useLandingData';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { CategorySection } from '@/components/landing/CategorySection';
 import { ListingsSection } from '@/components/landing/ListingsSection';
+import { PremiumListingsSection } from '@/components/landing/PremiumListingsSection';
 import { AuctionSection } from '@/components/landing/AuctionSection';
 import { Footer } from '@/components/landing/Footer';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -32,6 +33,7 @@ const Index = () => {
   const {
     categories,
     featuredListings,
+    premiumBoostedListings,
     latestListings,
     popularListings,
     activeAuctions,
@@ -48,7 +50,10 @@ const Index = () => {
         {/* Categories */}
         <CategorySection categories={categories} />
 
-        {/* Featured / Premium */}
+        {/* Premium Boosted Listings - right after categories */}
+        <PremiumListingsSection listings={premiumBoostedListings} />
+
+        {/* Featured / Flash Sale */}
         {featuredListings.length > 0 && (
           <section className="bg-background">
             <div className="container mx-auto px-4 pt-6">

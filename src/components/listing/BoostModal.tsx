@@ -75,63 +75,22 @@ export const BoostModal = ({ open, onOpenChange, listingId, listingTitle, onSucc
     
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      // Get current balance
-      const { data: creditData, error: creditError } = await supabase
-        .from('user_credits')
-        .select('balance')
-        .eq('user_id', user.id)
-        .single();
-
-      if (creditError || !creditData) throw new Error('Failed to get credits');
-      
-      if (creditData.balance < totalCredits) {
-        throw new Error('Insufficient credits');
-      }
-
-      // Create boost record
-      const endsAt = new Date();
-      endsAt.setDate(endsAt.getDate() + days);
-
-      const { error: boostError } = await supabase
-        .from('listing_boosts')
-        .insert({
-          listing_id: listingId,
-          user_id: user.id,
-          boost_type: selectedType.type,
-          credits_used: totalCredits,
-          ends_at: endsAt.toISOString(),
-        });
-
-      if (boostError) throw boostError;
-
-      // Deduct credits
-      const { error: updateError } = await supabase
-        .from('user_credits')
-        .update({ 
-          balance: creditData.balance - totalCredits,
-          lifetime_used: (creditData as { lifetime_used?: number }).lifetime_used ?? 0 + totalCredits 
-        })
-        .eq('user_id', user.id);
-
-      if (updateError) throw updateError;
-
-      // Record transaction
-      await supabase.from('credit_transactions').insert({
-        user_id: user.id,
-        amount: -totalCredits,
-        balance_after: creditData.balance - totalCredits,
-        type: 'usage',
-        reference_type: 'boost',
-        reference_id: listingId,
-        description: `Boost ${selectedType.name} untuk ${days} hari`,
+      const { data, error } = await supabase.rpc('apply_listing_boost', {
+        p_listing_id: listingId,
+        p_boost_type: selectedType.type,
+        p_days: days,
       });
 
+      if (error) throw error;
+
+      const result = data as any;
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+
       toast({
-        title: 'Boost Berhasil!',
-        description: `Iklan Anda akan dipromosikan selama ${days} hari`,
+        title: 'Boost Berhasil! 🚀',
+        description: `Iklan Anda akan dipromosikan selama ${days} hari. Sisa kredit: ${result.new_balance}`,
       });
 
       onOpenChange(false);
@@ -226,6 +185,9 @@ export const BoostModal = ({ open, onOpenChange, listingId, listingTitle, onSucc
                 <span>{selectedType.name}</span>
                 <span>{selectedType.credits_per_day} × {days} hari</span>
               </div>
+              {selectedType.type === 'premium' && (
+                <p className="text-xs text-primary">✨ Iklan akan tampil di halaman utama sebagai Iklan Premium</p>
+              )}
               <div className="flex justify-between font-medium text-lg border-t pt-2">
                 <span>Total</span>
                 <span className={!hasEnoughCredits ? 'text-destructive' : ''}>
