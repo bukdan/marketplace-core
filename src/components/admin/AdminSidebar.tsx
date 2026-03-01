@@ -35,12 +35,14 @@ import {
   BarChart3,
   ScrollText,
   Ticket,
+  FolderTree,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminData } from '@/hooks/useAdminData';
 
 const adminNavItems = [
   { title: 'Overview', url: '/admin', icon: LayoutDashboard },
+  { title: 'Categories', url: '/admin/categories', icon: FolderTree },
   { title: 'Users', url: '/admin/users', icon: Users },
   { title: 'Listings', url: '/admin/listings', icon: Package },
   { title: 'Orders', url: '/admin/orders', icon: ShoppingCart },
