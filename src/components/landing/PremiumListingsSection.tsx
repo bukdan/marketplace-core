@@ -34,7 +34,7 @@ export const PremiumListingsSection = ({ listings }: PremiumListingsSectionProps
   if (listings.length === 0) return null;
 
   return (
-    <section className="bg-gradient-to-b from-primary/5 to-background py-6">
+    <section className="bg-gradient-to-b from-primary/5 to-background py-3">
       <div className="container mx-auto px-4">
         <div className="flex items-center gap-2 mb-4">
           <Crown className="h-5 w-5 text-primary" />
