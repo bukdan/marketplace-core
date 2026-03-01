@@ -2893,6 +2893,14 @@ export type Database = {
         }
         Returns: Json
       }
+      apply_listing_boost: {
+        Args: {
+          p_boost_type: Database["public"]["Enums"]["boost_type"]
+          p_days?: number
+          p_listing_id: string
+        }
+        Returns: Json
+      }
       get_platform_stats: {
         Args: never
         Returns: {
