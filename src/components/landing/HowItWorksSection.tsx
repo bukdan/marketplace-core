@@ -1,5 +1,6 @@
 import { UserPlus, Upload, CreditCard, ShoppingCart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 const steps = [
   {
@@ -29,9 +30,9 @@ export const HowItWorksSection = () => {
     <section className="py-16 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="mb-12 text-center">
-          <h2 className="mb-4 text-2xl font-bold md:text-3xl">
-            <span className="gradient-heading">Cara Kerja Platform</span>
-          </h2>
+          <GradientHeading className="mb-4 text-2xl font-bold md:text-3xl">
+            Cara Kerja Platform
+          </GradientHeading>
           <p className="mx-auto max-w-2xl text-muted-foreground">
             Mulai jualan di Marketplace UMKM ID dengan 4 langkah mudah
           </p>

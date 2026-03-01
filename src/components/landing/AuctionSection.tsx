@@ -4,6 +4,7 @@ import { Gavel, Clock, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 interface Auction {
   id: string;
@@ -84,9 +85,9 @@ export const AuctionSection = ({ auctions }: AuctionSectionProps) => {
               <Gavel className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold md:text-3xl">
-                <span className="gradient-heading">Lelang Aktif</span>
-              </h2>
+              <GradientHeading className="text-2xl font-bold md:text-3xl">
+                Lelang Aktif
+              </GradientHeading>
               <p className="text-muted-foreground">
                 Ikuti lelang dan dapatkan harga terbaik
               </p>

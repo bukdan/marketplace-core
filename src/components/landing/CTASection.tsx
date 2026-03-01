@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Store, TrendingUp, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export const CTASection = () => {
   const navigate = useNavigate();
@@ -15,9 +16,9 @@ export const CTASection = () => {
     <section className="py-16 bg-primary">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="mb-4 text-2xl font-bold md:text-4xl">
-            <span className="gradient-heading-light">Siap Mengembangkan Bisnis UMKM Anda?</span>
-          </h2>
+          <GradientHeading variant="light" className="mb-4 text-2xl font-bold md:text-4xl">
+            Siap Mengembangkan Bisnis UMKM Anda?
+          </GradientHeading>
           <p className="mb-8 text-lg text-primary-foreground/80">
             Bergabunglah dengan ribuan pelaku UMKM yang telah sukses berjualan 
             di platform kami. Daftar gratis dan mulai jualan sekarang!

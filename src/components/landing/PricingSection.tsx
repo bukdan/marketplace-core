@@ -3,6 +3,7 @@ import { Check, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 interface CreditPackage {
   id: string;
@@ -42,9 +43,9 @@ export const PricingSection = ({ packages }: PricingSectionProps) => {
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
         <div className="mb-12 text-center">
-          <h2 className="mb-4 text-2xl font-bold md:text-3xl">
-            <span className="gradient-heading">Paket Kredit</span>
-          </h2>
+          <GradientHeading className="mb-4 text-2xl font-bold md:text-3xl">
+            Paket Kredit
+          </GradientHeading>
           <p className="mx-auto max-w-2xl text-muted-foreground">
             Pilih paket kredit sesuai kebutuhan bisnis Anda. 
             Semakin besar paket, semakin banyak bonus yang didapat.

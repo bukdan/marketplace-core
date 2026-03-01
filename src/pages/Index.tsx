@@ -8,6 +8,7 @@ import { Footer } from '@/components/landing/Footer';
 import { AdBanner } from '@/components/ads/AdBanner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Clock, TrendingUp, Zap } from 'lucide-react';
@@ -143,9 +144,9 @@ const Index = () => {
         {/* CTA */}
         <section className="py-6 bg-primary">
           <div className="container mx-auto px-4 text-center">
-            <h3 className="text-xl font-bold text-primary-foreground mb-2">
+            <GradientHeading as="h3" variant="light" className="text-xl font-bold mb-2">
               Mulai jualan di UMKM ID sekarang!
-            </h3>
+            </GradientHeading>
             <p className="text-sm text-primary-foreground/70 mb-6">
               Gratis daftar · Jutaan pembeli · Transaksi aman
             </p>

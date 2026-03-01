@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, ShoppingBag, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 interface HeroSectionProps {
   stats: {
@@ -42,11 +43,9 @@ export const HeroSection = ({ stats }: HeroSectionProps) => {
             <span>Platform UMKM #1 Indonesia</span>
           </div>
 
-          <h1 className="mb-5 text-4xl font-extrabold tracking-tight md:text-6xl">
-            <span className="gradient-heading-light">
-              Marketplace UMKM Indonesia
-            </span>
-          </h1>
+          <GradientHeading as="h1" variant="light" className="mb-5 text-4xl font-extrabold tracking-tight md:text-6xl">
+            Marketplace UMKM Indonesia
+          </GradientHeading>
           <p className="mb-10 text-lg text-primary-foreground/80 md:text-xl leading-relaxed">
             Platform digital terpadu untuk memberdayakan UMKM Indonesia. 
             Jual, beli, dan lelang produk lokal berkualitas.

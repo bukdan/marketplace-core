@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { ListingCard } from '@/components/marketplace/ListingCard';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 import { Crown, Sparkles } from 'lucide-react';
 
 interface ListingImage {
@@ -39,7 +40,7 @@ export const PremiumListingsSection = ({ listings, highlightedIds }: PremiumList
       <div className="container mx-auto px-4">
         <div className="flex items-center gap-2 mb-4">
           <Crown className="h-5 w-5 text-primary" />
-          <h2 className="text-lg font-bold text-foreground">Iklan Premium</h2>
+          <GradientHeading className="text-lg font-bold">Iklan Premium</GradientHeading>
           <Badge className="bg-gradient-to-r from-primary to-primary/80 border-0 text-xs">
             <Sparkles className="mr-1 h-3 w-3" />
             Boosted
