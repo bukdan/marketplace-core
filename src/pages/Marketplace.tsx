@@ -255,12 +255,12 @@ const Marketplace = () => {
 
             {/* Loading */}
             {loading && (
-              <div className={cn(
-                "grid gap-4",
-                viewMode === 'grid' 
-                  ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-                  : "grid-cols-1 md:grid-cols-2"
-              )}>
+               <div className={cn(
+                 "grid gap-4",
+                 viewMode === 'grid' 
+                   ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                   : "grid-cols-1"
+               )}>
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="space-y-3 animate-pulse">
                     <Skeleton className="aspect-[4/3] rounded-xl" />
@@ -288,12 +288,13 @@ const Marketplace = () => {
                       "grid gap-4",
                       viewMode === 'grid' 
                         ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-                        : "grid-cols-1 md:grid-cols-2"
+                        : "grid-cols-1"
                     )}>
                       {featuredListings.map((listing) => (
                         <ListingCard
                           key={listing.id}
                           listing={listing}
+                          variant={viewMode === 'list' ? 'compact' : 'default'}
                           onClick={() => navigate(`/listing/${listing.id}`)}
                         />
                       ))}
@@ -310,12 +311,13 @@ const Marketplace = () => {
                       "grid gap-4",
                       viewMode === 'grid' 
                         ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-                        : "grid-cols-1 md:grid-cols-2"
+                        : "grid-cols-1"
                     )}>
                       {regularListings.map((listing) => (
                         <ListingCard
                           key={listing.id}
                           listing={listing}
+                          variant={viewMode === 'list' ? 'compact' : 'default'}
                           onClick={() => navigate(`/listing/${listing.id}`)}
                         />
                       ))}

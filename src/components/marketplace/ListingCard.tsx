@@ -118,6 +118,86 @@ export const ListingCard = ({ listing, onClick, variant = 'default' }: ListingCa
   const priceTypeData = priceTypeConfig[listing.price_type] || priceTypeConfig.fixed;
   const isSold = listing.status === 'sold';
 
+  if (variant === 'compact') {
+    // List view - horizontal card
+    return (
+      <Card
+        className={cn(
+          "group cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg",
+          listing.is_featured && "ring-2 ring-primary shadow-primary/10",
+          isSold && "opacity-75"
+        )}
+        onClick={handleClick}
+      >
+        <div className="flex">
+          {/* Image */}
+          <div className="relative w-40 sm:w-48 shrink-0 overflow-hidden bg-muted">
+            {primaryImage ? (
+              <img
+                src={primaryImage.image_url}
+                alt={listing.title}
+                className={cn("h-full w-full object-cover transition-transform duration-500 group-hover:scale-105", isSold && "grayscale")}
+                loading="lazy"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted-foreground/10">
+                <Tag className="h-8 w-8 text-muted-foreground/30" />
+              </div>
+            )}
+            {listing.is_featured && (
+              <Badge className="absolute left-2 top-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-lg text-xs">
+                <Sparkles className="mr-1 h-3 w-3" />Premium
+              </Badge>
+            )}
+            {isSold && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                <Badge className="bg-red-500 text-white border-0"><CheckCircle2 className="mr-1 h-4 w-4" />TERJUAL</Badge>
+              </div>
+            )}
+            <button
+              className={cn(
+                "absolute right-2 top-2 rounded-full p-1.5 shadow-lg transition-all",
+                isSaved ? "bg-red-500 text-white opacity-100" : "bg-white/90 opacity-0 group-hover:opacity-100"
+              )}
+              onClick={toggleWishlist}
+              disabled={savingWishlist}
+            >
+              <Heart className={cn("h-3.5 w-3.5", isSaved ? "fill-white" : "text-muted-foreground")} />
+            </button>
+          </div>
+
+          {/* Content */}
+          <CardContent className="flex-1 p-4 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <span className="text-lg font-bold text-foreground">{formatPrice(listing.price)}</span>
+                <Badge variant="outline" className={cn("text-xs", priceTypeData.color)}>{priceTypeData.label}</Badge>
+                <Badge className={cn("text-xs border-0", conditionData.color)}>{conditionData.label}</Badge>
+              </div>
+              <h3 className="line-clamp-2 text-sm font-semibold text-foreground mb-2">{listing.title}</h3>
+              {listing.categories?.name && (
+                <Badge variant="secondary" className="text-xs bg-muted mb-2">{listing.categories.name}</Badge>
+              )}
+            </div>
+            <div className="flex items-center justify-between text-xs text-muted-foreground border-t pt-2">
+              <div className="flex items-center gap-1 truncate">
+                <MapPin className="h-3.5 w-3.5 text-primary" />
+                <span className="truncate font-medium">{listing.city || listing.province || 'Indonesia'}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1"><Eye className="h-3.5 w-3.5" />{listing.view_count || 0}</span>
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3.5 w-3.5" />
+                  {formatDistanceToNow(new Date(listing.created_at), { addSuffix: false, locale: id })}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card 
       className={cn(
