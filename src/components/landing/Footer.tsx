@@ -27,9 +27,8 @@ export const Footer = () => {
       { label: 'Blog', href: '#' },
     ],
     legal: [
-      { label: 'Syarat & Ketentuan', href: '#' },
-      { label: 'Kebijakan Privasi', href: '#' },
-      { label: 'Kebijakan Cookie', href: '#' },
+      { label: 'Syarat & Ketentuan', href: '/terms' },
+      { label: 'Kebijakan Privasi', href: '/privacy' },
     ],
   };
 
