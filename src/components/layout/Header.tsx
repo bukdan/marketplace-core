@@ -27,7 +27,10 @@ import {
   MessageCircle,
   Package,
   Bell,
+  Moon,
+  Sun,
 } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import logoImg from '@/assets/logo.png';
 
 export const Header = () => {
@@ -39,6 +42,7 @@ export const Header = () => {
   const { unreadCount: notifCount } = useNotifications();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,18 +63,22 @@ export const Header = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
   return (
-    <header className="sticky top-0 z-50 border-b bg-primary text-primary-foreground shadow-sm">
+    <header className="sticky top-0 z-50 border-b bg-background shadow-sm">
       <div className="container px-4">
-        <div className="flex h-14 items-center justify-between gap-3">
+        <div className="flex h-14 items-center justify-between gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <img src={logoImg} alt="UMKM ID" className="h-8 w-auto" />
-            <span className="hidden text-lg font-bold sm:block">UMKM ID</span>
+            <span className="hidden text-lg font-bold text-foreground sm:block">UMKM ID</span>
           </Link>
 
           {/* Search Bar - Desktop */}
-          <form onSubmit={handleSearch} className="hidden flex-1 max-w-lg md:flex">
+          <form onSubmit={handleSearch} className="hidden flex-1 max-w-xl md:flex">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -78,18 +86,30 @@ export const Header = () => {
                 placeholder="Cari produk, toko, atau kategori..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-background text-foreground pl-10 pr-4 h-9 rounded-full text-sm"
+                className="w-full pl-10 pr-4 h-10 rounded-full border-border bg-muted/50 text-foreground text-sm focus:bg-background"
               />
             </div>
           </form>
 
           {/* Actions */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="h-9 w-9 text-foreground hover:bg-muted"
+            >
+              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+
             {/* Pasang Iklan Button */}
             <Button
               size="sm"
               onClick={() => navigate(user ? '/listing/create' : '/auth')}
-              className="hidden gap-1.5 bg-background text-foreground hover:bg-background/90 sm:flex h-8 text-xs rounded-full"
+              className="hidden gap-1.5 sm:flex h-9 text-xs rounded-full"
             >
               <Plus className="h-3.5 w-3.5" />
               Pasang Iklan
@@ -102,10 +122,10 @@ export const Header = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => navigate('/credits')}
-                  className="hidden gap-1 text-primary-foreground hover:bg-primary-foreground/10 md:flex h-8"
+                  className="hidden gap-1 text-foreground hover:bg-muted md:flex h-9"
                 >
                   <Coins className="h-4 w-4" />
-                  <span className="text-xs">{credits?.balance || 0}</span>
+                  <span className="text-xs font-medium">{credits?.balance || 0}</span>
                 </Button>
 
                 {/* Notifications */}
@@ -113,7 +133,7 @@ export const Header = () => {
                   variant="ghost"
                   size="icon"
                   onClick={() => navigate('/notifications')}
-                  className="relative hidden text-primary-foreground hover:bg-primary-foreground/10 md:flex h-8 w-8"
+                  className="relative hidden text-foreground hover:bg-muted md:flex h-9 w-9"
                 >
                   <Bell className="h-4 w-4" />
                   {notifCount > 0 && (
@@ -128,7 +148,7 @@ export const Header = () => {
                   variant="ghost"
                   size="icon"
                   onClick={() => navigate('/messages')}
-                  className="relative hidden text-primary-foreground hover:bg-primary-foreground/10 md:flex h-8 w-8"
+                  className="relative hidden text-foreground hover:bg-muted md:flex h-9 w-9"
                 >
                   <MessageCircle className="h-4 w-4" />
                   {unreadCount > 0 && (
@@ -144,7 +164,7 @@ export const Header = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-primary-foreground hover:bg-primary-foreground/10 h-8 w-8"
+                      className="text-foreground hover:bg-muted h-9 w-9"
                     >
                       <User className="h-4 w-4" />
                     </Button>
@@ -193,13 +213,13 @@ export const Header = () => {
               </>
             ) : (
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={() => navigate('/auth')}
-                className="text-primary-foreground hover:bg-primary-foreground/10 h-8"
+                className="h-9 text-xs"
               >
                 <User className="mr-1.5 h-4 w-4" />
-                <span className="hidden sm:inline text-xs">Masuk</span>
+                <span className="hidden sm:inline">Masuk</span>
               </Button>
             )}
 
@@ -209,7 +229,7 @@ export const Header = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-primary-foreground hover:bg-primary-foreground/10 md:hidden h-8 w-8"
+                  className="text-foreground hover:bg-muted md:hidden h-9 w-9"
                 >
                   <Menu className="h-4 w-4" />
                 </Button>
@@ -250,6 +270,21 @@ export const Header = () => {
                   </nav>
 
                   <hr className="border-border" />
+
+                  {/* Theme toggle mobile */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-9"
+                    onClick={toggleTheme}
+                  >
+                    {theme === 'dark' ? (
+                      <Sun className="mr-2 h-4 w-4" />
+                    ) : (
+                      <Moon className="mr-2 h-4 w-4" />
+                    )}
+                    {theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+                  </Button>
 
                   <Button
                     size="sm"
