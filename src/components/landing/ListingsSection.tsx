@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import { ListingCard } from '@/components/marketplace/ListingCard';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 import {
   Carousel,
   CarouselContent,
@@ -60,9 +61,9 @@ export const ListingsSection = ({
         {title && (
           <div className="mb-3 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-foreground">
+              <GradientHeading className="text-lg font-bold">
                 {title}
-              </h2>
+              </GradientHeading>
               {subtitle && (
                 <p className="text-sm text-muted-foreground">{subtitle}</p>
               )}

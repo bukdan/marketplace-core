@@ -1,6 +1,7 @@
 import { Star, Quote } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 interface Testimonial {
   id: string;
@@ -33,9 +34,9 @@ export const TestimonialsSection = ({ testimonials }: TestimonialsSectionProps) 
     <section className="py-16 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="mb-12 text-center">
-          <h2 className="mb-4 text-2xl font-bold md:text-3xl">
-            <span className="gradient-heading">Apa Kata Mereka?</span>
-          </h2>
+          <GradientHeading className="mb-4 text-2xl font-bold md:text-3xl">
+            Apa Kata Mereka?
+          </GradientHeading>
           <p className="mx-auto max-w-2xl text-muted-foreground">
             Testimoni dari para pelaku UMKM yang telah bergabung dengan platform kami
           </p>
