@@ -292,10 +292,10 @@ export const ListingCard = ({ listing, onClick, variant = 'default', isHighlight
         </button>
       </div>
 
-      <CardContent className="p-4">
+      <CardContent className="p-3">
         {/* Price Row */}
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <span className="text-xl font-bold text-foreground">
+        <div className="mb-1 flex items-center justify-between gap-1">
+          <span className="text-base font-bold text-foreground">
             {formatPrice(listing.price)}
           </span>
           <Badge 
@@ -307,19 +307,19 @@ export const ListingCard = ({ listing, onClick, variant = 'default', isHighlight
         </div>
 
         {/* Title */}
-        <h3 className="mb-3 line-clamp-2 text-sm font-semibold text-foreground leading-snug min-h-[2.5rem]">
+        <h3 className="mb-2 line-clamp-2 text-xs font-semibold text-foreground leading-snug min-h-[2rem]">
           {listing.title}
         </h3>
 
         {/* Category Tag */}
         {listing.categories?.name && (
-          <Badge variant="secondary" className="mb-3 text-xs bg-muted">
+          <Badge variant="secondary" className="mb-2 text-[10px] bg-muted">
             {listing.categories.name}
           </Badge>
         )}
 
         {/* Footer Info */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground border-t pt-3">
+        <div className="flex items-center justify-between text-[10px] text-muted-foreground border-t pt-2">
           <div className="flex items-center gap-1 truncate max-w-[50%]">
             <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
             <span className="truncate font-medium">

@@ -80,9 +80,9 @@ const Marketplace = () => {
 
   return (
     <MainLayout>
-      <div className="container px-4 py-4">
+      <div className="container px-4 py-2">
         {/* Top Search Bar */}
-        <div className="mb-4 p-4 rounded-xl bg-card border shadow-sm">
+        <div className="mb-2 p-3 rounded-xl bg-card border shadow-sm">
           <SearchFilter
             onSearchChange={setSearch}
             onSortChange={(v) => setSortBy(v as typeof sortBy)}
@@ -96,7 +96,7 @@ const Marketplace = () => {
           />
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-3">
           {/* ===== Sidebar ===== */}
           <aside className={cn(
             "shrink-0 transition-all duration-300",
@@ -111,9 +111,9 @@ const Marketplace = () => {
               "sticky top-20 space-y-2",
               isMobile && sidebarOpen && "relative z-50 p-4"
             )}>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
-                  <Package className="h-4 w-4 text-primary" />
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+                  <Package className="h-3.5 w-3.5 text-primary" />
                   Kategori
                 </h3>
                 {isMobile && (
@@ -124,22 +124,22 @@ const Marketplace = () => {
               </div>
 
               <ScrollArea className="max-h-[70vh]">
-                <div className="space-y-0.5 pr-2">
+                <div className="space-y-0.5 pr-1">
                   {/* All categories */}
                   <button
                     onClick={() => setSelectedCategory(null)}
                     className={cn(
-                      "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group",
+                      "w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium transition-all duration-200 group",
                       selectedCategory === null
                         ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
                         : "text-muted-foreground hover:bg-accent hover:text-foreground hover:shadow-sm"
                     )}
                   >
                     <div className={cn(
-                      "p-1.5 rounded-md transition-colors",
+                      "p-1 rounded-md transition-colors",
                       selectedCategory === null ? "bg-primary-foreground/20" : "bg-muted group-hover:bg-primary/10"
                     )}>
-                      <Grid3X3 className="h-4 w-4" />
+                      <Grid3X3 className="h-3.5 w-3.5" />
                     </div>
                     <span className="flex-1 text-left">Semua Kategori</span>
                     <ChevronRight className={cn("h-3.5 w-3.5 opacity-0 transition-all", selectedCategory === null && "opacity-100")} />
@@ -150,17 +150,17 @@ const Marketplace = () => {
                       key={cat.id}
                       onClick={() => { setSelectedCategory(cat.id); if (isMobile) setSidebarOpen(false); }}
                       className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group",
+                        "w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium transition-all duration-200 group",
                         selectedCategory === cat.id
                           ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
                           : "text-muted-foreground hover:bg-accent hover:text-foreground hover:shadow-sm"
                       )}
                     >
                       <div className={cn(
-                        "p-1.5 rounded-md transition-colors",
+                        "p-1 rounded-md transition-colors",
                         selectedCategory === cat.id ? "bg-primary-foreground/20" : "bg-muted group-hover:bg-primary/10"
                       )}>
-                        {categoryIcons[cat.slug] || <Grid3X3 className="h-4 w-4" />}
+                        {categoryIcons[cat.slug] || <Grid3X3 className="h-3.5 w-3.5" />}
                       </div>
                       <span className="flex-1 text-left truncate">{cat.name}</span>
                       <ChevronRight className={cn("h-3.5 w-3.5 opacity-0 transition-all", selectedCategory === cat.id && "opacity-100")} />
@@ -171,7 +171,7 @@ const Marketplace = () => {
 
               {/* Pasang Iklan CTA in sidebar */}
               {user && (
-                <div className="pt-4 border-t mt-4">
+                <div className="pt-3 border-t mt-3">
                   <Button onClick={() => navigate('/listing/create')} className="w-full shadow-lg" size="sm">
                     <Plus className="mr-2 h-4 w-4" />
                     Jual Barang
@@ -184,7 +184,7 @@ const Marketplace = () => {
           {/* ===== Main Content ===== */}
           <main className="flex-1 min-w-0">
             {/* Header bar */}
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2 flex-wrap">
                 {!sidebarOpen && (
                   <Button variant="outline" size="sm" onClick={() => setSidebarOpen(true)} className="gap-2">
@@ -261,12 +261,12 @@ const Marketplace = () => {
 
             {/* Loading */}
             {loading && (
-               <div className={cn(
-                 "grid gap-4",
-                  viewMode === 'grid' 
-                    ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
-                    : "grid-cols-1"
-               )}>
+                <div className={cn(
+                  "grid gap-3",
+                   viewMode === 'grid' 
+                     ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
+                     : "grid-cols-1"
+                )}>
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="space-y-3 animate-pulse">
                     <Skeleton className="aspect-[4/3] rounded-xl" />
@@ -282,16 +282,16 @@ const Marketplace = () => {
             {!loading && !error && (
               <>
                 {featuredListings.length > 0 && (
-                  <div className="mb-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Sparkles className="h-5 w-5 text-amber-500" />
-                      <h2 className="text-lg font-bold text-foreground">Produk Premium</h2>
-                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+                  <div className="mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="h-4 w-4 text-amber-500" />
+                      <h2 className="text-sm font-bold text-foreground">Produk Premium</h2>
+                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-xs">
                         Featured
                       </Badge>
                     </div>
                     <div className={cn(
-                      "grid gap-4",
+                      "grid gap-3",
                       viewMode === 'grid' 
                         ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
                         : "grid-cols-1"
@@ -311,10 +311,10 @@ const Marketplace = () => {
                 {regularListings.length > 0 ? (
                   <div>
                     {featuredListings.length > 0 && (
-                      <h2 className="text-lg font-bold text-foreground mb-4">Semua Produk</h2>
+                      <h2 className="text-sm font-bold text-foreground mb-2">Semua Produk</h2>
                     )}
                     <div className={cn(
-                      "grid gap-4",
+                      "grid gap-3",
                       viewMode === 'grid' 
                         ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
                         : "grid-cols-1"

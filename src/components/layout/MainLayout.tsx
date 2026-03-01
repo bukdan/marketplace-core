@@ -14,14 +14,14 @@ export const MainLayout = ({ children, showHeader = true, showAds = true }: Main
       {showHeader && <Header />}
       {/* Header Ad Banner */}
       {showAds && (
-        <div className="container mx-auto px-4 pt-2">
+        <div className="container mx-auto px-4 pt-1">
           <AdBanner position="header" className="rounded-lg" />
         </div>
       )}
       {children}
       {/* Footer Ad Banner */}
       {showAds && (
-        <div className="container mx-auto px-4 pb-2">
+        <div className="container mx-auto px-4 pb-1">
           <AdBanner position="footer" className="rounded-lg" />
         </div>
       )}

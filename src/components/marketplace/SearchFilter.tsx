@@ -111,7 +111,7 @@ export const SearchFilter = ({
   const activeFilterCount = [currentCondition, currentPriceType, currentProvince].filter(Boolean).length;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Search Row */}
       <div className="flex flex-wrap gap-2">
         {/* Search Input */}
