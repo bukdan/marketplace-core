@@ -50,6 +50,8 @@ import AdminActivityLog from "./pages/admin/AdminActivityLog";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminBoostSettings from "./pages/admin/AdminBoostSettings";
+import AdminBroadcast from "./pages/admin/AdminBroadcast";
+import AdminTopupRequests from "./pages/admin/AdminTopupRequests";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -106,6 +108,8 @@ const App = () => (
               <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/admin/categories" element={<AdminCategories />} />
               <Route path="/admin/boost-settings" element={<AdminBoostSettings />} />
+              <Route path="/admin/broadcast" element={<AdminBroadcast />} />
+              <Route path="/admin/topup-requests" element={<AdminTopupRequests />} />
               
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
