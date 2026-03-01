@@ -122,20 +122,19 @@ export const SearchFilter = ({
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="pl-10 h-11 bg-background"
+            className="pl-10 pr-10 h-11 rounded-full bg-muted/50 focus:bg-background"
           />
+          <button type="button" onClick={handleSearch} className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors">
+            <Search className="h-3.5 w-3.5 text-primary-foreground" />
+          </button>
         </div>
-
-        <Button onClick={handleSearch} className="h-11 px-6">
-          Cari
-        </Button>
 
         {/* Province Select */}
         <Select 
           value={currentProvince || 'all'} 
           onValueChange={(v) => onProvinceChange?.(v === 'all' ? null : v)}
         >
-          <SelectTrigger className="w-full sm:w-[170px] h-11">
+          <SelectTrigger className="w-full sm:w-[170px] h-11 rounded-full">
             <MapPin className="h-3.5 w-3.5 mr-1.5 text-muted-foreground shrink-0" />
             <SelectValue placeholder="Semua Provinsi" />
           </SelectTrigger>
@@ -149,7 +148,7 @@ export const SearchFilter = ({
 
         {/* Sort Select */}
         <Select value={currentSort} onValueChange={onSortChange}>
-          <SelectTrigger className="w-full sm:w-[150px] h-11">
+          <SelectTrigger className="w-full sm:w-[150px] h-11 rounded-full">
             <SelectValue placeholder="Urutkan" />
           </SelectTrigger>
           <SelectContent>
@@ -163,7 +162,7 @@ export const SearchFilter = ({
         {/* Filter Sheet */}
         <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
           <SheetTrigger asChild>
-            <Button variant="outline" className="relative h-11 gap-2">
+            <Button variant="outline" className="relative h-11 gap-2 rounded-full">
               <SlidersHorizontal className="h-4 w-4" />
               <span className="hidden sm:inline">Filter</span>
               {activeFilterCount > 0 && (
