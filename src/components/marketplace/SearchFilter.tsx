@@ -278,48 +278,7 @@ export const SearchFilter = ({
         </Sheet>
       </div>
 
-      {/* Quick Filters - Inline Condition Pills */}
-      <div className="flex flex-wrap gap-1.5 sm:gap-2">
-        {conditionOptions.map((option) => {
-          const Icon = option.icon;
-          const isSelected = currentCondition === option.value;
-          return (
-            <Button
-              key={option.value}
-              variant="outline"
-              size="sm"
-              className={cn(
-                "gap-1.5 transition-all rounded-full",
-                isSelected && option.color
-              )}
-              onClick={() => onConditionChange(isSelected ? null : option.value)}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {option.label}
-            </Button>
-          );
-        })}
-        <div className="h-6 w-px bg-border mx-1" />
-        {priceTypeOptions.map((option) => {
-          const Icon = option.icon;
-          const isSelected = currentPriceType === option.value;
-          return (
-            <Button
-              key={option.value}
-              variant="outline"
-              size="sm"
-              className={cn(
-                "gap-1.5 transition-all rounded-full",
-                isSelected && option.color
-              )}
-              onClick={() => onPriceTypeChange(isSelected ? null : option.value)}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {option.label}
-            </Button>
-          );
-        })}
-      </div>
+
     </div>
   );
 };
