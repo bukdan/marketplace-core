@@ -5,6 +5,7 @@ import { ListingsSection } from '@/components/landing/ListingsSection';
 import { PremiumListingsSection } from '@/components/landing/PremiumListingsSection';
 import { AuctionSection } from '@/components/landing/AuctionSection';
 import { Footer } from '@/components/landing/Footer';
+import { AdBanner } from '@/components/ads/AdBanner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -79,6 +80,11 @@ const Index = () => {
           </section>
         )}
 
+        {/* Inline Ad after Flash Sale */}
+        <div className="container mx-auto px-4 py-2">
+          <AdBanner position="inline" className="rounded-lg" showPlaceholder={false} />
+        </div>
+
         {/* Auctions */}
         <AuctionSection auctions={activeAuctions} />
 
@@ -105,6 +111,10 @@ const Index = () => {
             <ListingsSection title="" listings={latestListings} filterParam="sort=newest" showViewAll={false} highlightedIds={highlightedListingIds} />
           </section>
         )}
+        {/* Inline Ad between Latest and Popular */}
+        <div className="container mx-auto px-4 py-2">
+          <AdBanner position="inline" className="rounded-lg" showPlaceholder={false} />
+        </div>
 
         {/* Popular */}
         {popularListings.length > 0 && (
