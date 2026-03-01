@@ -25,9 +25,12 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
   Loader2, Search, RefreshCw, Users, Shield, UserCog, Calendar,
   Mail, Phone, Ban, Pencil, ShieldOff, Key, Eye, CheckSquare,
-  UserCheck, UserX, Coins,
+  UserCheck, UserX, Coins, MoreHorizontal, Trash2,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -90,6 +93,10 @@ export default function AdminUsers() {
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [bulkBlockDialogOpen, setBulkBlockDialogOpen] = useState(false);
   const [bulkProcessing, setBulkProcessing] = useState(false);
+
+  // Delete user dialog
+  const [deleteUserDialog, setDeleteUserDialog] = useState<{ open: boolean; user: UserWithRole | null }>({ open: false, user: null });
+  const [deletingUser, setDeletingUser] = useState(false);
 
   const logAuditAction = async (action: string, targetId: string, details: Record<string, unknown>) => {
     try {
@@ -338,6 +345,44 @@ export default function AdminUsers() {
       toast({ variant: 'destructive', title: 'Error', description: 'Gagal menonaktifkan users' });
     } finally {
       setBulkProcessing(false);
+    }
+  };
+
+  // Delete user (soft: deactivate + remove listings)
+  const handleDeleteUser = async () => {
+    if (!deleteUserDialog.user) return;
+    setDeletingUser(true);
+    const targetUser = deleteUserDialog.user;
+
+    try {
+      // Deactivate profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ is_active: false, name: `[Deleted] ${targetUser.name || ''}` })
+        .eq('user_id', targetUser.user_id);
+      if (profileError) throw profileError;
+
+      // Soft delete all listings
+      await supabase
+        .from('listings')
+        .update({ deleted_at: new Date().toISOString(), status: 'expired' as any })
+        .eq('user_id', targetUser.user_id)
+        .is('deleted_at', null);
+
+      await logAuditAction('user_deleted', targetUser.user_id, {
+        user_name: targetUser.name,
+        email: targetUser.email,
+        action: 'admin_delete',
+      });
+
+      toast({ title: 'User Dihapus', description: `${targetUser.name || targetUser.email} berhasil dihapus` });
+      setDeleteUserDialog({ open: false, user: null });
+      fetchUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({ variant: 'destructive', title: 'Error', description: 'Gagal menghapus user' });
+    } finally {
+      setDeletingUser(false);
     }
   };
 
@@ -613,55 +658,32 @@ export default function AdminUsers() {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => { setSelectedUser(user); setDetailSheetOpen(true); }}
-                          title="Detail"
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => { setSelectedUser(user); setDetailSheetOpen(true); }} title="Detail">
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setSelectedUser(user);
-                            setEditName(user.name || '');
-                            setEditPhone(user.phone_number || '');
-                            setEditDialogOpen(true);
-                          }}
-                          title="Edit Profile"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setSelectedUser(user);
-                            setNewRole(user.role);
-                            setRoleDialogOpen(true);
-                          }}
-                          title="Change Role"
-                        >
-                          <UserCog className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => { setSelectedUser(user); setCreditAmount(''); setCreditNote(''); setCreditDialogOpen(true); }}
-                          title="Tambah Kredit"
-                        >
-                          <Coins className="h-4 w-4 text-primary" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => { setSelectedUser(user); setBlockDialogOpen(true); }}
-                          title={user.is_active ? 'Nonaktifkan' : 'Aktifkan'}
-                        >
-                          {user.is_active ? <Ban className="h-4 w-4" /> : <ShieldOff className="h-4 w-4" />}
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => { setSelectedUser(user); setEditName(user.name || ''); setEditPhone(user.phone_number || ''); setEditDialogOpen(true); }}>
+                              <Pencil className="h-4 w-4 mr-2" /> Edit Profile
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => { setSelectedUser(user); setNewRole(user.role); setRoleDialogOpen(true); }}>
+                              <UserCog className="h-4 w-4 mr-2" /> Change Role
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => { setSelectedUser(user); setCreditAmount(''); setCreditNote(''); setCreditDialogOpen(true); }}>
+                              <Coins className="h-4 w-4 mr-2" /> Tambah Kredit
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => { setSelectedUser(user); setBlockDialogOpen(true); }}>
+                              {user.is_active ? <><Ban className="h-4 w-4 mr-2" /> Blokir User</> : <><ShieldOff className="h-4 w-4 mr-2" /> Aktifkan User</>}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive" onClick={() => setDeleteUserDialog({ open: true, user })}>
+                              <Trash2 className="h-4 w-4 mr-2" /> Hapus User
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -906,6 +928,26 @@ export default function AdminUsers() {
             <AlertDialogAction onClick={handleBulkBlock} disabled={bulkProcessing}>
               {bulkProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Nonaktifkan
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete User Dialog */}
+      <AlertDialog open={deleteUserDialog.open} onOpenChange={(open) => setDeleteUserDialog({ open, user: null })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus User?</AlertDialogTitle>
+            <AlertDialogDescription>
+              User <strong>{deleteUserDialog.user?.name || deleteUserDialog.user?.email}</strong> akan dihapus. 
+              Akun akan dinonaktifkan dan semua listing akan dihapus. Tindakan ini tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteUser} disabled={deletingUser} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deletingUser && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Hapus User
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
