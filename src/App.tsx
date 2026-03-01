@@ -19,6 +19,7 @@ import Notifications from "./pages/Notifications";
 import Faq from "./pages/Faq";
 import TermsConditions from "./pages/TermsConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import About from "./pages/About";
 
 // Dashboard pages
 import DashboardHome from "./pages/dashboard/DashboardHome";
@@ -79,6 +80,7 @@ const App = () => (
               <Route path="/faq" element={<Faq />} />
               <Route path="/terms" element={<TermsConditions />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/about" element={<About />} />
               
               {/* Dashboard Routes */}
               <Route path="/dashboard" element={<DashboardHome />} />
