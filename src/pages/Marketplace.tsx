@@ -257,9 +257,9 @@ const Marketplace = () => {
             {loading && (
                <div className={cn(
                  "grid gap-4",
-                 viewMode === 'grid' 
-                   ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-                   : "grid-cols-1"
+                  viewMode === 'grid' 
+                    ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
+                    : "grid-cols-1"
                )}>
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="space-y-3 animate-pulse">
@@ -287,7 +287,7 @@ const Marketplace = () => {
                     <div className={cn(
                       "grid gap-4",
                       viewMode === 'grid' 
-                        ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                        ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
                         : "grid-cols-1"
                     )}>
                       {featuredListings.map((listing) => (
@@ -310,7 +310,7 @@ const Marketplace = () => {
                     <div className={cn(
                       "grid gap-4",
                       viewMode === 'grid' 
-                        ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                        ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
                         : "grid-cols-1"
                     )}>
                       {regularListings.map((listing) => (
