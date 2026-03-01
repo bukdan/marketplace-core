@@ -66,7 +66,7 @@ const defaultConfig = {
   glow: 'hover:shadow-gray-400/60',
 };
 
-import { Button } from '@/components/ui/button';
+
 import {
   Carousel,
   CarouselContent,
@@ -83,22 +83,8 @@ export const CategorySection = ({ categories }: CategorySectionProps) => {
   };
 
   return (
-    <section className="py-12 bg-background">
+    <section className="py-6 bg-background">
       <div className="container mx-auto px-4">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground md:text-3xl">
-              Kategori Populer
-            </h2>
-            <p className="text-muted-foreground">
-              Temukan produk berdasarkan kategori yang Anda cari
-            </p>
-          </div>
-          <Button variant="outline" onClick={() => navigate('/marketplace')}>
-            Lihat Semua
-          </Button>
-        </div>
-
         <Carousel
           opts={{ align: 'start', loop: true }}
           className="w-full"

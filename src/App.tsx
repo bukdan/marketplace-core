@@ -48,7 +48,7 @@ import AdminCredits from "./pages/admin/AdminCredits";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminActivityLog from "./pages/admin/AdminActivityLog";
 import AdminCoupons from "./pages/admin/AdminCoupons";
-
+import AdminCategories from "./pages/admin/AdminCategories";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -103,6 +103,7 @@ const App = () => (
               <Route path="/admin/activity-log" element={<AdminActivityLog />} />
               <Route path="/admin/coupons" element={<AdminCoupons />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/categories" element={<AdminCategories />} />
               
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
