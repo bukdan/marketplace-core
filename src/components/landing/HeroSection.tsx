@@ -42,10 +42,9 @@ export const HeroSection = ({ stats }: HeroSectionProps) => {
             <span>Platform UMKM #1 Indonesia</span>
           </div>
 
-          <h1 className="mb-5 text-4xl font-extrabold tracking-tight text-primary-foreground md:text-6xl">
-            Marketplace{' '}
-            <span className="bg-gradient-to-r from-primary-foreground via-secondary to-primary-foreground bg-clip-text text-transparent bg-[length:200%_auto] animate-[shimmer_3s_linear_infinite]">
-              UMKM Indonesia
+          <h1 className="mb-5 text-4xl font-extrabold tracking-tight md:text-6xl">
+            <span className="gradient-heading-light">
+              Marketplace UMKM Indonesia
             </span>
           </h1>
           <p className="mb-10 text-lg text-primary-foreground/80 md:text-xl leading-relaxed">
