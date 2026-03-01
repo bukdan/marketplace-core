@@ -169,7 +169,7 @@ const Marketplace = () => {
                 <div className="pt-4 border-t mt-4">
                   <Button onClick={() => navigate('/listing/create')} className="w-full shadow-lg" size="sm">
                     <Plus className="mr-2 h-4 w-4" />
-                    Pasang Iklan
+                    Jual Barang
                   </Button>
                 </div>
               )}
@@ -219,7 +219,7 @@ const Marketplace = () => {
                 {user && !sidebarOpen && (
                   <Button onClick={() => navigate('/listing/create')} size="sm" className="shadow-lg">
                     <Plus className="mr-2 h-4 w-4" />
-                    Pasang Iklan
+                    Jual Barang
                   </Button>
                 )}
                 <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
@@ -338,7 +338,7 @@ const Marketplace = () => {
                     {user && (
                       <Button size="lg" onClick={() => navigate('/listing/create')} className="shadow-lg">
                         <Plus className="mr-2 h-5 w-5" />
-                        Pasang Iklan Pertama
+                        Jual Barang Pertama
                       </Button>
                     )}
                   </div>

@@ -298,7 +298,7 @@ const CreateListing = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">Pasang Iklan</h1>
+            <h1 className="text-2xl font-bold">Jual Barang</h1>
             <p className="text-sm text-muted-foreground">Jual produk atau jasa Anda di UMKM ID</p>
           </div>
         </div>
@@ -636,7 +636,7 @@ const CreateListing = () => {
               {submitting ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Memproses...</>
               ) : (
-                <><Camera className="mr-2 h-4 w-4" />Pasang Iklan ({calculateCreditsNeeded()} Kredit)</>
+                <><Camera className="mr-2 h-4 w-4" />Jual Barang ({calculateCreditsNeeded()} Kredit)</>
               )}
             </Button>
           </div>

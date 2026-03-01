@@ -39,7 +39,7 @@ const positionLabels: Record<AdPosition, string> = {
 // Placeholder ads for when no real banners exist
 const placeholderAds = [
   { id: 'ph-1', title: 'Ruang Iklan Premium', color: 'from-primary/20 to-primary/5' },
-  { id: 'ph-2', title: 'Pasang Iklan Anda', color: 'from-blue-500/20 to-blue-500/5' },
+  { id: 'ph-2', title: 'Jual Barang Anda', color: 'from-blue-500/20 to-blue-500/5' },
   { id: 'ph-3', title: 'Promosi Bisnis Anda', color: 'from-emerald-500/20 to-emerald-500/5' },
 ];
 
