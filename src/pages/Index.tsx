@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Clock, TrendingUp, Zap } from 'lucide-react';
 
 const LoadingSkeleton = () => (
-  <div className="min-h-screen bg-background">
+  <MainLayout>
     <div className="container mx-auto px-4 py-6">
       <div className="flex gap-3 overflow-hidden mb-8">
         {[...Array(6)].map((_, i) => (
@@ -26,7 +26,7 @@ const LoadingSkeleton = () => (
         ))}
       </div>
     </div>
-  </div>
+  </MainLayout>
 );
 
 const Index = () => {
@@ -48,7 +48,7 @@ const Index = () => {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-background">
+      <main className="min-h-screen bg-background">
         {/* Categories */}
         <CategorySection categories={categories} />
 
@@ -165,7 +165,7 @@ const Index = () => {
         </section>
 
         <Footer />
-      </div>
+      </main>
     </MainLayout>
   );
 };

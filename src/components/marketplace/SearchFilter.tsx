@@ -113,9 +113,9 @@ export const SearchFilter = ({
   return (
     <div className="space-y-4">
       {/* Search Row */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {/* Search Input */}
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Cari produk, kategori, atau penjual..."
@@ -135,8 +135,8 @@ export const SearchFilter = ({
           value={currentProvince || 'all'} 
           onValueChange={(v) => onProvinceChange?.(v === 'all' ? null : v)}
         >
-          <SelectTrigger className="w-[170px] h-11">
-            <MapPin className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+          <SelectTrigger className="w-full sm:w-[170px] h-11">
+            <MapPin className="h-3.5 w-3.5 mr-1.5 text-muted-foreground shrink-0" />
             <SelectValue placeholder="Semua Provinsi" />
           </SelectTrigger>
           <SelectContent className="max-h-[300px]">
@@ -149,7 +149,7 @@ export const SearchFilter = ({
 
         {/* Sort Select */}
         <Select value={currentSort} onValueChange={onSortChange}>
-          <SelectTrigger className="w-[150px] h-11">
+          <SelectTrigger className="w-full sm:w-[150px] h-11">
             <SelectValue placeholder="Urutkan" />
           </SelectTrigger>
           <SelectContent>
@@ -165,7 +165,7 @@ export const SearchFilter = ({
           <SheetTrigger asChild>
             <Button variant="outline" className="relative h-11 gap-2">
               <SlidersHorizontal className="h-4 w-4" />
-              Filter
+              <span className="hidden sm:inline">Filter</span>
               {activeFilterCount > 0 && (
                 <Badge className="h-5 w-5 p-0 flex items-center justify-center text-xs">
                   {activeFilterCount}
@@ -280,7 +280,7 @@ export const SearchFilter = ({
       </div>
 
       {/* Quick Filters - Inline Condition Pills */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5 sm:gap-2">
         {conditionOptions.map((option) => {
           const Icon = option.icon;
           const isSelected = currentCondition === option.value;
