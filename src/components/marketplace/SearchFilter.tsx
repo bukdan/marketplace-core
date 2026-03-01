@@ -203,7 +203,7 @@ export const SearchFilter = ({
                         key={option.value}
                         variant="outline"
                         className={cn(
-                          "h-auto py-3 justify-start gap-3 transition-all",
+                          "h-auto py-3 justify-start gap-3 transition-all rounded-full",
                           isSelected 
                             ? option.color + " ring-2 ring-offset-2 ring-current"
                             : "hover:bg-muted"
@@ -233,7 +233,7 @@ export const SearchFilter = ({
                         key={option.value}
                         variant="outline"
                         className={cn(
-                          "h-auto py-3 justify-start gap-3 transition-all",
+                          "h-auto py-3 justify-start gap-3 transition-all rounded-full",
                           isSelected 
                             ? option.color + " ring-2 ring-offset-2 ring-current"
                             : "hover:bg-muted"
@@ -259,7 +259,7 @@ export const SearchFilter = ({
             <div className="mt-8 flex gap-3">
               <Button 
                 variant="outline"
-                className="flex-1" 
+                className="flex-1 rounded-full" 
                 onClick={() => {
                   clearFilters();
                   setIsFilterOpen(false);
@@ -268,7 +268,7 @@ export const SearchFilter = ({
                 Reset
               </Button>
               <Button 
-                className="flex-1" 
+                className="flex-1 rounded-full" 
                 onClick={() => setIsFilterOpen(false)}
               >
                 Terapkan Filter
