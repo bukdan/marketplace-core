@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { ChevronRight } from 'lucide-react';
 import { ListingCard } from '@/components/marketplace/ListingCard';
 import {
   Carousel,
@@ -54,26 +55,31 @@ export const ListingsSection = ({
   }
 
   return (
-    <section className="py-12 bg-background">
+    <section className="pb-2 bg-background">
       <div className="container mx-auto px-4">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground md:text-3xl">
-              {title}
-            </h2>
-            {subtitle && (
-              <p className="text-muted-foreground">{subtitle}</p>
+        {title && (
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-foreground">
+                {title}
+              </h2>
+              {subtitle && (
+                <p className="text-sm text-muted-foreground">{subtitle}</p>
+              )}
+            </div>
+            {showViewAll && (
+              <Button 
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(`/marketplace${filterParam ? `?${filterParam}` : ''}`)}
+                className="text-primary gap-1 text-xs"
+              >
+                Lihat Semua
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
             )}
           </div>
-          {showViewAll && (
-            <Button 
-              variant="outline" 
-              onClick={() => navigate(`/marketplace${filterParam ? `?${filterParam}` : ''}`)}
-            >
-              Lihat Semua
-            </Button>
-          )}
-        </div>
+        )}
 
         <Carousel
           opts={{
