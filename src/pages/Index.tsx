@@ -34,6 +34,7 @@ const Index = () => {
     categories,
     featuredListings,
     premiumBoostedListings,
+    highlightedListingIds,
     latestListings,
     popularListings,
     activeAuctions,
@@ -51,7 +52,7 @@ const Index = () => {
         <CategorySection categories={categories} />
 
         {/* Premium Boosted Listings - right after categories */}
-        <PremiumListingsSection listings={premiumBoostedListings} />
+        <PremiumListingsSection listings={premiumBoostedListings} highlightedIds={highlightedListingIds} />
 
         {/* Featured / Flash Sale */}
         {featuredListings.length > 0 && (
@@ -73,7 +74,7 @@ const Index = () => {
                 </Button>
               </div>
             </div>
-            <ListingsSection title="" listings={featuredListings} filterParam="featured=true" showViewAll={false} />
+            <ListingsSection title="" listings={featuredListings} filterParam="featured=true" showViewAll={false} highlightedIds={highlightedListingIds} />
           </section>
         )}
 
@@ -97,7 +98,7 @@ const Index = () => {
                 </Button>
               </div>
             </div>
-            <ListingsSection title="" listings={latestListings} filterParam="sort=newest" showViewAll={false} />
+            <ListingsSection title="" listings={latestListings} filterParam="sort=newest" showViewAll={false} highlightedIds={highlightedListingIds} />
           </section>
         )}
 
@@ -118,7 +119,7 @@ const Index = () => {
                 </Button>
               </div>
             </div>
-            <ListingsSection title="" listings={popularListings} filterParam="sort=popular" showViewAll={false} />
+            <ListingsSection title="" listings={popularListings} filterParam="sort=popular" showViewAll={false} highlightedIds={highlightedListingIds} />
           </section>
         )}
 
