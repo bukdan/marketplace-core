@@ -235,8 +235,38 @@ export default function ListingDetail() {
   const location = listing.city || listing.province || 'Indonesia';
   const isOwnListing = listing.user_id === user?.id;
 
+  const primaryImage = listing.listing_images?.find(img => img.is_primary)?.image_url || listing.listing_images?.[0]?.image_url;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": listing.title,
+    "description": listing.description || '',
+    "image": primaryImage || '',
+    "offers": {
+      "@type": "Offer",
+      "price": listing.price,
+      "priceCurrency": "IDR",
+      "availability": listing.status === 'active' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "itemCondition": condition === 'new' ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
+      "seller": {
+        "@type": "Organization",
+        "name": listing.profiles?.name || 'Penjual UMKM ID'
+      }
+    },
+    "category": listing.categories?.name || '',
+    ...(sellerRating && sellerRating.total_reviews > 0 ? {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": sellerRating.average_rating,
+        "reviewCount": sellerRating.total_reviews
+      }
+    } : {})
+  };
+
   return (
     <MainLayout>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="container mx-auto px-4 py-6">
         {/* Status Banner */}
         {listing.status !== 'active' && (
