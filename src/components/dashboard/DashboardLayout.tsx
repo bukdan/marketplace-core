@@ -36,7 +36,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={false}>
         <div className="flex min-h-screen w-full">
           <DashboardSidebar />
           <SidebarInset className="flex-1">
