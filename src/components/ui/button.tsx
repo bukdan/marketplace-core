@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-primary via-primary/90 to-primary/80 text-primary-foreground shadow-[0_4px_14px_0_hsl(var(--primary)/0.4)] hover:shadow-[0_8px_25px_hsl(var(--primary)/0.5)] hover:scale-[1.03] hover:-translate-y-1 active:scale-[0.97] active:shadow-[0_2px_8px_hsl(var(--primary)/0.3)] bg-[length:200%_100%] hover:bg-right",
+          "bg-gradient-to-r from-[hsl(var(--chart-3))] via-[hsl(var(--chart-4))] to-[hsl(var(--primary))] text-primary-foreground shadow-[0_4px_14px_0_hsl(var(--primary)/0.4)] hover:shadow-[0_8px_25px_hsl(var(--primary)/0.5)] hover:scale-[1.03] hover:-translate-y-1 active:scale-[0.97] active:shadow-[0_2px_8px_hsl(var(--primary)/0.3)] bg-[length:200%_100%] hover:bg-right",
         destructive:
           "bg-gradient-to-r from-destructive via-destructive/90 to-destructive/70 text-destructive-foreground shadow-[0_4px_14px_0_hsl(var(--destructive)/0.4)] hover:shadow-[0_8px_25px_hsl(var(--destructive)/0.5)] hover:scale-[1.03] hover:-translate-y-1 active:scale-[0.97] bg-[length:200%_100%] hover:bg-right",
         outline:
