@@ -177,7 +177,7 @@ export const ListingCard = ({ listing, onClick, variant = 'default', isHighlight
               </div>
               <h3 className="line-clamp-2 text-sm font-semibold text-foreground mb-2">{listing.title}</h3>
               {listing.categories?.name && (
-                <Badge className="text-xs border-0 text-primary-foreground font-semibold bg-gradient-to-r from-primary via-primary/90 to-primary/70 shadow-md shadow-primary/25 mb-2">{listing.categories.name}</Badge>
+                <Badge className="text-xs border-0 text-primary-foreground font-semibold bg-gradient-to-r from-[hsl(var(--chart-3))] via-[hsl(var(--chart-4))] to-[hsl(var(--primary))] shadow-md shadow-primary/25 mb-2">{listing.categories.name}</Badge>
               )}
             </div>
             <div className="flex items-center justify-between text-xs text-muted-foreground border-t pt-2">
@@ -313,7 +313,7 @@ export const ListingCard = ({ listing, onClick, variant = 'default', isHighlight
 
         {/* Category Tag */}
         {listing.categories?.name && (
-          <Badge className="mb-2 text-[10px] border-0 text-primary-foreground font-semibold bg-gradient-to-r from-primary via-primary/90 to-primary/70 shadow-md shadow-primary/25">
+          <Badge className="mb-2 text-[10px] border-0 text-primary-foreground font-semibold bg-gradient-to-r from-[hsl(var(--chart-3))] via-[hsl(var(--chart-4))] to-[hsl(var(--primary))] shadow-md shadow-primary/25">
             {listing.categories.name}
           </Badge>
         )}

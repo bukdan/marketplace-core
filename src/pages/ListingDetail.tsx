@@ -334,7 +334,7 @@ export default function ListingDetail() {
                     value={tab.value}
                     className={cn(
                       "rounded-full font-semibold text-sm transition-all duration-300",
-                      "data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:via-primary/90 data-[state=active]:to-primary/70",
+                      "data-[state=active]:bg-gradient-to-r data-[state=active]:from-[hsl(var(--chart-3))] data-[state=active]:via-[hsl(var(--chart-4))] data-[state=active]:to-[hsl(var(--primary))]",
                       "data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_4px_20px_hsl(var(--primary)/0.4)]",
                       "data-[state=active]:scale-[1.02] data-[state=active]:-translate-y-0.5",
                       "hover:bg-accent/60 hover:scale-[1.01]"
