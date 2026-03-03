@@ -322,7 +322,7 @@ export default function ListingDetail() {
 
             {/* ===== TABS ===== */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="w-full grid grid-cols-4 h-12 bg-muted/70 rounded-xl p-1">
+              <TabsList className="w-full grid grid-cols-4 h-14 bg-muted/50 rounded-full p-1.5 gap-1.5 shadow-inner">
                 {[
                   { value: 'deskripsi', label: '📝 Deskripsi' },
                   { value: 'spesifikasi', label: '📋 Spesifikasi' },
@@ -333,9 +333,11 @@ export default function ListingDetail() {
                     key={tab.value}
                     value={tab.value}
                     className={cn(
-                      "rounded-lg font-semibold text-sm transition-all duration-300 data-[state=active]:shadow-lg",
-                      "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground",
-                      "hover:bg-accent/50"
+                      "rounded-full font-semibold text-sm transition-all duration-300",
+                      "data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:via-violet-500 data-[state=active]:to-fuchsia-500",
+                      "data-[state=active]:text-white data-[state=active]:shadow-[0_4px_20px_rgba(139,92,246,0.4)]",
+                      "data-[state=active]:scale-[1.02] data-[state=active]:-translate-y-0.5",
+                      "hover:bg-accent/60 hover:scale-[1.01]"
                     )}
                   >
                     {tab.label}
