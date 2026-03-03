@@ -74,7 +74,6 @@ export const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <img src={logoImg} alt="UMKM ID" className="h-8 w-auto" />
-            <span className="hidden text-lg font-bold text-foreground sm:block">UMKM ID</span>
           </Link>
 
           {/* Search Bar - Desktop */}
