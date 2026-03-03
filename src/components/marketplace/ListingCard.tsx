@@ -177,7 +177,7 @@ export const ListingCard = ({ listing, onClick, variant = 'default', isHighlight
               </div>
               <h3 className="line-clamp-2 text-sm font-semibold text-foreground mb-2">{listing.title}</h3>
               {listing.categories?.name && (
-                <Badge variant="secondary" className="text-xs bg-muted mb-2">{listing.categories.name}</Badge>
+                <Badge className="text-xs border-0 text-white font-semibold bg-gradient-to-r from-purple-600 via-violet-500 to-fuchsia-500 shadow-md shadow-purple-500/25 mb-2">{listing.categories.name}</Badge>
               )}
             </div>
             <div className="flex items-center justify-between text-xs text-muted-foreground border-t pt-2">
@@ -313,7 +313,7 @@ export const ListingCard = ({ listing, onClick, variant = 'default', isHighlight
 
         {/* Category Tag */}
         {listing.categories?.name && (
-          <Badge variant="secondary" className="mb-2 text-[10px] bg-muted">
+          <Badge className="mb-2 text-[10px] border-0 text-white font-semibold bg-gradient-to-r from-purple-600 via-violet-500 to-fuchsia-500 shadow-md shadow-purple-500/25">
             {listing.categories.name}
           </Badge>
         )}
