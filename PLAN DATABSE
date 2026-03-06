@@ -1,0 +1,526 @@
+1. Enable Extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+2. USER DOMAIN (15 tables)
+CREATE TABLE users (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email TEXT UNIQUE,
+  phone TEXT UNIQUE,
+  password_hash TEXT,
+  status TEXT DEFAULT 'active',
+  created_at TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE user_profiles (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id uuid REFERENCES users(id),
+  full_name TEXT,
+  avatar_url TEXT,
+  birthdate DATE,
+  gender TEXT
+);
+
+CREATE TABLE user_addresses (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id uuid REFERENCES users(id),
+  recipient_name TEXT,
+  phone TEXT,
+  province TEXT,
+  city TEXT,
+  district TEXT,
+  postal_code TEXT,
+  address TEXT,
+  is_default BOOLEAN DEFAULT false
+);
+
+CREATE TABLE user_sessions (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id uuid REFERENCES users(id),
+  token TEXT,
+  expired_at TIMESTAMP
+);
+
+CREATE TABLE user_devices (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id uuid REFERENCES users(id),
+  device_type TEXT,
+  device_token TEXT
+);
+
+CREATE TABLE user_roles (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT
+);
+
+CREATE TABLE user_permissions (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT
+);
+
+CREATE TABLE user_role_map (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id uuid REFERENCES users(id),
+  role_id uuid REFERENCES user_roles(id)
+);
+
+CREATE TABLE user_follow_store (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id uuid REFERENCES users(id),
+  store_id uuid
+);
+
+CREATE TABLE user_wishlists (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id uuid REFERENCES users(id)
+);
+
+CREATE TABLE user_wishlist_items (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  wishlist_id uuid REFERENCES user_wishlists(id),
+  product_id uuid
+);
+
+CREATE TABLE user_notifications (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id uuid REFERENCES users(id),
+  title TEXT,
+  message TEXT,
+  is_read BOOLEAN DEFAULT false
+);
+
+CREATE TABLE user_notification_settings (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id uuid REFERENCES users(id),
+  email_enabled BOOLEAN DEFAULT true,
+  push_enabled BOOLEAN DEFAULT true
+);
+
+CREATE TABLE user_security_logs (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id uuid REFERENCES users(id),
+  action TEXT,
+  ip_address TEXT,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE user_login_history (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id uuid REFERENCES users(id),
+  ip_address TEXT,
+  login_at TIMESTAMP DEFAULT now()
+);
+3. STORE DOMAIN (10 tables)
+CREATE TABLE stores (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  owner_id uuid REFERENCES users(id),
+  name TEXT,
+  slug TEXT UNIQUE,
+  rating NUMERIC DEFAULT 0,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE store_profiles (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id uuid REFERENCES stores(id),
+  description TEXT,
+  logo_url TEXT,
+  banner_url TEXT
+);
+
+CREATE TABLE store_addresses (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id uuid REFERENCES stores(id),
+  province TEXT,
+  city TEXT,
+  address TEXT
+);
+
+CREATE TABLE store_settings (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id uuid REFERENCES stores(id),
+  auto_accept_order BOOLEAN DEFAULT true
+);
+
+CREATE TABLE store_followers (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id uuid REFERENCES stores(id),
+  user_id uuid REFERENCES users(id)
+);
+
+CREATE TABLE store_staff (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id uuid REFERENCES stores(id),
+  user_id uuid REFERENCES users(id),
+  role TEXT
+);
+
+CREATE TABLE store_balance (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id uuid REFERENCES stores(id),
+  balance NUMERIC DEFAULT 0
+);
+
+CREATE TABLE store_balance_transactions (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id uuid REFERENCES stores(id),
+  amount NUMERIC,
+  type TEXT,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE store_verification (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id uuid REFERENCES stores(id),
+  status TEXT,
+  verified_at TIMESTAMP
+);
+
+CREATE TABLE store_reviews (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id uuid REFERENCES stores(id),
+  user_id uuid REFERENCES users(id),
+  rating INTEGER,
+  comment TEXT
+);
+4. PRODUCT DOMAIN (20 tables)
+CREATE TABLE categories (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT,
+  parent_id uuid
+);
+
+CREATE TABLE brands (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT
+);
+
+CREATE TABLE products (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  store_id uuid REFERENCES stores(id),
+  category_id uuid REFERENCES categories(id),
+  brand_id uuid REFERENCES brands(id),
+  name TEXT,
+  description TEXT,
+  status TEXT,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE product_variants (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  product_id uuid REFERENCES products(id),
+  sku TEXT,
+  price NUMERIC,
+  stock INTEGER
+);
+
+CREATE TABLE product_images (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  product_id uuid REFERENCES products(id),
+  image_url TEXT
+);
+
+CREATE TABLE product_tags (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT
+);
+
+CREATE TABLE product_tag_map (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  product_id uuid,
+  tag_id uuid
+);
+
+CREATE TABLE product_attributes (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT
+);
+
+CREATE TABLE product_attribute_values (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  attribute_id uuid,
+  value TEXT
+);
+
+CREATE TABLE product_variant_attributes (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  variant_id uuid,
+  attribute_value_id uuid
+);
+
+CREATE TABLE product_reviews (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  product_id uuid,
+  user_id uuid,
+  rating INTEGER,
+  comment TEXT
+);
+
+CREATE TABLE product_review_images (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  review_id uuid,
+  image_url TEXT
+);
+
+CREATE TABLE product_review_votes (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  review_id uuid,
+  user_id uuid
+);
+
+CREATE TABLE product_questions (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  product_id uuid,
+  user_id uuid,
+  question TEXT
+);
+
+CREATE TABLE product_answers (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  question_id uuid,
+  answer TEXT
+);
+
+CREATE TABLE product_views (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  product_id uuid,
+  user_id uuid,
+  viewed_at TIMESTAMP DEFAULT now()
+);
+5. CART DOMAIN (4 tables)
+CREATE TABLE carts (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id uuid
+);
+
+CREATE TABLE cart_items (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  cart_id uuid,
+  product_variant_id uuid,
+  quantity INTEGER
+);
+
+CREATE TABLE cart_sessions (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  session_id TEXT
+);
+
+CREATE TABLE cart_item_promotions (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  cart_item_id uuid,
+  promotion_id uuid
+);
+6. ORDER DOMAIN (15 tables)
+CREATE TABLE orders (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id uuid,
+  order_number TEXT,
+  total_amount NUMERIC,
+  status TEXT,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE order_items (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id uuid,
+  product_id uuid,
+  variant_id uuid,
+  store_id uuid,
+  price NUMERIC,
+  quantity INTEGER
+);
+
+CREATE TABLE order_status_history (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id uuid,
+  status TEXT,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE order_addresses (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id uuid,
+  address TEXT
+);
+
+CREATE TABLE order_notes (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id uuid,
+  note TEXT
+);
+
+CREATE TABLE order_cancellations (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id uuid,
+  reason TEXT
+);
+
+CREATE TABLE order_returns (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id uuid,
+  status TEXT
+);
+
+CREATE TABLE order_return_items (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  return_id uuid,
+  order_item_id uuid
+);
+
+CREATE TABLE order_refunds (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id uuid,
+  amount NUMERIC
+);
+
+CREATE TABLE order_taxes (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id uuid,
+  tax_amount NUMERIC
+);
+
+CREATE TABLE order_fees (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id uuid,
+  fee_amount NUMERIC
+);
+7. PAYMENT DOMAIN (6 tables)
+CREATE TABLE payments (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id uuid,
+  payment_provider TEXT,
+  amount NUMERIC,
+  status TEXT
+);
+
+CREATE TABLE payment_methods (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT
+);
+
+CREATE TABLE payment_transactions (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  payment_id uuid,
+  transaction_id TEXT
+);
+
+CREATE TABLE payment_callbacks (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  payment_id uuid,
+  payload JSONB
+);
+
+CREATE TABLE payment_refunds (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  payment_id uuid,
+  amount NUMERIC
+);
+
+CREATE TABLE payment_disputes (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  payment_id uuid,
+  reason TEXT
+);
+8. SHIPPING DOMAIN (7 tables)
+CREATE TABLE shipments (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id uuid,
+  courier TEXT,
+  tracking_number TEXT,
+  status TEXT
+);
+
+CREATE TABLE shipment_items (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  shipment_id uuid,
+  order_item_id uuid
+);
+
+CREATE TABLE shipment_tracking (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  shipment_id uuid,
+  status TEXT,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE shipment_rates (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  courier TEXT,
+  rate NUMERIC
+);
+
+CREATE TABLE shipment_couriers (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT
+);
+
+CREATE TABLE shipment_labels (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  shipment_id uuid,
+  label_url TEXT
+);
+
+CREATE TABLE shipment_events (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  shipment_id uuid,
+  description TEXT
+);
+9. PROMOTION DOMAIN (8 tables)
+CREATE TABLE promotions (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT,
+  type TEXT
+);
+
+CREATE TABLE promotion_rules (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  promotion_id uuid,
+  rule TEXT
+);
+
+CREATE TABLE promotion_products (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  promotion_id uuid,
+  product_id uuid
+);
+
+CREATE TABLE promotion_categories (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  promotion_id uuid,
+  category_id uuid
+);
+
+CREATE TABLE coupons (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  code TEXT,
+  discount NUMERIC
+);
+
+CREATE TABLE coupon_usages (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  coupon_id uuid,
+  user_id uuid
+);
+
+CREATE TABLE flash_sales (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT
+);
+
+CREATE TABLE flash_sale_products (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  flash_sale_id uuid,
+  product_id uuid
+);
+TOTAL TABLE COUNT
+
+Approximate:
+
+User Domain           15
+Store Domain          10
+Product Domain        17
+Cart Domain            4
+Order Domain          11
+Payment Domain         6
+Shipping Domain        7
+Promotion Domain       8
+--------------------------------
